@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -15,7 +17,7 @@ Route::middleware([
     // If the authenticated user does NOT have the admin role, redirect them
     // to the `not-authorized` route where we will show a placeholder view.
     Route::get('/dashboard', function () {
-        $user = auth()->user();
+        $user = auth ()->user();
 
         // If the user model has a `hasRole` method (e.g. spatie/permission),
         // use it to check the role. If not, fall back to checking a `role`

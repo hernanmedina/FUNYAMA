@@ -103,6 +103,7 @@
                                 {{ __('Manage Account') }}
                             </div>
 
+                            {{--menu del perfil del dashboard en admin--}}
                             <x-dropdown-link href="{{ route('profile.show') }}">
                                 {{ __('Profile') }}
                             </x-dropdown-link>
