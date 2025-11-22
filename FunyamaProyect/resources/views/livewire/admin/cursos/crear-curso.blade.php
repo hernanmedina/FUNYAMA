@@ -47,11 +47,11 @@
 
                             <!-- Cronograma -->
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Cronograma *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Horarios *</label>
                                 <textarea wire:model="cronograma"
                                           rows="3"
                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                          placeholder="Describe el plan de estudios y cronograma..."></textarea>
+                                          placeholder="Describe el plan de estudios y horarios..."></textarea>
                                 @error('cronograma') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
 
@@ -254,13 +254,13 @@
         <!-- FIN del formulario -->
 
         <!-- Botón de prueba temporal (eliminar después) -->
-        <div class="mt-4 p-4 bg-yellow-100 border border-yellow-400 rounded-lg">
-            <h3 class="text-lg font-semibold text-yellow-800">Depuración</h3>
-            <p class="text-yellow-700">Si el formulario aún no funciona, prueba con este botón:</p>
-            <button wire:click="guardarCurso"
-                    class="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
-                Crear Curso (Forzar)
-            </button>
-        </div>
+{{--        <div class="mt-4 p-4 bg-yellow-100 border border-yellow-400 rounded-lg">--}}
+{{--            <h3 class="text-lg font-semibold text-yellow-800">Depuración</h3>--}}
+{{--            <p class="text-yellow-700">Si el formulario aún no funciona, prueba con este botón:</p>--}}
+{{--            <button wire:click="guardarCurso"--}}
+{{--                    class="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">--}}
+{{--                Crear Curso (Forzar)--}}
+{{--            </button>--}}
+{{--        </div>--}}
     </div>
 </div>

@@ -24,6 +24,13 @@
                     </svg>
                     Nuevo Curso
                 </a>
+                <a href="{{ route('admin.cursos.eliminados') }}"
+                   class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg flex items-center border border-gray-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h4l3 8 4-16 3 8h4"/>
+                    </svg>
+                    Cursos eliminados
+                </a>
             </div>
         </div>
 
@@ -58,15 +65,14 @@
                     <table class="min-w-full table-fixed divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                         <tr>
-                            <th class="w-12 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <input type="checkbox" wire:model.live="selectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                            </th>
+                            <th class="w-24 px-6 py-8"></th>
 
-                            <!-- Imagen fija + Nombre -->
-                            <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                            <th class="w-64 px-10 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                                 wire:click="sortBy('nombre')">
                                 Nombre
                             </th>
+
+                            <th class="w-24 px-6 py-8"></th>
 
                             <th class="w-36 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Cupos
@@ -89,6 +95,7 @@
                             </th>
                         </tr>
                         </thead>
+
 
                         <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($cursos as $curso)

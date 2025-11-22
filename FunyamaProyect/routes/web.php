@@ -1,13 +1,18 @@
 <?php
 
+use App\Livewire\Admin\Cursos\CursosEliminados;
+use App\Livewire\Estudiante\Estudiantes;
 use App\Livewire\Admin\Cursos\CrearCurso;
 use App\Livewire\Admin\Cursos\EditarCurso;
-use App\Livewire\Admin\Cursos\MostrarCurso;
 use App\Livewire\Admin\Cursos\IndexCursos;
-use App\Livewire\Admin\DashboardAdmin; // ← NUEVO IMPORT
+use App\Livewire\Admin\Cursos\MostrarCurso;
+use App\Livewire\Admin\DashboardAdmin;
 use App\Livewire\Cursos;
 use App\Livewire\Estudiante\DashboardEstudiante;
+use App\Livewire\Estudiante\EstudiantesEliminados;
 use Illuminate\Support\Facades\Route;
+
+// ← NUEVO IMPORT
 
 // Página principal
 Route::get('/', function () {
@@ -55,6 +60,7 @@ Route::middleware([
             Route::get('/crear', CrearCurso::class)->name('create');
             Route::get('/{curso}', MostrarCurso::class)->name('show');
             Route::get('/{curso}/editar', EditarCurso::class)->name('edit');
+            Route::get('/eliminados', CursosEliminados::class)->name('eliminados');
         });
     });
 
@@ -62,4 +68,13 @@ Route::middleware([
     Route::prefix('estudiante')->name('estudiante.')->group(function () {
         Route::get('/dashboard', DashboardEstudiante::class)->name('dashboard');
     });
+
+    // ----------- ESTUDIANTES ELIMINADOS SOFTDELETE -----------
+    Route::get('/estudiantes/eliminados', EstudiantesEliminados::class)
+        ->name('estudiantes.eliminados');
+
+    // ----------- ESTUDIANTES INDEX -----------
+    Route::get('/estudiantes', Estudiantes::class)
+        ->name('estudiantes.index');
+
 });
