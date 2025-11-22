@@ -24,6 +24,13 @@
                     </svg>
                     Nuevo Curso
                 </a>
+                <a href="{{ route('admin.cursos.eliminados') }}"
+                   class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg flex items-center border border-gray-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h4l3 8 4-16 3 8h4"/>
+                    </svg>
+                    Cursos eliminados
+                </a>
             </div>
         </div>
 

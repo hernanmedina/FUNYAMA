@@ -4,6 +4,7 @@ use App\Livewire\Admin\Cursos\CrearCurso;
 use App\Livewire\Admin\Cursos\EditarCurso;
 use App\Livewire\Admin\Cursos\MostrarCurso;
 use App\Livewire\Admin\Cursos\IndexCursos;
+use App\Livewire\Admin\Cursos\CursosEliminados;
 use App\Livewire\Admin\DashboardAdmin; // ← NUEVO IMPORT
 use App\Livewire\Cursos;
 use App\Livewire\Estudiante\DashboardEstudiante;
@@ -52,6 +53,7 @@ Route::middleware([
         // Gestión de cursos
         Route::prefix('cursos')->name('cursos.')->group(function () {
             Route::get('/', IndexCursos::class)->name('index');
+            Route::get('/eliminados', CursosEliminados::class)->name('eliminados');
             Route::get('/crear', CrearCurso::class)->name('create');
             Route::get('/{curso}', MostrarCurso::class)->name('show');
             Route::get('/{curso}/editar', EditarCurso::class)->name('edit');
