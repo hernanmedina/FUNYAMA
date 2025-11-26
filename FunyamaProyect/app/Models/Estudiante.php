@@ -46,4 +46,10 @@ class Estudiante extends Model
     {
         return $this->hasMany(Solicitud::class, 'user_id', 'user_id');
     }
+
+    public function certificados()
+    {
+        return $this->hasMany(Certificado::class, 'estudiante_id', 'idEstudiante');
+    }
 }
+

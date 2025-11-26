@@ -26,8 +26,8 @@
                         Restaurar Seleccionados ({{ count($selected) }})
                     </button>
                 @endif
-                <a href="{{ route('estudiantes.index') }}"
-                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                <a href="{{ route('admin.estudiantes.index') }}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
@@ -105,14 +105,14 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <div class="text-sm font-medium text-gray-900">{{ $estudiante->nombre }}</div>
+                                            <div class="text-sm font-medium text-gray-900">{{ $estudiante->user->name }} {{ $estudiante->user->apellido ?? '' }}</div>
                                             <div class="text-sm text-gray-500">ID: {{ $estudiante->idEstudiante }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $estudiante->email }}</div>
-                                    <div class="text-sm text-gray-500">{{ $estudiante->telefono ?? 'Sin teléfono' }}</div>
+                                    <div class="text-sm text-gray-900">{{ $estudiante->user->email }}</div>
+                                    <div class="text-sm text-gray-500">{{ $estudiante->user->telefono ?? 'Sin teléfono' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <div class="flex items-center text-red-600">
@@ -162,7 +162,7 @@
                     <h3 class="mt-4 text-lg font-medium text-gray-900">No hay estudiantes eliminados</h3>
                     <p class="mt-2 text-sm text-gray-500">No se encontraron estudiantes eliminados lógicamente.</p>
                     <div class="mt-6">
-                        <a href="{{ route('estudiantes.index') }}"
+                        <a href="{{ route('admin.estudiantes.index') }}"
                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Volver a Estudiantes Activos
                         </a>

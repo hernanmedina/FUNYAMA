@@ -6,6 +6,7 @@ namespace App\Livewire\Estudiante;
 use App\Models\Estudiante;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Str;
 
 class EstudiantesEliminados extends Component
 {
@@ -33,15 +34,23 @@ class EstudiantesEliminados extends Component
 
     public function getEstudiantesEliminadosProperty()
     {
-        return Estudiante::onlyTrashed()
-            ->when($this->search, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('nombre', 'like', '%' . $this->search . '%')
-                        ->orWhere('email', 'like', '%' . $this->search . '%')
-                        ->orWhere('telefono', 'like', '%' . $this->search . '%');
-                });
-            })
-            ->orderBy('deleted_at', 'desc')
+        $query = Estudiante::onlyTrashed()
+            ->select('estudiantes.*')
+            ->join('users', 'estudiantes.user_id', '=', 'users.id')
+            ->with('user');
+
+        if ($this->search) {
+            $s = '%' . $this->search . '%';
+            $query->where(function ($q) use ($s) {
+                $q->where('users.name', 'like', $s)
+                    ->orWhere('users.apellido', 'like', $s)
+                    ->orWhere('users.email', 'like', $s)
+                    ->orWhere('users.telefono', 'like', $s)
+                    ->orWhere('estudiantes.matricula', 'like', $s);
+            });
+        }
+
+        return $query->orderBy('estudiantes.deleted_at', 'desc')
             ->paginate($this->perPage);
     }
 
@@ -49,6 +58,7 @@ class EstudiantesEliminados extends Component
     {
         $estudiante = Estudiante::onlyTrashed()->findOrFail($idEstudiante);
         $estudiante->restore();
+        $this->resetPage();
 
         $this->dispatch('show-toast', [
             'type' => 'success',
@@ -65,6 +75,7 @@ class EstudiantesEliminados extends Component
 
             $this->selected = [];
             $this->selectAll = false;
+            $this->resetPage();
 
             $this->dispatch('show-toast', [
                 'type' => 'success',
@@ -81,6 +92,7 @@ class EstudiantesEliminados extends Component
         // $estudiante->cursos()->detach();
 
         $estudiante->forceDelete();
+        $this->resetPage();
 
         $this->dispatch('show-toast', [
             'type' => 'success',
@@ -103,6 +115,7 @@ class EstudiantesEliminados extends Component
 
             $this->selected = [];
             $this->selectAll = false;
+            $this->resetPage();
 
             $this->dispatch('show-toast', [
                 'type' => 'success',

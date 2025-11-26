@@ -6,6 +6,7 @@ namespace App\Livewire\Estudiante;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Estudiante;
+use Illuminate\Support\Str;
 
 class Estudiantes extends Component
 {
@@ -15,7 +16,7 @@ class Estudiantes extends Component
     public $perPage = 10;
     public $selected = [];
     public $selectAll = false;
-    public $sortField = 'nombre';
+    public $sortField = 'name';
     public $sortDirection = 'asc';
 
     protected $queryString = [
@@ -47,23 +48,39 @@ class Estudiantes extends Component
 
     public function getEstudiantesProperty()
     {
-        return Estudiante::query()
-            ->when($this->search, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('nombre', 'like', '%' . $this->search . '%')
-                        ->orWhere('email', 'like', '%' . $this->search . '%')
-                        ->orWhere('telefono', 'like', '%' . $this->search . '%')
-                        ->orWhere('documento_identidad', 'like', '%' . $this->search . '%');
-                });
-            })
-            ->orderBy($this->sortField, $this->sortDirection)
+        $query = Estudiante::query()
+            ->select('estudiantes.*')
+            ->join('users', 'estudiantes.user_id', '=', 'users.id')
+            ->with('user');
+
+        if ($this->search) {
+            $s = '%' . $this->search . '%';
+            $query->where(function ($q) use ($s) {
+                $q->where('users.name', 'like', $s)
+                    ->orWhere('users.apellido', 'like', $s)
+                    ->orWhere('users.email', 'like', $s)
+                    ->orWhere('users.telefono', 'like', $s)
+                    ->orWhere('estudiantes.matricula', 'like', $s);
+            });
+        }
+
+        // Map sort field to proper table
+        $userFields = ['name', 'apellido', 'email', 'telefono'];
+        if (in_array($this->sortField, $userFields, true)) {
+            $orderBy = 'users.' . $this->sortField;
+        } else {
+            $orderBy = 'estudiantes.' . $this->sortField;
+        }
+
+        return $query->orderBy($orderBy, $this->sortDirection)
             ->paginate($this->perPage);
     }
 
     public function toggleEstado($idEstudiante)
     {
         $estudiante = Estudiante::findOrFail($idEstudiante);
-        $estudiante->estado = $estudiante->estado === 'activo' ? 'inactivo' : 'activo';
+        // El modelo usa el campo 'activo' (boolean)
+        $estudiante->activo = !$estudiante->activo;
         $estudiante->save();
 
         session()->flash('message', 'Estado del estudiante actualizado correctamente.');

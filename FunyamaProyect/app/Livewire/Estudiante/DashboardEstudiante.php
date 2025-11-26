@@ -7,6 +7,8 @@ use App\Models\Curso;
 use App\Models\Estudiante;
 use Illuminate\Support\Facades\Auth;
 
+#[Layout('layouts.app')] 
+
 class DashboardEstudiante extends Component
 {
     public $cursosInscritos;

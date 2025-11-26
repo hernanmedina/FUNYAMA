@@ -11,7 +11,7 @@
     <div class="px-6 py-4 space-y-4">
 
         <div>
-            <h3 class="font-semibold text-blue-700">Cronograma:</h3>
+            <h3 class="font-semibold text-blue-700">Horario:</h3>
             <p class="text-gray-700">{{ $cronograma }}</p>
         </div>
 

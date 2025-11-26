@@ -60,6 +60,11 @@ class Curso extends Model
             ->withTimestamps();
     }
 
+    public function certificados()
+    {
+        return $this->hasMany(Certificado::class, 'curso_id', 'idCurso');
+    }
+
     // Scopes
     public function scopePublicados($query)
     {

@@ -30,7 +30,7 @@ return new class extends Migration
             $table->boolean('destacado')->default(false);
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_fin')->nullable();
-            $table->unsignedBigInteger('creado_por_admin');
+            $table->unsignedBigInteger('creado_por_admin')->nullable(); // Campo que falta
             $table->softDeletes();
             $table->timestamps();
 
