@@ -32,12 +32,12 @@ class Certificado extends Model
     // Relaciones
     public function estudiante()
     {
-        return $this->belongsTo(Estudiante::class, 'estudiante_id', 'idEstudiante');
+        return $this->belongsTo(Estudiante::class, 'estudiante_id', 'codigo');
     }
 
     public function curso()
     {
-        return $this->belongsTo(Curso::class, 'curso_id', 'idCurso');
+        return $this->belongsTo(Curso::class, 'curso_id', 'codigo');
     }
 
     // Generar número de certificado único

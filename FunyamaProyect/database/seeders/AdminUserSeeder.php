@@ -58,7 +58,7 @@ class AdminUserSeeder extends Seeder
             Estudiante::updateOrCreate(
                 ['user_id' => $estudianteUser->id],
                 [
-                    'matricula' => 'EST' . str_pad($estudianteUser->id, 6, '0', STR_PAD_LEFT),
+                    'codigo' => 'EST' . str_pad($estudianteUser->id, 6, '0', STR_PAD_LEFT),
                     'fecha_nacimiento' => '2000-05-15',
                     'genero' => 'femenino',
                     'nivel_educativo' => 'Universidad',
@@ -128,7 +128,7 @@ class AdminUserSeeder extends Seeder
                     array_merge(
                         $estudianteData['estudiante'],
                         [
-                            'matricula' => 'EST' . str_pad($user->id, 6, '0', STR_PAD_LEFT),
+                            'codigo' => 'EST' . str_pad($user->id, 6, '0', STR_PAD_LEFT),
                             'fecha_registro' => now(),
                             'activo' => true,
                         ]

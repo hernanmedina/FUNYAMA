@@ -60,7 +60,7 @@ class Estudiantes extends Component
                     ->orWhere('users.apellido', 'like', $s)
                     ->orWhere('users.email', 'like', $s)
                     ->orWhere('users.telefono', 'like', $s)
-                    ->orWhere('estudiantes.matricula', 'like', $s);
+                    ->orWhere('estudiantes.codigo', 'like', $s);
             });
         }
 
@@ -76,9 +76,9 @@ class Estudiantes extends Component
             ->paginate($this->perPage);
     }
 
-    public function toggleEstado($idEstudiante)
+    public function toggleEstado($codigoEstudiante)
     {
-        $estudiante = Estudiante::findOrFail($idEstudiante);
+        $estudiante = Estudiante::where('codigo', $codigoEstudiante)->firstOrFail();
         // El modelo usa el campo 'activo' (boolean)
         $estudiante->activo = !$estudiante->activo;
         $estudiante->save();
@@ -86,9 +86,9 @@ class Estudiantes extends Component
         session()->flash('message', 'Estado del estudiante actualizado correctamente.');
     }
 
-    public function deleteEstudiante($idEstudiante)
+    public function deleteEstudiante($codigoEstudiante)
     {
-        $estudiante = Estudiante::findOrFail($idEstudiante);
+        $estudiante = Estudiante::where('codigo', $codigoEstudiante)->firstOrFail();
         $estudiante->delete(); // Soft delete
 
         session()->flash('message', 'Estudiante eliminado correctamente.');
@@ -97,7 +97,7 @@ class Estudiantes extends Component
     public function bulkDelete()
     {
         if (count($this->selected) > 0) {
-            Estudiante::whereIn('idEstudiante', $this->selected)->delete();
+            Estudiante::whereIn('codigo', $this->selected)->delete();
 
             $this->selected = [];
             $this->selectAll = false;
@@ -109,7 +109,7 @@ class Estudiantes extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selected = $this->estudiantes->pluck('idEstudiante')->toArray();
+            $this->selected = $this->estudiantes->pluck('codigo')->toArray();
         } else {
             $this->selected = [];
         }

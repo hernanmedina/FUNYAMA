@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Estudiante;
 use App\Models\Curso;
 use App\Models\Certificado;
+use App\Models\Administrador;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -15,7 +16,33 @@ class EstudianteSeeder extends Seeder
 {
     public function run(): void
     {
-        // ✅ CORRECTO - Crear usuario estudiante
+        // ✅ Crear usuario administrador
+        $userAdmin = User::firstOrCreate(
+            ['email' => 'admin@funyama.com'],
+            [
+                'name' => 'Admin',
+                'apellido' => 'FunYama',
+                'email' => 'admin@funyama.com',
+                'password' => Hash::make('admin123456'),
+                'role' => 'admin',
+                'telefono' => '9999999999',
+            ]
+        );
+
+        // ✅ Crear administrador vinculado
+        $admin = Administrador::firstOrCreate(
+            ['user_id' => $userAdmin->id],
+            [
+                'user_id' => $userAdmin->id,
+                'departamento' => 'Sistemas',
+                'cargo' => 'Administrador General',
+                'telefono_contacto' => '9999999999',
+                'super_admin' => true,
+                'fecha_ingreso' => now(),
+            ]
+        );
+
+        // ✅ Crear usuario estudiante
         $user = User::firstOrCreate(
             ['email' => 'estudiante2@funyama.com'],
             [
@@ -29,12 +56,13 @@ class EstudianteSeeder extends Seeder
             ]
         );
 
-        // ✅ CORRECTO - Crear estudiante vinculado
+        // ✅ Crear estudiante vinculado
+        $codigoEstudiante = 'EST-' . date('Y') . '-001';
         $estudiante = Estudiante::firstOrCreate(
-            ['user_id' => $user->id],
+            ['codigo' => $codigoEstudiante],
             [
+                'codigo' => $codigoEstudiante,
                 'user_id' => $user->id,
-                'matricula' => 'EST000001',
                 'fecha_nacimiento' => now()->subYears(25),
                 'genero' => 'masculino',
                 'nivel_educativo' => 'Universitario',
@@ -44,26 +72,12 @@ class EstudianteSeeder extends Seeder
             ]
         );
 
-        // ⚠️ AJUSTE NECESARIO - Asegurar que existe un admin para la relación
-        // VERIFICAR ADMINISTRADOR - Agregar esto antes de crear el curso
-        // $admin = \App\Models\Administrador::first();
-        // if (!$admin) {
-        //     // Si no existe administrador, crear uno temporal
-        //     $admin = \App\Models\Administrador::create([
-        //         'nombre' => 'Admin FunYama',
-        //         'email' => 'admin@funyama.com',
-        //         'password' => Hash::make('admin123'),
-        //         'role' => 'admin',
-        //         'activo' => true,
-        //         // ... otros campos según tu migración de administradores
-        //     ]);
-        //     $this->command->info('✅ Administrador temporal creado: admin@funyama.com / admin123');
-        // }
-
-        // ✅ CORRECTO - Crear curso
+        // ✅ Crear curso
+        $codigoCurso = 'CUR-' . date('Y') . '-001';
         $curso = Curso::firstOrCreate(
-            ['nombre' => 'Laravel Avanzado'],
+            ['codigo' => $codigoCurso],
             [
+                'codigo' => $codigoCurso,
                 'nombre' => 'Laravel Avanzado',
                 'slug' => 'laravel-avanzado',
                 'descripcion' => 'Curso avanzado de Laravel con mejores prácticas',
@@ -79,33 +93,36 @@ class EstudianteSeeder extends Seeder
                 'destacado' => true,
                 'cupo_total' => 30,
                 'cupo_disponible' => 25,
-                'creado_por_admin' => 1, // $admin->idAdmin, ✅ Usar idAdmin del administrador
+                'creado_por_admin' => $admin->idAdmin,
             ]
         );
 
-        // ✅ CORRECTO - Usar el método existente
-        $numeroCertificado = Certificado::generarNumeroCertificado($estudiante->idEstudiante, $curso->idCurso);
+        // ✅ Crear certificado con códigos
+        $numeroCertificado = 'CERT-' . date('Y') . '-' . str_pad($codigoEstudiante, 10, '0', STR_PAD_LEFT) . '-' . str_pad($codigoCurso, 10, '0', STR_PAD_LEFT);
         
-        // ✅ CORRECTO - Crear certificado
         Certificado::firstOrCreate(
             [
-                'estudiante_id' => $estudiante->idEstudiante, 
-                'curso_id' => $curso->idCurso
+                'estudiante_id' => $codigoEstudiante, 
+                'curso_id' => $codigoCurso
             ],
             [
-                'estudiante_id' => $estudiante->idEstudiante,
-                'curso_id' => $curso->idCurso,
+                'estudiante_id' => $codigoEstudiante,
+                'curso_id' => $codigoCurso,
                 'numero_certificado' => $numeroCertificado,
                 'fecha_emision' => now()->subDays(10),
                 'calificacion_final' => 9.5,
-                'archivo_path' => 'certificados/est-' . $estudiante->idEstudiante . '-curso-' . $curso->idCurso . '.pdf',
+                'archivo_path' => 'certificados/est-' . $codigoEstudiante . '-curso-' . $codigoCurso . '.pdf',
                 'descargas' => 2,
                 'ultima_descarga' => now()->subDays(5),
             ]
         );
 
-        $this->command->info('Seeder de estudiante ejecutado correctamente.');
-        $this->command->info('Email: estudiante2@funyama.com');
-        $this->command->info('Contraseña: estudiante1234');
+        $this->command->info('✅ Seeder de estudiante ejecutado correctamente.');
+        $this->command->info('📧 Email Estudiante: estudiante2@funyama.com');
+        $this->command->info('🔐 Contraseña Estudiante: estudiante1234');
+        $this->command->info('📧 Email Admin: admin@funyama.com');
+        $this->command->info('🔐 Contraseña Admin: admin123456');
+        $this->command->info('🎓 Código Estudiante: ' . $codigoEstudiante);
+        $this->command->info('📚 Código Curso: ' . $codigoCurso);
     }
 }

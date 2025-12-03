@@ -43,15 +43,15 @@ class IndexCursos extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selected = $this->cursos->pluck('idCurso')->toArray();
+            $this->selected = $this->cursos->pluck('codigo')->toArray();
         } else {
             $this->selected = [];
         }
     }
 
-    public function deleteCurso($cursoId)
+    public function deleteCurso($cursoCodigo)
     {
-        $curso = Curso::findOrFail($cursoId);
+        $curso = Curso::where('codigo', $cursoCodigo)->firstOrFail();
 
         // Verificar si hay estudiantes inscritos antes de eliminar
         if ($curso->estudiantes()->count() > 0) {
@@ -82,7 +82,7 @@ class IndexCursos extends Component
         }
 
         // Verificar que ningún curso seleccionado tenga estudiantes
-        $cursosConEstudiantes = Curso::whereIn('idCurso', $this->selected)
+        $cursosConEstudiantes = Curso::whereIn('codigo', $this->selected)
             ->whereHas('estudiantes')
             ->count();
 
@@ -94,7 +94,7 @@ class IndexCursos extends Component
             return;
         }
 
-        Curso::whereIn('idCurso', $this->selected)->delete();
+        Curso::whereIn('codigo', $this->selected)->delete();
 
         $this->selected = [];
         $this->dispatch('show-toast',

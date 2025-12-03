@@ -29,9 +29,9 @@ class DashboardEstudiante extends Component
                 ->get();
 
             // Cursos disponibles (no inscritos y publicados)
-            $cursosInscritosIds = $estudiante->cursos()->pluck('cursos.idCurso');
+            $cursosInscritosIds = $estudiante->cursos()->pluck('cursos.codigo');
             $this->cursosDisponibles = Curso::where('publicado', true)
-                ->whereNotIn('idCurso', $cursosInscritosIds)
+                ->whereNotIn('codigo', $cursosInscritosIds)
                 ->where('cupo_disponible', '>', 0)
                 ->where('fecha_inicio', '>=', now())
                 ->orderBy('fecha_inicio', 'asc')
@@ -48,10 +48,10 @@ class DashboardEstudiante extends Component
         }
     }
 
-    public function inscribirCurso($cursoId)
+    public function inscribirCurso($codigo)
     {
         $estudiante = Auth::user()->estudiante;
-        $curso = Curso::find($cursoId);
+        $curso = Curso::where('codigo', $codigo)->first();
 
         if (!$curso) {
             $this->dispatch('show-toast',
@@ -70,7 +70,7 @@ class DashboardEstudiante extends Component
         }
 
         // Verificar si ya está inscrito
-        if ($estudiante->cursos()->where('curso_id', $cursoId)->exists()) {
+        if ($estudiante->cursos()->where('codigo', $codigo)->exists()) {
             $this->dispatch('show-toast',
                 type: 'warning',
                 message: 'Ya estás inscrito en este curso.'
@@ -80,7 +80,7 @@ class DashboardEstudiante extends Component
 
         try {
             // Inscribir al estudiante
-            $estudiante->cursos()->attach($cursoId, [
+            $estudiante->cursos()->attach($codigo, [
                 'estado' => 'inscrito',
                 'fecha_inscripcion' => now(),
                 'pago_realizado' => $curso->precioFinal,

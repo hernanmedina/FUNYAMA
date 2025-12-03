@@ -11,14 +11,14 @@ use Livewire\Attributes\Layout;
 #[Layout('layouts.app')] // Cambiar a layouts.app
 class EditarEstudiante extends Component
 {
-    public $estudianteId;
+    public $estudianteCodigo;
 
     public $name;
     public $apellido;
     public $email;
     public $telefono;
 
-    public $matricula;
+    public $codigo;
     public $fecha_nacimiento;
     public $genero;
     public $nivel_educativo;
@@ -31,7 +31,7 @@ class EditarEstudiante extends Component
         'email' => 'required|email',
         'telefono' => 'nullable|string|max:30',
 
-        'matricula' => 'nullable|string|max:100',
+        'codigo' => 'nullable|string|max:100',
         'fecha_nacimiento' => 'nullable|date',
         'genero' => 'nullable|in:masculino,femenino,otro',
         'nivel_educativo' => 'nullable|string|max:255',
@@ -42,14 +42,14 @@ class EditarEstudiante extends Component
     public function mount($estudiante)
     {
         $e = Estudiante::with('user')->findOrFail($estudiante);
-        $this->estudianteId = $e->idEstudiante;
+        $this->estudianteCodigo = $e->codigo;
 
         $this->name = $e->user->name;
         $this->apellido = $e->user->apellido;
         $this->email = $e->user->email;
         $this->telefono = $e->user->telefono;
 
-        $this->matricula = $e->matricula;
+        $this->codigo = $e->codigo;
         $this->fecha_nacimiento = $e->fecha_nacimiento ? (string) $e->fecha_nacimiento : null;
         $this->genero = $e->genero;
         $this->nivel_educativo = $e->nivel_educativo;
@@ -61,7 +61,7 @@ class EditarEstudiante extends Component
     {
         $this->validate();
 
-        $e = Estudiante::findOrFail($this->estudianteId);
+        $e = Estudiante::findOrFail($this->estudianteCodigo);
 
         // Update user
         $user = $e->user;
@@ -72,7 +72,7 @@ class EditarEstudiante extends Component
         $user->save();
 
         // Update estudiante
-        $e->matricula = $this->matricula;
+        $e->codigo = $this->codigo;
         $e->fecha_nacimiento = $this->fecha_nacimiento;
         $e->genero = $this->genero;
         $e->nivel_educativo = $this->nivel_educativo;

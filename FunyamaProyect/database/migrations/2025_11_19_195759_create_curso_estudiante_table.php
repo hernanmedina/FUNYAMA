@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('curso_estudiante', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('curso_id');
-            $table->unsignedBigInteger('estudiante_id');
+            $table->string('curso_id');
+            $table->string('estudiante_id');
             $table->enum('estado', ['inscrito', 'en_progreso', 'completado', 'cancelado'])->default('inscrito');
             $table->decimal('calificacion', 3, 1)->nullable();
             $table->text('comentario_calificacion')->nullable();
@@ -24,8 +24,8 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->foreign('curso_id')->references('idCurso')->on('cursos')->onDelete('cascade');
-            $table->foreign('estudiante_id')->references('idEstudiante')->on('estudiantes')->onDelete('cascade');
+            $table->foreign('curso_id')->references('codigo')->on('cursos')->onDelete('cascade');
+            $table->foreign('estudiante_id')->references('codigo')->on('estudiantes')->onDelete('cascade');
 
             $table->unique(['curso_id', 'estudiante_id']);
             $table->index(['estado', 'estado_pago']);

@@ -11,9 +11,12 @@ class Curso extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'cursos';
-    protected $primaryKey = 'idCurso';
+    protected $primaryKey = 'codigo';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
+        'codigo',
         'nombre',
         'slug',
         'descripcion',
@@ -62,7 +65,7 @@ class Curso extends Model
 
     public function certificados()
     {
-        return $this->hasMany(Certificado::class, 'curso_id', 'idCurso');
+        return $this->hasMany(Certificado::class, 'curso_id', 'codigo');
     }
 
     // Scopes

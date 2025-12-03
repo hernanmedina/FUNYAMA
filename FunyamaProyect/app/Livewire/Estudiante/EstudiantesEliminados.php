@@ -46,7 +46,7 @@ class EstudiantesEliminados extends Component
                     ->orWhere('users.apellido', 'like', $s)
                     ->orWhere('users.email', 'like', $s)
                     ->orWhere('users.telefono', 'like', $s)
-                    ->orWhere('estudiantes.matricula', 'like', $s);
+                    ->orWhere('estudiantes.codigo', 'like', $s);
             });
         }
 
@@ -54,9 +54,9 @@ class EstudiantesEliminados extends Component
             ->paginate($this->perPage);
     }
 
-    public function restaurar($idEstudiante)
+    public function restaurar($codigo)
     {
-        $estudiante = Estudiante::onlyTrashed()->findOrFail($idEstudiante);
+        $estudiante = Estudiante::onlyTrashed()->where('codigo', $codigo)->firstOrFail();
         $estudiante->restore();
         $this->resetPage();
 
@@ -70,7 +70,7 @@ class EstudiantesEliminados extends Component
     {
         if (count($this->selected) > 0) {
             Estudiante::onlyTrashed()
-                ->whereIn('idEstudiante', $this->selected)
+                ->whereIn('codigo', $this->selected)
                 ->restore();
 
             $this->selected = [];
@@ -84,9 +84,9 @@ class EstudiantesEliminados extends Component
         }
     }
 
-    public function eliminarPermanentemente($idEstudiante)
+    public function eliminarPermanentemente($codigo)
     {
-        $estudiante = Estudiante::onlyTrashed()->findOrFail($idEstudiante);
+        $estudiante = Estudiante::onlyTrashed()->where('codigo', $codigo)->firstOrFail();
 
         // Si tienes relaciones, eliminarlas aquí primero
         // $estudiante->cursos()->detach();
@@ -104,7 +104,7 @@ class EstudiantesEliminados extends Component
     {
         if (count($this->selected) > 0) {
             $estudiantes = Estudiante::onlyTrashed()
-                ->whereIn('idEstudiante', $this->selected)
+                ->whereIn('codigo', $this->selected)
                 ->get();
 
             foreach ($estudiantes as $estudiante) {
@@ -127,7 +127,7 @@ class EstudiantesEliminados extends Component
     public function updatedSelectAll($value)
     {
         if ($value) {
-            $this->selected = $this->estudiantesEliminados->pluck('idEstudiante')->toArray();
+            $this->selected = $this->estudiantesEliminados->pluck('codigo')->toArray();
         } else {
             $this->selected = [];
         }

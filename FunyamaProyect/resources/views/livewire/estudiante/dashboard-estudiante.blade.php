@@ -190,7 +190,7 @@
                                         </div>
                                     </div>
                                     <div class="mt-4 flex space-x-2">
-                                        <button wire:click="inscribirCurso({{ $curso->idCurso }})"
+                                        <button wire:click="inscribirCurso('{{ $curso->codigo }}')"
                                                 class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
                                             Inscribirse
                                         </button>

@@ -67,10 +67,15 @@ class DashboardAdmin extends Component
         ];
 
         // Cursos más populares (con más estudiantes)
-        $this->estadisticas['cursos_populares'] = Curso::withCount('estudiantes')
-            ->orderBy('estudiantes_count', 'desc')
-            ->take(5)
-            ->get();
+        try {
+            $this->estadisticas['cursos_populares'] = Curso::withCount('estudiantes')
+                ->orderBy('estudiantes_count', 'desc')
+                ->take(5)
+                ->get();
+        } catch (\Exception $e) {
+            // Fallback si hay error con la estructura de BD
+            $this->estadisticas['cursos_populares'] = Curso::take(5)->get();
+        }
     }
 
     private function cargarDatosRecientes()
@@ -114,9 +119,9 @@ class DashboardAdmin extends Component
         );
     }
 
-    public function togglePublicacion($cursoId)
+    public function togglePublicacion($cursoCodigo)
     {
-        $curso = Curso::findOrFail($cursoId);
+        $curso = Curso::where('codigo', $cursoCodigo)->firstOrFail();
         $curso->update(['publicado' => !$curso->publicado]);
 
         $action = $curso->publicado ? 'publicado' : 'ocultado';

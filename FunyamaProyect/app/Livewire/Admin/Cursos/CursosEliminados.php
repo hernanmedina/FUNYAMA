@@ -7,17 +7,17 @@ use App\Models\Curso;
 
 class CursosEliminados extends Component
 {
-    public function restaurarCurso($cursoId)
+    public function restaurarCurso($codigo)
     {
-        $curso = Curso::withTrashed()->findOrFail($cursoId);
+        $curso = Curso::withTrashed()->where('codigo', $codigo)->firstOrFail();
         $curso->restore();
 
         session()->flash('success', 'Curso restaurado correctamente.');
     }
 
-    public function eliminarPermanentemente($cursoId)
+    public function eliminarPermanentemente($codigo)
     {
-        $curso = Curso::withTrashed()->findOrFail($cursoId);
+        $curso = Curso::withTrashed()->where('codigo', $codigo)->firstOrFail();
         $curso->forceDelete();
 
         session()->flash('success', 'Curso eliminado permanentemente.');

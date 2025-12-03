@@ -7,7 +7,7 @@
                 <p class="text-gray-600 mt-1">Actualiza la información del curso</p>
             </div>
             <div class="flex space-x-3">
-                <a href="{{ route('admin.cursos.show', $curso->idCurso) }}"
+                <a href="{{ route('admin.cursos.show', $curso->codigo) }}"
                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -48,7 +48,7 @@
         </div>
 
         <!-- Formulario -->
-        <form wire:submit="actualizarCurso" class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <form wire:submit.prevent="actualizarCurso" class="bg-white rounded-lg shadow-lg overflow-hidden">
             <div class="p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Columna 1 - Información Básica -->
@@ -64,6 +64,15 @@
                                        wire:model="nombre"
                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 @error('nombre') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Código -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Código del Curso</label>
+                                <input type="text"
+                                       value="{{ $curso->codigo }}"
+                                       readonly
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed">
                             </div>
 
                             <!-- Descripción -->

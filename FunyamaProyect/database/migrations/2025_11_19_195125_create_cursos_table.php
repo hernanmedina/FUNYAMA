@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cursos', function (Blueprint $table) {
-            $table->id('idCurso');
+            $table->string('codigo')->primary(); // Código como PK (string)
             $table->string('nombre');
             $table->string('slug')->unique();
             $table->text('descripcion');
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->boolean('destacado')->default(false);
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_fin')->nullable();
-            $table->unsignedBigInteger('creado_por_admin')->nullable(); // Campo que falta
+            $table->unsignedBigInteger('creado_por_admin')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

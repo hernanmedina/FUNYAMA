@@ -9,9 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('estudiantes', function (Blueprint $table) {
-            $table->id('idEstudiante');
+            $table->string('codigo')->primary(); // Código como PK (string)
             $table->unsignedBigInteger('user_id');
-            $table->string('matricula')->unique()->nullable();
             $table->date('fecha_nacimiento')->nullable();
             $table->enum('genero', ['masculino', 'femenino', 'otro'])->nullable();
             $table->string('nivel_educativo')->nullable();

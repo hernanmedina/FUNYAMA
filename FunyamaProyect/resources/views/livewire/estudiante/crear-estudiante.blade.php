@@ -115,16 +115,17 @@
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Información Académica</h3>
                     </div>
 
-                    <!-- Matrícula -->
+                    <!-- Código Curso -->
                     <div>
-                        <label for="matricula" class="block text-sm font-medium text-gray-700 mb-2">
-                            Matrícula
+                        <label for="codigo" class="block text-sm font-medium text-gray-700 mb-2">
+                            Código Curso *
                         </label>
                         <input type="text" 
-                               id="matricula"
-                               wire:model="matricula"
-                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('matricula') border-red-500 @enderror">
-                        @error('matricula')
+                               id="codigo"
+                               wire:model="codigo"
+                               placeholder="Ej: EST-2025-001"
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('codigo') border-red-500 @enderror">
+                        @error('codigo')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>

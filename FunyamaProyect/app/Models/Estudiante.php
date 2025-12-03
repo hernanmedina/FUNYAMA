@@ -11,11 +11,13 @@ class Estudiante extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'estudiantes';
-    protected $primaryKey = 'idEstudiante';
+    protected $primaryKey = 'codigo';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
+        'codigo',
         'user_id',
-        'matricula',
         'fecha_nacimiento',
         'genero',
         'nivel_educativo',
@@ -49,7 +51,6 @@ class Estudiante extends Model
 
     public function certificados()
     {
-        return $this->hasMany(Certificado::class, 'estudiante_id', 'idEstudiante');
+        return $this->hasMany(Certificado::class, 'estudiante_id', 'codigo');
     }
 }
-

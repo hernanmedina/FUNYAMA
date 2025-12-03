@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ConferenciasSeeder::class,
             ArticulosSeeder::class,
             SolicitudesSeeder::class,
+            EstudianteSeeder::class,
         ]);
     }
 }

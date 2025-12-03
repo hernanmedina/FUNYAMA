@@ -13,6 +13,8 @@ class CrearCurso extends Component
 {
     use WithFileUploads;
 
+    public $codigo;
+    public $slug;
     public $nombre;
     public $descripcion;
     public $cronograma;
@@ -31,11 +33,13 @@ class CrearCurso extends Component
     public $destacado = false;
 
     protected $rules = [
+        'codigo' => 'required|string|max:50|unique:cursos,codigo',
         'nombre' => 'required|string|max:255',
-        'descripcion' => 'required|string|min:50',
-        'cronograma' => 'required|string|min:20',
-        'requisitos' => 'required|string|min:20',
-        'objetivos' => 'nullable|string|min:20',
+        'slug' => 'required|string|max:255',
+        'descripcion' => 'required|string|min:20',
+        'cronograma' => 'required|string|min:10',
+        'requisitos' => 'required|string|min:10',
+        'objetivos' => 'nullable|string|min:10',
         'materiales_incluidos' => 'nullable|string|min:20',
         'cupo_total' => 'required|integer|min:1',
         'duracion_horas' => 'nullable|integer|min:1',
@@ -60,7 +64,7 @@ class CrearCurso extends Component
         $this->slug = Str::slug($value);
     }
 
-    public function guardarCurso()
+    public function store()
     {
         try {
             \Log::info('=== INICIANDO CREACIÓN DE CURSO ===');
@@ -90,8 +94,9 @@ class CrearCurso extends Component
             \Log::info('🔄 Creando curso...');
 
             $curso = Curso::create([
+                'codigo' => $this->codigo,
                 'nombre' => $this->nombre,
-                'slug' => Str::slug($this->nombre),
+                'slug' => $this->slug,
                 'descripcion' => $this->descripcion,
                 'cronograma' => $this->cronograma,
                 'requisitos' => $this->requisitos,
@@ -111,7 +116,7 @@ class CrearCurso extends Component
                 'creado_por_admin' => $admin->idAdmin,
             ]);
 
-            \Log::info('🎉 Curso creado exitosamente: ' . $curso->idCurso);
+            \Log::info('🎉 Curso creado exitosamente: ' . $curso->codigo);
 
             // Limpiar el formulario
             $this->reset();

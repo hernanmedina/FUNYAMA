@@ -37,7 +37,7 @@ class MisCertificados extends Component
         $certificado = Certificado::findOrFail($certificadoId);
 
         // Verificar que pertenece al estudiante actual
-        if ($certificado->estudiante_id !== Auth::user()->estudiante->idEstudiante) {
+        if ($certificado->estudiante_id !== Auth::user()->estudiante->codigo) {
             session()->flash('error', 'No tienes acceso a este certificado.');
             return;
         }

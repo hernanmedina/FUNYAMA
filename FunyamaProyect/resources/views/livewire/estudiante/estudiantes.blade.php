@@ -99,7 +99,7 @@
                                 </div>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Documento
+                                Código Curso
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                                 wire:click="sortBy('activo')">
@@ -124,7 +124,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <input type="checkbox"
                                            wire:model.live="selected"
-                                           value="{{ $estudiante->idEstudiante }}"
+                                           value="{{ $estudiante->codigo }}"
                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -147,11 +147,11 @@
                                     <div class="text-sm text-gray-500">{{ $estudiante->user->telefono ?? 'Sin teléfono' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $estudiante->matricula ?? 'No especificado' }}
+                                    {{ $estudiante->codigo ?? 'No especificado' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center space-x-2">
-                                        <button wire:click="toggleEstado({{ $estudiante->idEstudiante }})"
+                                        <button wire:click="toggleEstado('{{ $estudiante->codigo }}')"
                                                 class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                                                            {{ $estudiante->activo ? 'bg-green-600' : 'bg-gray-200' }}">
                                             <span class="sr-only">Toggle estado</span>
@@ -166,7 +166,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('admin.estudiantes.show', $estudiante->idEstudiante) }}"
+                                        <a href="{{ route('admin.estudiantes.show', $estudiante->codigo) }}"
                                            class="text-blue-600 hover:text-blue-900"
                                            title="Ver detalles">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,14 +174,14 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                             </svg>
                                         </a>
-                                                    <a href="{{ route('admin.estudiantes.edit', $estudiante->idEstudiante) }}"
+                                                    <a href="{{ route('admin.estudiantes.edit', $estudiante->codigo) }}"
                                            class="text-green-600 hover:text-green-900"
                                            title="Editar">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                             </svg>
                                         </a>
-                                        <button wire:click="deleteEstudiante({{ $estudiante->idEstudiante }})"
+                                        <button wire:click="deleteEstudiante('{{ $estudiante->codigo }}')"
                                                 wire:confirm="¿Estás seguro de eliminar este estudiante?"
                                                 class="text-red-600 hover:text-red-900"
                                                 title="Eliminar">

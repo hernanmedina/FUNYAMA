@@ -28,11 +28,11 @@
                         <td class="px-4 py-2 text-sm text-gray-600">{{ $curso->slug }}</td>
                         <td class="px-4 py-2 text-sm text-gray-600">{{ optional($curso->deleted_at)->format('Y-m-d H:i') }}</td>
                         <td class="px-4 py-2">
-                            <button wire:click="restaurarCurso({{ $curso->idCurso }})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded mr-2">
+                            <button wire:click="restaurarCurso('{{ $curso->codigo }}')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded mr-2">
                                 Restaurar
                             </button>
 
-                            <button onclick="if(!confirm('¿Eliminar permanentemente este curso? Esta acción no se puede deshacer.')){ event.stopImmediatePropagation(); }" wire:click="eliminarPermanentemente({{ $curso->idCurso }})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                            <button onclick="if(!confirm('¿Eliminar permanentemente este curso? Esta acción no se puede deshacer.')){ event.stopImmediatePropagation(); }" wire:click="eliminarPermanentemente('{{ $curso->codigo }}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
                                 Eliminar permanentemente
                             </button>
                         </td>

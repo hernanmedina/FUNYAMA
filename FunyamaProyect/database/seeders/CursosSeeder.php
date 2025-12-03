@@ -20,6 +20,7 @@ class CursosSeeder extends Seeder
 
         $cursos = [
             [
+                'codigo' => 'CUR-' . date('Y') . '-001',
                 'nombre' => 'Microsoft Word desde Cero',
                 'slug' => 'microsoft-word-desde-cero',
                 'descripcion' => 'Aprende a dominar Microsoft Word desde lo más básico hasta herramientas avanzadas para crear documentos profesionales.',
@@ -42,6 +43,7 @@ class CursosSeeder extends Seeder
             ],
 
             [
+                'codigo' => 'CUR-' . date('Y') . '-002',
                 'nombre' => 'Microsoft Excel Básico a Intermedio',
                 'slug' => 'microsoft-excel-basico-intermedio',
                 'descripcion' => 'Domina Excel para tareas personales, académicas y laborales. Aprende fórmulas, funciones y análisis de datos.',
@@ -64,6 +66,7 @@ class CursosSeeder extends Seeder
             ],
 
             [
+                'codigo' => 'CUR-' . date('Y') . '-003',
                 'nombre' => 'Microsoft PowerPoint Profesional',
                 'slug' => 'microsoft-powerpoint-profesional',
                 'descripcion' => 'Aprende a crear presentaciones atractivas, profesionales y comunicativas utilizando PowerPoint.',
@@ -85,6 +88,7 @@ class CursosSeeder extends Seeder
             ],
 
             [
+                'codigo' => 'CUR-' . date('Y') . '-004',
                 'nombre' => 'Informática Básica para Todos',
                 'slug' => 'informatica-basica-para-todos',
                 'descripcion' => 'Curso completo para aprender el uso del computador, manejo de archivos, internet, correo electrónico y herramientas esenciales.',
@@ -109,7 +113,7 @@ class CursosSeeder extends Seeder
 
         foreach ($cursos as $curso) {
             Curso::updateOrCreate(
-                ['slug' => $curso['slug']], // Buscar por slug único
+                ['codigo' => $curso['codigo']], // Buscar por codigo único
                 $curso
             );
         }
@@ -131,13 +135,13 @@ class CursosSeeder extends Seeder
 
             foreach ($cursosAleatorios as $curso) {
                 // Verificar que no esté ya inscrito y que haya cupo
-                if (!$estudiante->cursos()->where('curso_id', $curso->idCurso)->exists() &&
+                if (!$estudiante->cursos()->where('curso_id', $curso->codigo)->exists() &&
                     $curso->cupo_disponible > 0) {
 
-                    $estudiante->cursos()->attach($curso->idCurso, [
+                    $estudiante->cursos()->attach($curso->codigo, [
                         'estado' => rand(0, 1) ? 'inscrito' : 'en_progreso',
                         'progreso' => rand(0, 100),
-                        'pago_realizado' => $curso->precioFinal,
+                        'pago_realizado' => $curso->precio_descuento ?? $curso->precio_regular,
                         'estado_pago' => 'completo',
                         'fecha_inscripcion' => now()->subDays(rand(1, 30))
                     ]);

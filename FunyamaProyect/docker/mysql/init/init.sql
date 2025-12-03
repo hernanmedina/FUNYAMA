@@ -1,0 +1,6 @@
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'password';
+CREATE USER IF NOT EXISTS 'sail'@'%' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'sail'@'%' WITH GRANT OPTION;
+CREATE DATABASE IF NOT EXISTS funyama_db;
+GRANT ALL PRIVILEGES ON funyama_db.* TO 'sail'@'%';
+FLUSH PRIVILEGES;

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('certificados', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('estudiante_id');
-            $table->unsignedBigInteger('curso_id');
+            $table->string('estudiante_id');
+            $table->string('curso_id');
             $table->string('numero_certificado')->unique();
             $table->date('fecha_emision');
             $table->decimal('calificacion_final', 3, 1)->nullable();
@@ -23,8 +23,8 @@ return new class extends Migration
             $table->timestamp('ultima_descarga')->nullable();
             $table->timestamps();
 
-            $table->foreign('estudiante_id')->references('idEstudiante')->on('estudiantes')->onDelete('cascade');
-            $table->foreign('curso_id')->references('idCurso')->on('cursos')->onDelete('cascade');
+            $table->foreign('estudiante_id')->references('codigo')->on('estudiantes')->onDelete('cascade');
+            $table->foreign('curso_id')->references('codigo')->on('cursos')->onDelete('cascade');
             $table->unique(['estudiante_id', 'curso_id']);
             $table->index(['fecha_emision']);
         });

@@ -14,7 +14,7 @@ class GenerarCertificado extends Command
      *
      * @var string
      */
-    protected $signature = 'app:generar-certificado {estudiante_id} {curso_id} {calificacion?}';
+    protected $signature = 'app:generar-certificado {codigo_estudiante} {codigo_curso} {calificacion?}';
 
     /**
      * The console command description.
@@ -28,26 +28,26 @@ class GenerarCertificado extends Command
      */
     public function handle()
     {
-        $estudiante_id = $this->argument('estudiante_id');
-        $curso_id = $this->argument('curso_id');
+        $codigo_estudiante = $this->argument('codigo_estudiante');
+        $codigo_curso = $this->argument('codigo_curso');
         $calificacion = $this->argument('calificacion');
 
-        $estudiante = Estudiante::find($estudiante_id);
-        $curso = Curso::find($curso_id);
+        $estudiante = Estudiante::where('codigo', $codigo_estudiante)->first();
+        $curso = Curso::where('codigo', $codigo_curso)->first();
 
         if (!$estudiante) {
-            $this->error("Estudiante con ID {$estudiante_id} no encontrado.");
+            $this->error("Estudiante con código {$codigo_estudiante} no encontrado.");
             return 1;
         }
 
         if (!$curso) {
-            $this->error("Curso con ID {$curso_id} no encontrado.");
+            $this->error("Curso con código {$codigo_curso} no encontrado.");
             return 1;
         }
 
         // Verificar si ya existe certificado
-        $existente = Certificado::where('estudiante_id', $estudiante_id)
-            ->where('curso_id', $curso_id)
+        $existente = Certificado::where('estudiante_id', $estudiante->codigo)
+            ->where('curso_id', $codigo_curso)
             ->first();
 
         if ($existente) {
@@ -57,9 +57,9 @@ class GenerarCertificado extends Command
 
         // Crear certificado
         $certificado = Certificado::create([
-            'estudiante_id' => $estudiante_id,
-            'curso_id' => $curso_id,
-            'numero_certificado' => Certificado::generarNumeroCertificado($estudiante_id, $curso_id),
+            'estudiante_id' => $estudiante->codigo,
+            'curso_id' => $codigo_curso,
+            'numero_certificado' => Certificado::generarNumeroCertificado($codigo_estudiante, $codigo_curso),
             'fecha_emision' => now()->toDateString(),
             'calificacion_final' => $calificacion,
         ]);

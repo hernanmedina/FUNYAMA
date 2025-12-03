@@ -94,7 +94,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <input type="checkbox"
                                            wire:model.live="selected"
-                                           value="{{ $estudiante->idEstudiante }}"
+                                           value="{{ $estudiante->codigo }}"
                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -106,7 +106,7 @@
                                         </div>
                                         <div>
                                             <div class="text-sm font-medium text-gray-900">{{ $estudiante->user->name }} {{ $estudiante->user->apellido ?? '' }}</div>
-                                            <div class="text-sm text-gray-500">ID: {{ $estudiante->idEstudiante }}</div>
+                                            <div class="text-sm text-gray-500">{{ $estudiante->codigo }}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -124,7 +124,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <button wire:click="restaurar({{ $estudiante->idEstudiante }})"
+                                        <button wire:click="restaurar('{{ $estudiante->codigo }}')"
                                                 class="text-green-600 hover:text-green-900 flex items-center"
                                                 title="Restaurar estudiante">
                                             <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,7 +132,7 @@
                                             </svg>
                                             Restaurar
                                         </button>
-                                        <button wire:click="eliminarPermanentemente({{ $estudiante->idEstudiante }})"
+                                        <button wire:click="eliminarPermanentemente('{{ $estudiante->codigo }}')"
                                                 wire:confirm="¿Estás seguro de eliminar permanentemente este estudiante?"
                                                 class="text-red-600 hover:text-red-900 flex items-center"
                                                 title="Eliminar permanentemente">

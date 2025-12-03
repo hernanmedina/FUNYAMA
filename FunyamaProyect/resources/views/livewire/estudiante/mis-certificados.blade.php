@@ -67,7 +67,7 @@
                         </svg>
                         Descargar
                     </button>
-                    <a href="{{ route('admin.estudiantes.show', Auth::user()->estudiante->idEstudiante) }}"
+                    <a href="{{ route('admin.estudiantes.show', Auth::user()->estudiante->codigo) }}"
                        class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center"
                        title="Ver detalles">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

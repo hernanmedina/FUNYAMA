@@ -18,7 +18,7 @@ class CrearEstudiante extends Component
     public $password;
     public $telefono;
 
-    public $matricula;
+    public $codigo;
     public $fecha_nacimiento;
     public $genero;
     public $nivel_educativo;
@@ -32,7 +32,7 @@ class CrearEstudiante extends Component
         'password' => 'required|min:6',
         'telefono' => 'nullable|string|max:30',
 
-        'matricula' => 'nullable|string|max:100',
+        'codigo' => 'required|string|max:100|unique:estudiantes,codigo',
         'fecha_nacimiento' => 'nullable|date',
         'genero' => 'nullable|in:masculino,femenino,otro',
         'nivel_educativo' => 'nullable|string|max:255',
@@ -56,8 +56,8 @@ class CrearEstudiante extends Component
             ]);
 
             Estudiante::create([
+                'codigo' => $this->codigo,
                 'user_id' => $user->id,
-                'matricula' => $this->matricula,
                 'fecha_nacimiento' => $this->fecha_nacimiento,
                 'genero' => $this->genero,
                 'nivel_educativo' => $this->nivel_educativo,
