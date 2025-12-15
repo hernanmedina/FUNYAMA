@@ -15,7 +15,7 @@
     <!-- Styles -->
     <style>
         .hero-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
         }
         .card-hover {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -43,9 +43,7 @@
             {{-- En el header --}}
             <div class="flex items-center">
                 <div class="mr-3">
-                    <img src="{{ asset('images/icono.png') }}"
-                         alt="Logo Fundación Educativa"
-                         class="h-10 w-10 object-contain"> {{-- Ajusta el tamaño según necesites --}}
+                    <x-application-logo class="h-10 w-10 object-contain" />
                 </div>
                 <span class="text-xl font-bold text-gray-800">Fundación YAMA</span>
             </div>
@@ -80,10 +78,22 @@
     </div>
 </nav>
 
+
+<!-- Logo -->
+<div class="flex justify-center mb-6">
+    <div class="bg-white  w-64 h-64 flex items-center justify-center ">
+        <x-application-mark class="h-30 w-30 object-contain" />
+    </div>
+</div>
+
 <!-- Hero Section -->
 <section id="inicio" class="hero-gradient text-white py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
+
+
+
+
             <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
                 Enseñanzas Que Dejan
                 <span class="text-yellow-300">Huella</span>
@@ -147,7 +157,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">Cursos</h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Herramientas Ofimáticas</h3>
                 <p class="text-gray-600 mb-4">
                     Aprende las habilidades digitales más demandadas en el mercado laboral actual.
                 </p>
@@ -210,6 +220,7 @@
                         Gestión de Proyectos...
                     </li>
                 </ul>
+{{--                Aqui debería de enrutar hacia la pagina de coferencias cambiar cursos.index por conferencias.index--}}
                 <a href="{{ route('cursos.index') }}" class="text-green-600 font-semibold hover:text-green-700 flex items-center">
                     Ver Conferencias y Capacitaciones
                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,6 +260,7 @@
                         La Inteligencia Vs La Disciplina...
                     </li>
                 </ul>
+                {{--                Aqui debería de enrutar hacia la pagina de talleres cambiar cursos.index por talleres.index--}}
                 <a href="{{ route('cursos.index') }}" class="text-purple-600 font-semibold hover:text-purple-700 flex items-center">
                     Ver Talleres
                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,7 +277,9 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-                <h2 class="text-4xl font-bold text-gray-800 mb-6">Nuestra Misión</h2>
+
+
+                <h2 class="text-4xl font-bold text-gray-800 mb-6">Misión</h2>
                 <p class="text-lg text-gray-600 mb-6">
                     La <span class="font-semibold text-purple-600">Fundación YAMA</span>, está comprometida a proveer programas en educación, conservación del medio ambiente y la preservación de la cultura con el fin de mejorar, enriquecer y contribuir a la calidad de vida de los menos privilegiados,
                     promoviendo el desarrollo de las personas a las que nos dirigimos y generando nuevas oportunidades garantizando el acceso a la educación en aquellos colectivos más desfavorecidos que se encuentran en riesgo de exclusión social, promoviendo
@@ -275,35 +289,31 @@
 
 
                 </p>
-                <div class="space-y-4">
-                    <div class="flex items-center">
-                        <div class="bg-green-100 p-2 rounded-full mr-4">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                        </div>
-                        <span class="text-gray-700 font-medium">Educación accesible para todos</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="bg-green-100 p-2 rounded-full mr-4">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                        </div>
-                        <span class="text-gray-700 font-medium">Instructores altamente calificados</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="bg-green-100 p-2 rounded-full mr-4">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                        </div>
-                        <span class="text-gray-700 font-medium">Comunidad de apoyo y crecimiento</span>
-                    </div>
-                </div>
+
             </div>
-            <div class="relative">
-                <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl p-8 text-white">
+
+            {{--Vison Fndación YAMA--}}
+            <div>
+                <h2 class="text-4xl font-bold text-gray-800 mb-6">Visión</h2>
+                <p class="text-lg text-gray-600 mb-6">
+                    Al 2027 ser una organización reconocida por el impacto de nuestras actuaciones en
+                    el bienestar y el desarrollo de las comunidades con las que trabajamos así como
+                    por nuestra integridad y profesionalidad en el modo de actuar; ser reconocidos por
+                    ofrecer respuestas adecuadas a las necesidades de formación integral e impulsar
+                    acciones dedicadas a la cooperación para alcanzar el necesario desarrollo humano
+                    y material, como resultado de nuestro compromiso social con aquellas personas y
+                    pueblos más desfavorecidos.
+                </p>
+                <p class="text-lg text-gray-600 mb-8">
+
+
+                </p>
+
+            </div>
+
+
+            <div class="items-center ">
+                <div class="bg-gradient-to-br from-blue-500 to-pink-500 rounded-2xl p-8 text-white">
                     <div class="text-center">
                         <div class="text-6xl font-bold mb-4">15+</div>
                         <div class="text-xl font-semibold">Años Transformando Vidas</div>
@@ -313,6 +323,35 @@
                     </div>
                 </div>
             </div>
+
+            {{--Items--}}
+            <div class="bg-gradient-to-br from-blue-500 to-pink-500 rounded-2xl p-8 text-white">
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-2 rounded-full mr-4 mb-4">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <span class="text-white-700 font-medium">Educación accesible para todos</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-2 rounded-full mr-4 mb-4">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <span class="text-white-700 font-medium">Instructores altamente calificados</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-2 rounded-full mr-4 mb-4">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <span class="text-white-700 font-medium">Comunidad de apoyo y crecimiento</span>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
@@ -354,9 +393,8 @@
                 <div class="flex items-center mb-4">
                     <div class="flex items-center">
                         <div class="bg-white rounded-full mr-3">
-                            <img src="{{ asset('images/icono.png') }}"
-                                 alt="Logo Fundación Educativa"
-                                 class="h-20 w-20 object-contain"> {{-- Tamaño más pequeño para el círculo --}}
+                            <x-application-logo class="h-20 w-20 object-contain" />
+                                  {{-- Tamaño más pequeño para el círculo --}}
                         </div>
                     </div>
                     <span class="text-xl font-bold">Fundación YAMA</span>
