@@ -3,8 +3,10 @@
 namespace App\Livewire\Admin\Cursos;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use App\Models\Curso;
 
+#[Layout('layouts.app')]
 class MostrarCurso extends Component
 {
     public Curso $curso;
@@ -50,6 +52,6 @@ class MostrarCurso extends Component
     {
         return view('livewire.admin.cursos.mostrar-curso', [
             'estudiantes' => $this->curso->estudiantes()->with('user')->get(),
-        ])->layout('layouts.app');
+        ]);
     }
 }

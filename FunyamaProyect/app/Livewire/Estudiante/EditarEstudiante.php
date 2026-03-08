@@ -16,6 +16,7 @@ class EditarEstudiante extends Component
     public $name;
     public $apellido;
     public $email;
+    public $documento_ID;
     public $telefono;
 
     public $codigo;
@@ -47,6 +48,7 @@ class EditarEstudiante extends Component
         $this->name = $e->user->name;
         $this->apellido = $e->user->apellido;
         $this->email = $e->user->email;
+        $this->documento_ID = $e->user->documento_ID;
         $this->telefono = $e->user->telefono;
 
         $this->codigo = $e->codigo;
@@ -59,14 +61,19 @@ class EditarEstudiante extends Component
 
     public function update()
     {
-        $this->validate();
-
         $e = Estudiante::findOrFail($this->estudianteCodigo);
+        $user = $e->user;
+
+        $rules = $this->rules;
+        $rules['documento_ID'] = 'required|string|max:20|unique:users,documento_ID,' . $user->id;
+        $rules['email'] = 'required|email|unique:users,email,' . $user->id;
+
+        $this->validate($rules);
 
         // Update user
-        $user = $e->user;
         $user->name = $this->name;
         $user->apellido = $this->apellido;
+        $user->documento_ID = $this->documento_ID;
         $user->email = $this->email;
         $user->telefono = $this->telefono;
         $user->save();

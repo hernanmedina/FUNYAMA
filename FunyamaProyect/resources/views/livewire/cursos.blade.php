@@ -3,11 +3,7 @@
     @foreach($cursos as $curso)
         <div class="w-full max-w-3xl">
             <x-curso-card
-                :nombre="$curso->nombre"
-                :descripcion="$curso->descripcion"
-                :cronograma="$curso->cronograma"
-                :requisitos="$curso->requisitos"
-                :cupo="$curso->cupo"
+                :curso="$curso"
             />
         </div>
     @endforeach

@@ -14,6 +14,7 @@ use App\Livewire\Estudiante\Estudiantes;
 use App\Livewire\Estudiante\EstudiantesEliminados;
 use App\Livewire\Estudiante\MostrarEstudiante;
 use App\Livewire\Estudiante\MisCertificados;
+use App\Livewire\Estudiante\MisCursos;
 use Illuminate\Support\Facades\Route;
 
 // Página principal
@@ -23,6 +24,7 @@ Route::get('/', function () {
 
 // Cursos listado público con Livewire
 Route::get('/cursos', Cursos::class)->name('cursos.index');
+Route::get('/cursos/{curso}', MostrarCurso::class)->name('cursos.show');
 
 // Rutas protegidas
 Route::middleware([
@@ -50,6 +52,9 @@ Route::middleware([
     Route::get('/not-authorized', function () {
         return view('not-authorized');
     })->name('not-authorized');
+
+    // ----------- RUTAS DE ESTUDIANTE (ALUMNO LOGUEADO) -----------
+    Route::get('/mis-cursos', MisCursos::class)->name('mis-cursos');
 
     // ----------- ADMIN DASHBOARD -----------
     Route::prefix('admin')->name('admin.')->group(function () {

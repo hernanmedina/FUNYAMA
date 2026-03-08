@@ -18,6 +18,7 @@ class Estudiante extends Model
     protected $fillable = [
         'codigo',
         'user_id',
+        'cedula_estudiante',
         'fecha_nacimiento',
         'genero',
         'nivel_educativo',

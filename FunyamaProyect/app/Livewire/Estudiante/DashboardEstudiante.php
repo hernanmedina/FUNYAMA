@@ -18,7 +18,7 @@ class DashboardEstudiante extends Component
     public function mount()
     {
         $user = Auth::user();
-        $estudiante = $user->estudiante;
+        $estudiante = $user?->estudiante;
 
         if ($estudiante) {
             // Cursos en los que está inscrito el estudiante
@@ -29,11 +29,11 @@ class DashboardEstudiante extends Component
                 ->get();
 
             // Cursos disponibles (no inscritos y publicados)
-            $cursosInscritosIds = $estudiante->cursos()->pluck('cursos.codigo');
+            $cursosInscritosIds = $estudiante->cursos()->pluck('codigo')->toArray() ?? [];
+            
             $this->cursosDisponibles = Curso::where('publicado', true)
                 ->whereNotIn('codigo', $cursosInscritosIds)
                 ->where('cupo_disponible', '>', 0)
-                ->where('fecha_inicio', '>=', now())
                 ->orderBy('fecha_inicio', 'asc')
                 ->take(6)
                 ->get();
@@ -44,6 +44,16 @@ class DashboardEstudiante extends Component
                 'cursos_completados' => $estudiante->cursos()->wherePivot('estado', 'completado')->count(),
                 'cursos_en_progreso' => $estudiante->cursos()->wherePivot('estado', 'en_progreso')->count(),
                 'promedio_progreso' => $estudiante->cursos()->avg('curso_estudiante.progreso') ?? 0,
+            ];
+        } else {
+            // Inicializar vacío si no hay estudiante
+            $this->cursosInscritos = collect();
+            $this->cursosDisponibles = collect();
+            $this->estadisticas = [
+                'total_cursos' => 0,
+                'cursos_completados' => 0,
+                'cursos_en_progreso' => 0,
+                'promedio_progreso' => 0,
             ];
         }
     }

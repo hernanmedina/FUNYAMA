@@ -17,8 +17,9 @@ class AdminUserSeeder extends Seeder
         $adminUser = User::updateOrCreate(
             ['email' => 'admin@funyama.com'],
             [
-                'name' => 'Hernan',
-                'apellido' => 'Medina',
+                'name' => 'Admin',
+                'apellido' => 'FUNYAMA',
+                'documento_ID' => '1118223344',
                 'password' => Hash::make('admin1234'),
                 'role' => 'admin',
                 'email_verified_at' => now(),
@@ -46,6 +47,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'María',
                 'apellido' => 'Gonzalez',
+                'documento_ID' => '2223344455',
                 'password' => Hash::make('estudiante1234'),
                 'role' => 'estu',
                 'email_verified_at' => now(),
@@ -75,6 +77,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Carlos',
                 'apellido' => 'Lopez',
+                'documento_ID' => '3334455566',
                 'password' => Hash::make('usuario1234'),
                 'role' => 'user',
                 'email_verified_at' => now(),
@@ -87,7 +90,8 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Ana',
                 'apellido' => 'Rodriguez',
-                'email' => 'ana@funyama.com',
+                'documento_ID' => '4445566677',
+                'email' => 'estudiante3@funyama.com',
                 'role' => 'estu',
                 'estudiante' => [
                     'fecha_nacimiento' => '1999-08-22',
@@ -99,7 +103,8 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Luis',
                 'apellido' => 'Martinez',
-                'email' => 'luis@funyama.com',
+                'documento_ID' => '5556677788',
+                'email' => 'estudiante4@funyama.com',
                 'role' => 'estu',
                 'estudiante' => [
                     'fecha_nacimiento' => '2001-03-10',
@@ -116,6 +121,7 @@ class AdminUserSeeder extends Seeder
                 [
                     'name' => $estudianteData['name'],
                     'apellido' => $estudianteData['apellido'],
+                    'documento_ID' => $estudianteData['cedula'] ?? null,
                     'password' => Hash::make('password123'),
                     'role' => $estudianteData['role'],
                     'email_verified_at' => now(),
@@ -141,6 +147,6 @@ class AdminUserSeeder extends Seeder
         $this->command->info('- Administrador: admin@funyama.com / admin1234');
         $this->command->info('- Estudiante: estudiante@funyama.com / estudiante1234');
         $this->command->info('- Usuario Regular: usuario@funyama.com / usuario1234');
-        $this->command->info('- Estudiantes adicionales: ana@funyama.com / luis@funyama.com (password: password123)');
+        $this->command->info('- Estudiantes adicionales: estudiante3@funyama.com / estudiante4@funyama.com (password: password123)');
     }
 }

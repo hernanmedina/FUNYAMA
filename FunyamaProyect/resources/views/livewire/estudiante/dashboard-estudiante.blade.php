@@ -124,7 +124,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <a href="{{ route('cursos.index') }}"
+                                     <a href="{{ route('cursos.show', $curso->codigo) }}" {{--ruta para continuar con la clase --}}
                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         Continuar
                                     </a>
@@ -132,7 +132,7 @@
                             @endforeach
                         </div>
                         <div class="mt-4 text-center">
-                            <a href="{{ route('cursos.index') }}"
+                            <a href="{{ route('mis-cursos') }}"
                                class="text-blue-600 hover:text-blue-800 font-medium">
                                 Ver todos mis cursos →
                             </a>
@@ -194,7 +194,7 @@
                                                 class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
                                             Inscribirse
                                         </button>
-                                        <a href="{{ route('cursos.index') }}"
+                                        <a href="{{ route('cursos.show', $curso->codigo) }}"
                                            class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium transition-colors">
                                             Ver Detalles
                                         </a>

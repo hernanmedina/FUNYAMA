@@ -15,6 +15,7 @@ class CrearEstudiante extends Component
     public $name;
     public $apellido;
     public $email;
+    public $documento_ID;
     public $password;
     public $telefono;
 
@@ -29,6 +30,7 @@ class CrearEstudiante extends Component
         'name' => 'required|string|max:255',
         'apellido' => 'nullable|string|max:255',
         'email' => 'required|email|unique:users,email',
+        'documento_ID' => 'required|string|max:20|unique:users,documento_ID',
         'password' => 'required|min:6',
         'telefono' => 'nullable|string|max:30',
 
@@ -49,6 +51,7 @@ class CrearEstudiante extends Component
             $user = User::create([
                 'name' => $this->name,
                 'apellido' => $this->apellido,
+                'documento_ID' => $this->documento_ID,
                 'email' => $this->email,
                 'password' => Hash::make($this->password),
                 'telefono' => $this->telefono,

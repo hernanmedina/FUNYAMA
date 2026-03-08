@@ -22,6 +22,7 @@ class EstudianteSeeder extends Seeder
             [
                 'name' => 'Admin',
                 'apellido' => 'FunYama',
+                'documento_ID' => '111222333444',
                 'email' => 'admin@funyama.com',
                 'password' => Hash::make('admin123456'),
                 'role' => 'admin',
@@ -48,6 +49,7 @@ class EstudianteSeeder extends Seeder
             [
                 'name' => 'Juan',
                 'apellido' => 'Pérez',
+                'documento_ID' => '555666777888',
                 'email' => 'estudiante2@funyama.com',
                 'password' => Hash::make('estudiante1234'),
                 'role' => 'estu',
@@ -81,7 +83,7 @@ class EstudianteSeeder extends Seeder
                 'nombre' => 'Laravel Avanzado',
                 'slug' => 'laravel-avanzado',
                 'descripcion' => 'Curso avanzado de Laravel con mejores prácticas',
-                'cronograma' => 'Lunes a viernes, 2 horas diarias',
+                'horarios' => 'Lunes a viernes, 2 horas diarias',
                 'requisitos' => 'Conocimientos básicos de PHP',
                 'objetivos' => 'Dominar patrones de diseño y arquitectura en Laravel',
                 'duracion_horas' => 40,
