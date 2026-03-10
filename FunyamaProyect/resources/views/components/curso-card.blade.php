@@ -65,7 +65,7 @@
         <div class="space-y-3">
             @auth
                 @if(auth()->user()->role === 'estudiante' || auth()->user()->role === 'estu')
-                    <button wire:click="$dispatch('inscribir-curso', { cursoId: {{ $curso->idCurso }} })"
+                    <button wire:click="abrirModalSolicitud('{{ $curso->codigo }}')"
                             class="w-full bg-blue-700 hover:bg-blue-900 text-white font-semibold py-2 rounded-lg transition">
                         Inscribirse en este Curso
                     </button>

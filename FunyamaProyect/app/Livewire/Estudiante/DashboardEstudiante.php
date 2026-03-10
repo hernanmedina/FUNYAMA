@@ -5,7 +5,9 @@ namespace App\Livewire\Estudiante;
 use Livewire\Component;
 use App\Models\Curso;
 use App\Models\Estudiante;
+use App\Models\Solicitud;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Validate;
 
 #[Layout('layouts.app')] 
 
@@ -14,6 +16,23 @@ class DashboardEstudiante extends Component
     public $cursosInscritos;
     public $cursosDisponibles;
     public $estadisticas;
+
+    // Modal de inscripción
+    public bool $mostrarModal = false;
+    public ?string $cursoSeleccionado = null;
+    public ?Curso $cursoData = null;
+
+    #[Validate('required|string')]
+    public string $mensaje = '';
+    
+    #[Validate('required|regex:/^[0-9]{10}$/')]
+    public string $telefono = '';
+    
+    #[Validate('required|email')]
+    public string $email_contacto = '';
+    
+    #[Validate('nullable|string')]
+    public string $motivoInscripcion = '';
 
     public function mount()
     {
@@ -60,7 +79,6 @@ class DashboardEstudiante extends Component
 
     public function inscribirCurso($codigo)
     {
-        $estudiante = Auth::user()->estudiante;
         $curso = Curso::where('codigo', $codigo)->first();
 
         if (!$curso) {
@@ -80,6 +98,7 @@ class DashboardEstudiante extends Component
         }
 
         // Verificar si ya está inscrito
+        $estudiante = Auth::user()->estudiante;
         if ($estudiante->cursos()->where('codigo', $codigo)->exists()) {
             $this->dispatch('show-toast',
                 type: 'warning',
@@ -88,32 +107,53 @@ class DashboardEstudiante extends Component
             return;
         }
 
-        try {
-            // Inscribir al estudiante
-            $estudiante->cursos()->attach($codigo, [
-                'estado' => 'inscrito',
-                'fecha_inscripcion' => now(),
-                'pago_realizado' => $curso->precioFinal,
-                'estado_pago' => 'pendiente'
-            ]);
+        // Abrir modal para diligenciar solicitud
+        $this->cursoSeleccionado = $codigo;
+        $this->cursoData = $curso;
+        $this->mostrarModal = true;
+        $this->resetValidation();
+    }
 
-            // Actualizar cupo disponible
-            $curso->decrement('cupo_disponible');
+    public function cerrarModal()
+    {
+        $this->mostrarModal = false;
+        $this->cursoSeleccionado = null;
+        $this->cursoData = null;
+        $this->reset(['mensaje', 'telefono', 'email_contacto', 'motivoInscripcion']);
+        $this->resetValidation();
+    }
 
-            $this->dispatch('show-toast',
-                type: 'success',
-                message: '¡Inscripción exitosa! Ahora estás inscrito en el curso.'
-            );
+    public function enviarSolicitud()
+    {
+        $this->validate();
 
-            // Refrescar datos
-            $this->mount();
+        $user = Auth::user();
+        $estudiante = $user->estudiante;
 
-        } catch (\Exception $e) {
-            $this->dispatch('show-toast',
-                type: 'error',
-                message: 'Error al inscribirse: ' . $e->getMessage()
-            );
-        }
+        // Crear solicitud de inscripción
+        Solicitud::create([
+            'tipo' => 'inscripcion',
+            'asunto' => 'Solicitud de inscripción al curso: ' . $this->cursoData->nombre,
+            'mensaje' => $this->mensaje,
+            'telefono' => $this->telefono,
+            'email_contacto' => $this->email_contacto,
+            'datos_adicionales' => [
+                'codigo_curso' => $this->cursoSeleccionado,
+                'nombre_curso' => $this->cursoData->nombre,
+                'motivo_inscripcion' => $this->motivoInscripcion,
+                'estudiante_codigo' => $estudiante->codigo, // Usar 'codigo' como PK
+            ],
+            'estado' => 'pendiente',
+            'user_id' => $user->id,
+        ]);
+
+        $this->dispatch('show-toast',
+            type: 'success',
+            message: '¡Solicitud de inscripción enviada! El administrador revisará tu solicitud pronto.'
+        );
+
+        $this->cerrarModal();
+        $this->mount();
     }
 
     public function render()

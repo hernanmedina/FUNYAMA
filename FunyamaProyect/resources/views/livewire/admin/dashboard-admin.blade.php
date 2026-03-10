@@ -317,4 +317,153 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Resolución de Solicitud de Inscripción -->
+    @if($mostrarModalResolucion && $solicitudActual)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <!-- Header del Modal -->
+                <div class="sticky top-0 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Resolver Solicitud de Inscripción</h2>
+                        <p class="text-sm text-gray-600 mt-1">
+                            ID: <span class="font-mono">{{ $solicitudActual->idSolicitud }}</span>
+                        </p>
+                    </div>
+                    <button wire:click="cerrarModal()"
+                            class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Contenido del Modal -->
+                <div class="p-6 space-y-6">
+                    <!-- Información del Estudiante -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">Información del Solicitante</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-600">Nombre:</p>
+                                <p class="font-medium text-gray-900">{{ $solicitudActual->usuario->name }} {{ $solicitudActual->usuario->apellido }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Email:</p>
+                                <p class="font-medium text-gray-900">{{ $solicitudActual->usuario->email }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Teléfono:</p>
+                                <p class="font-medium text-gray-900">{{ $solicitudActual->telefono ?? 'No proporcionado' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Fecha Solicitud:</p>
+                                <p class="font-medium text-gray-900">{{ $solicitudActual->created_at->format('d/m/Y H:i') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información del Curso -->
+                    @php
+                        $datos = $solicitudActual->datos_adicionales;
+                        $nombreCurso = $datos['nombre_curso'] ?? 'Desconocido';
+                        $motivoInscripcion = $datos['motivo_inscripcion'] ?? '';
+                    @endphp
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">Información del Curso</h3>
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <p class="text-gray-600">Curso:</p>
+                                <p class="font-medium text-gray-900">{{ $nombreCurso }}</p>
+                            </div>
+                            @if($motivoInscripcion)
+                                <div>
+                                    <p class="text-gray-600">Motivación:</p>
+                                    <p class="font-medium text-gray-900">{{ ucfirst(str_replace('_', ' ', $motivoInscripcion)) }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Mensaje de la Solicitud -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Mensaje del Estudiante
+                        </label>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $solicitudActual->mensaje }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Respuesta del Admin -->
+                    <div>
+                        <label for="respuesta" class="block text-sm font-medium text-gray-700 mb-2">
+                            Tu Respuesta <span class="text-red-500">*</span>
+                        </label>
+                        <textarea wire:model="respuesta"
+                                  id="respuesta"
+                                  rows="4"
+                                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('respuesta') border-red-500 @else border-gray-300 @enderror"
+                                  placeholder="Ingresa tu respuesta al estudiante (mínimo 10 caracteres)..."></textarea>
+                        @error('respuesta')
+                            <p class="mt-2 text-sm text-red-500 font-medium">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-gray-500">Mínimo 10 caracteres. Esta respuesta será registrada en la solicitud.</p>
+                    </div>
+
+                    <!-- Información importante -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-800">
+                                    <strong>Si aceptas:</strong> El estudiante será inscrito en el curso inmediatamente.
+                                </p>
+                                <p class="text-sm text-yellow-800 mt-1">
+                                    <strong>Si rechazas:</strong> La solicitud será marcada como cancelada.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="flex gap-3 pt-4 border-t border-gray-200">
+                        <button type="button"
+                                wire:click="cerrarModal()"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="button"
+                                wire:click="rechazarInscripcion()"
+                                wire:loading.attr="disabled"
+                                class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                            <span wire:loading.remove>Rechazar</span>
+                            <span wire:loading>
+                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                        <button type="button"
+                                wire:click="aceptarInscripcion()"
+                                wire:loading.attr="disabled"
+                                class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                            <span wire:loading.remove>Aceptar Inscripción</span>
+                            <span wire:loading>
+                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

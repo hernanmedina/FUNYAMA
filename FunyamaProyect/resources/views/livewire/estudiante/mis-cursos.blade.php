@@ -71,15 +71,15 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs font-medium text-slate-500">Estado:</span>
                                     <span class="px-2 py-1 rounded-full text-xs font-medium
-                                        @if($curso->pivot->estado === 'completado')
+                                        @if($curso->pivot && $curso->pivot->estado === 'completado')
                                             bg-green-100 text-green-700
-                                        @elseif($curso->pivot->estado === 'en_progreso')
+                                        @elseif($curso->pivot && $curso->pivot->estado === 'en_progreso')
                                             bg-blue-100 text-blue-700
                                         @else
                                             bg-slate-100 text-slate-700
                                         @endif
                                     ">
-                                        {{ ucfirst(str_replace('_', ' ', $curso->pivot->estado)) }}
+                                        {{ $curso->pivot ? ucfirst(str_replace('_', ' ', $curso->pivot->estado)) : 'Estado desconocido' }}
                                     </span>
                                 </div>
 
@@ -87,11 +87,11 @@
                                 <div>
                                     <div class="flex items-center justify-between mb-1">
                                         <span class="text-xs font-medium text-slate-600">Progreso</span>
-                                        <span class="text-xs font-bold text-slate-700">{{ $curso->pivot->progreso }}%</span>
+                                        <span class="text-xs font-bold text-slate-700">{{ $curso->pivot ? $curso->pivot->progreso : 0 }}%</span>
                                     </div>
                                     <div class="w-full bg-slate-200 rounded-full h-2">
                                         <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full transition-all duration-300"
-                                             style="width: {{ $curso->pivot->progreso }}%">
+                                             style="width: {{ $curso->pivot ? $curso->pivot->progreso : 0 }}%">
                                         </div>
                                     </div>
                                 </div>
@@ -100,7 +100,7 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs font-medium text-slate-500">Inscrito el:</span>
                                     <span class="text-xs text-slate-600">
-                                        {{ \Carbon\Carbon::parse($curso->pivot->fecha_inscripcion)->format('d M Y') }}
+                                        {{ $curso->pivot ? \Carbon\Carbon::parse($curso->pivot->fecha_inscripcion)->format('d M Y') : 'Fecha desconocida' }}
                                     </span>
                                 </div>
                             </div>
@@ -123,7 +123,7 @@
                                    class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">
                                     Ver Detalles
                                 </a>
-                                @if($curso->pivot->estado !== 'completado')
+                                @if($curso->pivot && $curso->pivot->estado !== 'completado')
                                     <button
                                         wire:click="$dispatch('modal:open', { component: 'estudiante.modal-curso-detalles', arguments: { codigo: '{{ $curso->codigo }}' } })"
                                         class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors">

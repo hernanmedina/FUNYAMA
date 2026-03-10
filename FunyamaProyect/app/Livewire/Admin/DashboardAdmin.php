@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Solicitud;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardAdmin extends Component
 {
@@ -21,6 +22,12 @@ class DashboardAdmin extends Component
 
     // Filtros para estadísticas
     public $rangoFechas = '30'; // 7, 30, 90, 365 días
+
+    // Modal para resolver solicitud de inscripción
+    public bool $mostrarModalResolucion = false;
+    public ?Solicitud $solicitudActual = null;
+    public string $respuesta = '';
+    public string $decision = ''; // 'aceptar' o 'rechazar'
 
     protected $queryString = [
         'rangoFechas' => ['except' => '30'],
@@ -136,6 +143,16 @@ class DashboardAdmin extends Component
     public function marcarSolicitudResuelta($solicitudId)
     {
         $solicitud = Solicitud::findOrFail($solicitudId);
+        
+        // Si es una solicitud de inscripción, abrir el modal
+        if ($solicitud->tipo === 'inscripcion') {
+            $this->solicitudActual = $solicitud;
+            $this->mostrarModalResolucion = true;
+            $this->reset(['respuesta', 'decision']);
+            return;
+        }
+
+        // Para otros tipos de solicitud, marcar como resuelta directamente
         $solicitud->update([
             'estado' => 'resuelta',
             'fecha_respuesta' => now(),
@@ -149,6 +166,192 @@ class DashboardAdmin extends Component
             type: 'success',
             message: 'Solicitud marcada como resuelta.'
         );
+    }
+
+    public function cerrarModal()
+    {
+        $this->mostrarModalResolucion = false;
+        $this->solicitudActual = null;
+        $this->reset(['respuesta', 'decision']);
+    }
+
+    public function aceptarInscripcion()
+    {
+        Log::info('Iniciando aceptarInscripcion', [
+            'solicitud_actual' => $this->solicitudActual?->idSolicitud,
+            'respuesta_length' => strlen($this->respuesta)
+        ]);
+
+        // Validación usando el sistema de Livewire
+        $this->validate([
+            'respuesta' => 'required|min:10'
+        ], [
+            'respuesta.required' => 'La respuesta es obligatoria.',
+            'respuesta.min' => 'La respuesta debe tener al menos 10 caracteres.'
+        ]);
+
+        if (!$this->solicitudActual) {
+            Log::error('solicitudActual es null en aceptarInscripcion');
+            session()->flash('flash.banner', 'La solicitud no se encontró.');
+            session()->flash('flash.bannerStyle', 'danger');
+            $this->cerrarModal();
+            return;
+        }
+
+        try {
+            $datos = $this->solicitudActual->datos_adicionales;
+            $codigoCurso = $datos['codigo_curso'] ?? null;
+            $estudianteCodigo = $datos['estudiante_codigo'] ?? null;
+
+            Log::info('Datos extraídos de solicitud', [
+                'codigo_curso' => $codigoCurso,
+                'estudiante_codigo' => $estudianteCodigo,
+            ]);
+
+            if (!$codigoCurso || !$estudianteCodigo) {
+                throw new \Exception('Datos de inscripción incompletos. Falta código de curso o estudiante.');
+            }
+
+            $curso = Curso::where('codigo', $codigoCurso)->first();
+            if (!$curso) {
+                throw new \Exception("El curso con código '{$codigoCurso}' no existe.");
+            }
+
+            $estudiante = Estudiante::where('codigo', $estudianteCodigo)->first();
+            if (!$estudiante) {
+                throw new \Exception("El estudiante con código '{$estudianteCodigo}' no existe.");
+            }
+
+            // Verificar si ya está inscrito
+            if ($estudiante->cursos()->where('codigo', $codigoCurso)->exists()) {
+                throw new \Exception('El estudiante ya está inscrito en este curso.');
+            }
+
+            // Verificar cupo disponible
+            if ($curso->cupo_disponible <= 0) {
+                throw new \Exception('No hay cupos disponibles en este curso.');
+            }
+
+            Log::info('Validaciones pasadas, procediendo con inscripción', [
+                'estudiante_codigo' => $estudianteCodigo,
+                'curso_codigo' => $codigoCurso,
+                'precio' => $curso->precioFinal
+            ]);
+
+            // Inscribir al estudiante
+            $estudiante->cursos()->attach($codigoCurso, [
+                'estado' => 'en_progreso',
+                'fecha_inscripcion' => now(),
+                'pago_realizado' => $curso->precioFinal,
+                'estado_pago' => 'completo',
+                'progreso' => 0
+            ]);
+
+            Log::info('Estudiante inscrito en el curso');
+
+            // Decrementar cupo disponible
+            $curso->decrement('cupo_disponible');
+
+            Log::info('Cupo decrementado');
+
+            // Obtener ID del administrador
+            $adminId = null;
+            $admin = auth()->user()?->administrador;
+            if ($admin) {
+                $adminId = $admin->idAdmin;
+            }
+
+            Log::info('Admin ID: ' . ($adminId ?? 'null'));
+
+            // Actualizar solicitud
+            $this->solicitudActual->update([
+                'estado' => 'resuelta',
+                'respuesta' => $this->respuesta,
+                'fecha_respuesta' => now(),
+                'atendido_por_admin' => $adminId
+            ]);
+
+            Log::info('Solicitud actualizada a resuelta');
+
+            session()->flash('flash.banner', '✓ Inscripción aceptada y estudiante inscrito en el curso.');
+            session()->flash('flash.bannerStyle', 'success');
+            $this->cerrarModal();
+            $this->cargarEstadisticas();
+            $this->cargarDatosRecientes();
+
+        } catch (\Exception $e) {
+            Log::error('Error en aceptarInscripcion: ' . $e->getMessage(), [
+                'solicitud_id' => $this->solicitudActual?->idSolicitud,
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            session()->flash('flash.banner', 'Error: ' . $e->getMessage());
+            session()->flash('flash.bannerStyle', 'danger');
+        }
+    }
+
+    public function rechazarInscripcion()
+    {
+        Log::info('Iniciando rechazarInscripcion', [
+            'solicitud_actual' => $this->solicitudActual?->idSolicitud,
+            'respuesta_length' => strlen($this->respuesta)
+        ]);
+
+        // Validación usando el sistema de Livewire
+        $this->validate([
+            'respuesta' => 'required|min:10'
+        ], [
+            'respuesta.required' => 'La respuesta es obligatoria.',
+            'respuesta.min' => 'La respuesta debe tener al menos 10 caracteres.'
+        ]);
+
+        if (!$this->solicitudActual) {
+            Log::error('solicitudActual es null en rechazarInscripcion');
+            session()->flash('flash.banner', 'La solicitud no se encontró.');
+            session()->flash('flash.bannerStyle', 'danger');
+            $this->cerrarModal();
+            return;
+        }
+
+        try {
+            // Obtener ID del administrador
+            $adminId = null;
+            $admin = auth()->user()?->administrador;
+            if ($admin) {
+                $adminId = $admin->idAdmin;
+            }
+
+            $this->solicitudActual->update([
+                'estado' => 'cancelada',
+                'respuesta' => $this->respuesta,
+                'fecha_respuesta' => now(),
+                'atendido_por_admin' => $adminId
+            ]);
+
+            Log::info('Inscripción rechazada exitosamente', [
+                'solicitud_id' => $this->solicitudActual->idSolicitud,
+                'admin_id' => $adminId
+            ]);
+
+            session()->flash('flash.banner', '✗ Solicitud de inscripción rechazada.');
+            session()->flash('flash.bannerStyle', 'success');
+            $this->cerrarModal();
+            $this->cargarEstadisticas();
+            $this->cargarDatosRecientes();
+
+        } catch (\Exception $e) {
+            Log::error('Error en rechazarInscripcion: ' . $e->getMessage(), [
+                'solicitud_id' => $this->solicitudActual?->idSolicitud,
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            session()->flash('flash.banner', 'Error: ' . $e->getMessage());
+            session()->flash('flash.bannerStyle', 'danger');
+        }
     }
 
     public function render()
