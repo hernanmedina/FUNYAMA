@@ -12,6 +12,41 @@ pipeline {
                     url: 'https://github.com/hernanmedina/FUNYAMA.git'
             }
         }
+
+        stage('Debug - Check files before build') {
+            steps {
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            echo "===== DIRECTORIO ACTUAL ====="
+                            pwd
+                            
+                            echo "===== ARCHIVOS EN FunyamaProyect ====="
+                            ls -la
+                            
+                            echo "===== BUSCANDO composer.json ESPECÍFICAMENTE ====="
+                            if [ -f "composer.json" ]; then
+                                echo "✓ composer.json EXISTE"
+                                echo "Contenido:"
+                                head -20 composer.json
+                            else
+                                echo "✗ composer.json NO EXISTE"
+                                echo "Buscando en subdirectorios..."
+                                find . -name "composer.json" -type f
+                            fi
+                            
+                            echo "===== VERIFICANDO .dockerignore ====="
+                            if [ -f ".dockerignore" ]; then
+                                echo "Contenido de .dockerignore:"
+                                cat .dockerignore
+                            else
+                                echo "No hay .dockerignore"
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
         
         stage('Cleanup and Start Containers') {
             steps {
