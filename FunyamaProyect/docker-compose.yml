@@ -13,8 +13,7 @@ services:
       WWWUSER: '${WWWUSER:-1000}'
       WWWGROUP: '${WWWGROUP:-1000}'
       DB_PASSWORD: '${DB_PASSWORD:-secret}'
-    volumes:
-      - '.:/var/www/html'
+    
     depends_on:
       - mysql
       - redis
