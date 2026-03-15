@@ -4,38 +4,38 @@ pipeline {
     environment {
         DB_PASSWORD = 'secret'
     }
-
-    stage('Start Containers') {
-        steps {
-            script {
-                dir('FunyamaProyect') {
-                    sh '''
-                        # Limpiar contenedores antiguos
-                        echo "Limpiando contenedores antiguos..."
-                        docker compose down --remove-orphans 2>/dev/null || true
-                        
-                        # Iniciar contenedores nuevos
-                        echo "Iniciando nuevos contenedores..."
-                        export DB_PASSWORD=${DB_PASSWORD:-secret}
-                        docker compose up -d
-                        
-                        # Esperar a que estén listos
-                        echo "Esperando 10 segundos para que los contenedores se inicialicen..."
-                        sleep 10
-                        
-                        # Verificar que los contenedores estén corriendo
-                        docker compose ps
-                    '''
-                }
-            }
-        }
-    
     
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main', 
                     url: 'https://github.com/hernanmedina/FUNYAMA.git'
+            }
+        }
+        
+        stage('Cleanup and Start Containers') {
+            steps {
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            # Limpiar contenedores antiguos
+                            echo "Limpiando contenedores antiguos..."
+                            docker compose down --remove-orphans 2>/dev/null || true
+                            
+                            # Iniciar contenedores nuevos
+                            echo "Iniciando nuevos contenedores..."
+                            export DB_PASSWORD=${DB_PASSWORD:-secret}
+                            docker compose up -d
+                            
+                            # Esperar a que estén listos
+                            echo "Esperando 10 segundos para que los contenedores se inicialicen..."
+                            sleep 10
+                            
+                            # Verificar que los contenedores estén corriendo
+                            docker compose ps
+                        '''
+                    }
+                }
             }
         }
         
@@ -46,20 +46,6 @@ pipeline {
                         sh '''
                             export DB_PASSWORD=${DB_PASSWORD:-secret}
                             docker compose build
-                        '''
-                    }
-                }
-            }
-        }
-        
-        stage('Start Containers') {
-            steps {
-                script {
-                    dir('FunyamaProyect') {
-                        sh '''
-                            export DB_PASSWORD=${DB_PASSWORD:-secret}
-                            docker compose up -d
-                            sleep 10
                         '''
                     }
                 }
