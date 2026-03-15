@@ -146,8 +146,15 @@ pipeline {
                 script {
                     dir('FunyamaProyect') {
                         sh '''
-                            export DB_PASSWORD=${DB_PASSWORD:-secret}
+                            export DB_PASSWORD=password
                             docker compose exec -T app cp .env.example .env
+
+                            docker compose exec -T app sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=mysql/" .env
+                            docker compose exec -T app sed -i "s/DB_HOST=.*/DB_HOST=mysql/" .env
+                            docker compose exec -T app sed -i "s/DB_DATABASE=.*/DB_DATABASE=laravel/" .env
+                            docker compose exec -T app sed -i "s/DB_USERNAME=.*/DB_USERNAME=sail/" .env
+                            docker compose exec -T app sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=secret/" .env
+
                             docker compose exec -T app php artisan key:generate
                             docker compose exec -T app php artisan migrate:fresh --force
                         '''
