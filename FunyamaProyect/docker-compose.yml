@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: .
+      context: /var/jenkins_home/workspace/FUNYAMA/FunyamaProyect
       dockerfile: Dockerfile
       args:
         WWWGROUP: '${WWWGROUP:-1000}'
