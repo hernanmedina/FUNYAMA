@@ -13,6 +13,48 @@ pipeline {
             }
         }
 
+        stage('Debug - List files in FunyamaProyect') {
+            steps {
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            echo "===== DIRECTORIO ACTUAL ====="
+                            pwd
+                            
+                            echo "===== LISTADO COMPLETO DE ARCHIVOS ====="
+                            ls -la
+                            
+                            echo "===== BUSCANDO composer.json ====="
+                            if [ -f "composer.json" ]; then
+                                echo "✓ composer.json EXISTE"
+                                echo "Primeras líneas:"
+                                head -5 composer.json
+                            else
+                                echo "✗ composer.json NO EXISTE"
+                                echo "Buscando en subdirectorios:"
+                                find . -name "composer.json" -type f || echo "No se encontró"
+                            fi
+                            
+                            echo "===== BUSCANDO ARTISAN ====="
+                            if [ -f "artisan" ]; then
+                                echo "✓ artisan EXISTE"
+                            else
+                                echo "✗ artisan NO EXISTE"
+                            fi
+                            
+                            echo "===== VERIFICANDO .dockerignore ====="
+                            if [ -f ".dockerignore" ]; then
+                                echo "Contenido de .dockerignore:"
+                                cat .dockerignore
+                            else
+                                echo "No hay .dockerignore"
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Debug - Check files before build') {
             steps {
                 script {
