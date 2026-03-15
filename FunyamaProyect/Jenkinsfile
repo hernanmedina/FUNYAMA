@@ -1,57 +1,99 @@
 pipeline {
     agent any
-
+    
+    environment {
+        DB_PASSWORD = 'secret'
+    }
+    
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/hernanmedina/FUNYAMA.git'
+                git branch: 'main', 
+                    url: 'https://github.com/hernanmedina/FUNYAMA.git'
             }
         }
-
+        
         stage('Build Docker Images') {
             steps {
-                sh 'docker compose build'
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            export DB_PASSWORD=${DB_PASSWORD:-secret}
+                            docker compose build
+                        '''
+                    }
+                }
             }
         }
-
+        
         stage('Start Containers') {
             steps {
-                sh 'docker compose up -d'
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            export DB_PASSWORD=${DB_PASSWORD:-secret}
+                            docker compose up -d
+                            sleep 10
+                        '''
+                    }
+                }
             }
         }
-
+        
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            docker compose exec -T app composer install --no-interaction --prefer-dist
+                        '''
+                    }
+                }
+            }
+        }
+        
         stage('Run Migrations') {
             steps {
-                //sh 'docker compose run --rm laravel.test php artisan migrate --force'
-                sh 'docker compose exec -T laravel.test php artisan migrate --force'
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            export DB_PASSWORD=${DB_PASSWORD:-secret}
+                            docker compose exec -T app php artisan migrate --force
+                        '''
+                    }
+                }
             }
         }
-
+        
         stage('Run Tests') {
             steps {
-                //sh 'docker compose run --rm laravel.test php artisan test'
-                sh 'docker compose exec -T laravel.test php artisan test'
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            docker compose exec -T app php artisan test
+                        '''
+                    }
+                }
             }
         }
-
+        
         stage('Build Frontend') {
             steps {
-                //sh 'docker compose run --rm laravel.test npm install'
-                //sh 'docker compose run --rm laravel.test npm run build'
-                sh 'docker compose exec -T laravel.test npm install'
-                sh 'docker compose exec -T laravel.test npm run build'
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            docker compose exec -T app npm install
+                            docker compose exec -T app npm run build
+                        '''
+                    }
+                }
             }
         }
-
+        
         stage('Deploy') {
             steps {
-               // Aquí el despliegue ocurre dentro del mismo contenedor de Laravel
-                sh 'docker compose exec -T laravel.test php artisan config:cache'
-                sh 'docker compose exec -T laravel.test php artisan route:cache'
-                sh 'docker compose exec -T laravel.test php artisan view:cache'
+                echo 'Deploy step - add your deployment commands here'
             }
         }
     }
-
-   
 }
