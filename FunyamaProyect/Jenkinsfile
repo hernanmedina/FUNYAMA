@@ -122,7 +122,7 @@ pipeline {
                     dir('FunyamaProyect') {
                         sh '''
                             export DB_PASSWORD=${DB_PASSWORD:-secret}
-                            docker compose build
+                            docker compose build --no-cache
                         '''
                     }
                 }
