@@ -1,75 +1,55 @@
 services:
-    laravel.test:
-        build:
-            context: ./vendor/laravel/sail/runtimes/8.4
-            dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
-        ports:
-            - '${APP_PORT:-8080}:80'
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
-        environment:
-            WWWUSER: '${WWWUSER}'
-            LARAVEL_SAIL: 1
-        volumes:
-            - '.:/var/www/html'
-        networks:
-            sail:
-                aliases:
-                    - laravel.test
-        depends_on:
-            - mysql
-            - redis
-    mysql:
-        image: 'mysql/mysql-server:8.0'
-        ports:
-            - '${FORWARD_DB_PORT:-3306}:3306'
-        environment:
-            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-password}'
-            MYSQL_ROOT_HOST: '%'
-            MYSQL_DATABASE: '${DB_DATABASE:-laravel}'
-            MYSQL_USER: '${DB_USERNAME:-sail}'
-            MYSQL_PASSWORD: '${DB_PASSWORD:-password}'
-            MYSQL_ALLOW_EMPTY_PASSWORD: 1
-        volumes:
-            - 'sailmysql:/var/lib/mysql'
-            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
-        networks:
-            - sail
-        healthcheck:
-            test:
-                - CMD
-                - mysqladmin
-                - ping
-                - '-p${DB_PASSWORD}'
-            retries: 3
-            timeout: 5s
-    redis:
-        image: 'redis:alpine'
-        ports:
-            - '${FORWARD_REDIS_PORT:-6379}:6379'
-        volumes:
-            - 'sailredis:/data'
-        networks:
-            - sail
-        healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
-            retries: 3
-            timeout: 5s
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: '${WWWGROUP:-1000}'
+        WWWUSER: '${WWWUSER:-1000}'
+    container_name: funyama-app
+    ports:
+      - '${APP_PORT:-8081}:80'
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      WWWGROUP: '${WWWGROUP:-1000}'
+      DB_PASSWORD: '${DB_PASSWORD:-secret}'
+    volumes:
+      - '.:/var/www/html'
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - funyama-network
+
+  mysql:
+    image: 'mysql:8.0'
+    container_name: funyama-mysql
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-secret}'
+      MYSQL_DATABASE: '${DB_DATABASE:-laravel}'
+      MYSQL_USER: '${DB_USERNAME:-sail}'
+      MYSQL_PASSWORD: '${DB_PASSWORD:-secret}'
+    volumes:
+      - 'mysql-data:/var/lib/mysql'
+    networks:
+      - funyama-network
+
+  redis:
+    image: 'redis:alpine'
+    container_name: funyama-redis
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - 'redis-data:/data'
+    networks:
+      - funyama-network
+
 networks:
-    sail:
-        driver: bridge
+  funyama-network:
+    driver: bridge
+
 volumes:
-    sailmysql:
-        driver: local
-    sailredis:
-        driver: local
-    sail-mysql:
-        driver: local
-    sail-redis:
-        driver: local
+  mysql-data:
+  redis-data:
