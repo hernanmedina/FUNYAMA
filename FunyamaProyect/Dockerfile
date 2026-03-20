@@ -13,6 +13,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Instalar Node.js 18.x (LTS)
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
+
 # Instalar extensiones PHP necesarias para Laravel
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
