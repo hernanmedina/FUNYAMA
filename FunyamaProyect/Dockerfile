@@ -1,4 +1,4 @@
-FROM php:8.2-apache-node18
+FROM php:8.2-apache
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Instalar Node.js usando apt-get directamente (más simple)
+RUN apt-get update && apt-get install -y nodejs npm
 
 # Instalar extensiones PHP necesarias para Laravel
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
