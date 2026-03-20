@@ -280,9 +280,7 @@ pipeline {
                         sh '''
                             echo "📊 Generando reporte de tests..."
                             docker compose exec -T app php artisan test \
-                                --log-junit test-results.xml \
-                                --coverage-clover coverage.xml \
-                                --coverage-html coverage-report || true
+                                --log-junit test-results.xml || true
                         '''
                     }
                 }
@@ -293,16 +291,6 @@ pipeline {
                         dir('FunyamaProyect') {
                             // Publicar reportes JUnit
                             junit allowEmptyResults: true, testResults: 'test-results.xml'
-                            
-                            // Publicar cobertura de código
-                            publishHTML([
-                                allowMissing: true,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'coverage-report',
-                                reportFiles: 'index.html',
-                                reportName: 'Code Coverage Report'
-                            ])
                         }
                     }
                 }
