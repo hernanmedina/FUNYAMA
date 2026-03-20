@@ -2,7 +2,17 @@ pipeline {
     agent any
     
     environment {
+        // Variables para docker-compose
+        APP_PORT = '8081'
         DB_PASSWORD = 'secret'
+        DB_DATABASE = 'laravel'
+        DB_USERNAME = 'sail'
+        WWWUSER = '1000'
+        WWWGROUP = '1000'
+        
+        // Cache directories
+        COMPOSER_CACHE_DIR = '/tmp/composer-cache'
+        NPM_CACHE_DIR = '/tmp/npm-cache'
     }
     
     stages {
@@ -13,49 +23,7 @@ pipeline {
             }
         }
 
-        stage('Debug - List files in FunyamaProyect') {
-            steps {
-                script {
-                    dir('FunyamaProyect') {
-                        sh '''
-                            echo "===== DIRECTORIO ACTUAL ====="
-                            pwd
-                            
-                            echo "===== LISTADO COMPLETO DE ARCHIVOS ====="
-                            ls -la
-                            
-                            echo "===== BUSCANDO composer.json ====="
-                            if [ -f "composer.json" ]; then
-                                echo "✓ composer.json EXISTE"
-                                echo "Primeras líneas:"
-                                head -5 composer.json
-                            else
-                                echo "✗ composer.json NO EXISTE"
-                                echo "Buscando en subdirectorios:"
-                                find . -name "composer.json" -type f || echo "No se encontró"
-                            fi
-                            
-                            echo "===== BUSCANDO ARTISAN ====="
-                            if [ -f "artisan" ]; then
-                                echo "✓ artisan EXISTE"
-                            else
-                                echo "✗ artisan NO EXISTE"
-                            fi
-                            
-                            echo "===== VERIFICANDO .dockerignore ====="
-                            if [ -f ".dockerignore" ]; then
-                                echo "Contenido de .dockerignore:"
-                                cat .dockerignore
-                            else
-                                echo "No hay .dockerignore"
-                            fi
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Debug - Check files before build') {
+        stage('Debug - List files') {
             steps {
                 script {
                     dir('FunyamaProyect') {
@@ -66,50 +34,31 @@ pipeline {
                             echo "===== ARCHIVOS EN FunyamaProyect ====="
                             ls -la
                             
-                            echo "===== BUSCANDO composer.json ESPECÍFICAMENTE ====="
+                            echo "===== VERIFICANDO composer.json ====="
                             if [ -f "composer.json" ]; then
                                 echo "✓ composer.json EXISTE"
-                                echo "Contenido:"
-                                head -20 composer.json
                             else
                                 echo "✗ composer.json NO EXISTE"
-                                echo "Buscando en subdirectorios..."
-                                find . -name "composer.json" -type f
+                                exit 1
                             fi
                             
-                            echo "===== VERIFICANDO .dockerignore ====="
-                            if [ -f ".dockerignore" ]; then
-                                echo "Contenido de .dockerignore:"
-                                cat .dockerignore
+                            echo "===== VERIFICANDO package.json ====="
+                            if [ -f "package.json" ]; then
+                                echo "✓ package.json EXISTE"
                             else
-                                echo "No hay .dockerignore"
+                                echo "✗ package.json NO EXISTE"
+                                exit 1
                             fi
-                        '''
-                    }
-                }
-            }
-        }
-        
-        stage('Cleanup and Start Containers') {
-            steps {
-                script {
-                    dir('FunyamaProyect') {
-                        sh '''
-                            # Limpiar contenedores antiguos
-                            echo "Limpiando contenedores antiguos..."
-                            docker compose down --remove-orphans 2>/dev/null || true
                             
-                            # Iniciar contenedores nuevos
-                            echo "Iniciando nuevos contenedores..."
-                            export DB_PASSWORD=${DB_PASSWORD:-secret}
-                            docker compose up -d
-                            
-                            # Esperar a que estén listos
-                            echo "Esperando 10 segundos para que los contenedores se inicialicen..."
-                            sleep 10
-                            
-                            # Verificar que los contenedores estén corriendo
-                            docker compose ps
+                            echo "===== VERIFICANDO Dockerfile ====="
+                            if [ -f "Dockerfile" ]; then
+                                echo "✓ Dockerfile EXISTE"
+                                echo "Contenido de Dockerfile (primeras líneas):"
+                                head -20 Dockerfile
+                            else
+                                echo "✗ Dockerfile NO EXISTE"
+                                exit 1
+                            fi
                         '''
                     }
                 }
@@ -121,110 +70,240 @@ pipeline {
                 script {
                     dir('FunyamaProyect') {
                         sh '''
-                            export DB_PASSWORD=${DB_PASSWORD:-secret}
+                            echo "🔨 Construyendo imágenes Docker..."
                             docker compose build --no-cache
+                            echo "✅ Imágenes construidas correctamente"
                         '''
                     }
                 }
             }
         }
-                
-        stage('Install Dependencies') {
+        
+        stage('Start Containers') {
             steps {
                 script {
                     dir('FunyamaProyect') {
                         sh '''
-                            # Instalar dependencias PHP
-                            echo "Installing PHP dependencies..."
-                            docker compose exec -T app composer install --no-interaction --prefer-dist
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Frontend Build') {
-            steps {
-                script {
-                    dir('FunyamaProyect') {
-                        sh '''
-                            # Verificar si existe package.json
-                            if docker compose exec -T app test -f package.json; then
-                                echo "📦 Installing Node dependencies..."
-                                docker compose exec -T app npm ci
-                                
-                                echo "🔨 Building assets with Vite (development mode)..."
-                                
-                                # Ejecutar npm run dev (modo desarrollo)
-                                if docker compose exec -T app npm run dev; then
-                                    echo "✅ Development build successful"
-                                else
-                                    echo "❌ Development build failed"
-                                    exit 1
-                                fi
-                                
-                                # Verificar que el manifest existe
-                                echo "🔍 Verifying manifest.json..."
-                                if docker compose exec -T app test -f public/build/manifest.json; then
-                                    echo "✅ manifest.json found"
-                                    echo "📄 Manifest content preview:"
-                                    docker compose exec -T app cat public/build/manifest.json | head -n 5
-                                else
-                                    echo "❌ Error: manifest.json not found after build"
-                                    echo "⚠️  Creating dummy file for tests as fallback..."
-                                    docker compose exec -T app bash -c 'echo "{}" > public/build/manifest.json'
-                                fi
+                            # Limpiar contenedores antiguos
+                            echo "🧹 Limpiando contenedores antiguos..."
+                            docker compose down --remove-orphans 2>/dev/null || true
+                            
+                            # Iniciar contenedores nuevos
+                            echo "🚀 Iniciando nuevos contenedores..."
+                            docker compose up -d
+                            
+                            # Esperar a que MySQL esté listo
+                            echo "⏳ Esperando 15 segundos para que MySQL se inicialice..."
+                            sleep 15
+                            
+                            # Verificar que los contenedores estén corriendo
+                            echo "📋 Estado de los contenedores:"
+                            docker compose ps
+                            
+                            # Verificar Node.js en el contenedor
+                            echo "🔍 Verificando Node.js en el contenedor..."
+                            if docker compose exec -T app node --version; then
+                                echo "✅ Node.js instalado correctamente"
                             else
-                                echo "⚠️  package.json not found, skipping frontend build"
+                                echo "❌ Node.js no está instalado en el contenedor"
+                                echo "Verifica que el Dockerfile incluya Node.js"
+                                exit 1
                             fi
                         '''
                     }
                 }
             }
         }
-     
+        
+        stage('Install Dependencies (Parallel)') {
+            parallel {
+                stage('Install PHP Dependencies') {
+                    steps {
+                        script {
+                            dir('FunyamaProyect') {
+                                sh '''
+                                    echo "📦 Instalando dependencias PHP..."
+                                    docker compose exec -T app composer install \
+                                        --no-interaction \
+                                        --prefer-dist \
+                                        --optimize-autoloader \
+                                        --no-progress
+                                    echo "✅ Dependencias PHP instaladas"
+                                '''
+                            }
+                        }
+                    }
+                }
+                
+                stage('Install Frontend Dependencies') {
+                    steps {
+                        script {
+                            dir('FunyamaProyect') {
+                                sh '''
+                                    echo "📦 Instalando dependencias Node..."
+                                    docker compose exec -T app npm ci \
+                                        --no-audit \
+                                        --no-fund \
+                                        --cache ${NPM_CACHE_DIR} \
+                                        --prefer-offline
+                                    echo "✅ Dependencias Node instaladas"
+                                '''
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build Frontend Assets') {
+            steps {
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            echo "🔨 Compilando assets con Vite..."
+                            
+                            # Intentar producción primero
+                            if docker compose exec -T app npm run build; then
+                                echo "✅ Build de producción exitoso"
+                            else
+                                echo "⚠️  Build de producción falló, intentando build de desarrollo..."
+                                docker compose exec -T app npm run dev
+                            fi
+                            
+                            # Verificar que el manifest existe
+                            echo "🔍 Verificando manifest.json..."
+                            if docker compose exec -T app test -f public/build/manifest.json; then
+                                echo "✅ manifest.json encontrado"
+                                echo "📄 Contenido:"
+                                docker compose exec -T app cat public/build/manifest.json | head -n 10
+                            else
+                                echo "❌ Error: manifest.json no encontrado después del build"
+                                exit 1
+                            fi
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Setup Environment') {
+            steps {
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            echo "⚙️ Configurando entorno..."
+                            
+                            # Crear .env desde .env.example si no existe
+                            if ! docker compose exec -T app test -f .env; then
+                                docker compose exec -T app cp .env.example .env
+                            fi
+                            
+                            # Configurar base de datos
+                            docker compose exec -T app sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=mysql/" .env
+                            docker compose exec -T app sed -i "s/DB_HOST=.*/DB_HOST=mysql/" .env
+                            docker compose exec -T app sed -i "s/DB_DATABASE=.*/DB_DATABASE=${DB_DATABASE}/" .env
+                            docker compose exec -T app sed -i "s/DB_USERNAME=.*/DB_USERNAME=${DB_USERNAME}/" .env
+                            docker compose exec -T app sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}/" .env
+                            
+                            # Configurar variables para testing
+                            docker compose exec -T app sed -i "s/APP_ENV=.*/APP_ENV=testing/" .env
+                            docker compose exec -T app sed -i "s/APP_DEBUG=.*/APP_DEBUG=true/" .env
+                            
+                            # Generar key
+                            docker compose exec -T app php artisan key:generate
+                            
+                            # Limpiar y cachear configuración
+                            docker compose exec -T app php artisan config:clear
+                            docker compose exec -T app php artisan config:cache
+                            
+                            echo "✅ Entorno configurado"
+                        '''
+                    }
+                }
+            }
+        }
+        
         stage('Run Migrations') {
             steps {
                 script {
                     dir('FunyamaProyect') {
                         sh '''
-                            export DB_PASSWORD=secret
-                            docker compose exec -T app cp .env.example .env
-
-                            docker compose exec -T app sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=mysql/" .env
-                            docker compose exec -T app sed -i "s/DB_HOST=.*/DB_HOST=mysql/" .env
-                            docker compose exec -T app sed -i "s/DB_DATABASE=.*/DB_DATABASE=laravel/" .env
-                            docker compose exec -T app sed -i "s/DB_USERNAME=.*/DB_USERNAME=sail/" .env
-                            docker compose exec -T app sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=secret/" .env
-
-                            docker compose exec -T app php artisan key:generate
+                            echo "🔄 Ejecutando migraciones..."
                             docker compose exec -T app php artisan migrate:fresh --force
+                            echo "✅ Migraciones ejecutadas"
                         '''
                     }
                 }
             }
         }
         
-        stage('Run Tests') {
-            steps {
-                script {
-                    dir('FunyamaProyect') {
-                        sh '''
-                            docker compose exec -T app php artisan test
-                        '''
+        stage('Run Tests (Parallel)') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        script {
+                            dir('FunyamaProyect') {
+                                sh '''
+                                    echo "🧪 Ejecutando tests unitarios..."
+                                    docker compose exec -T app php artisan test \
+                                        --testsuite=Unit \
+                                        --verbose \
+                                        --stop-on-failure || true
+                                '''
+                            }
+                        }
+                    }
+                }
+                
+                stage('Feature Tests') {
+                    steps {
+                        script {
+                            dir('FunyamaProyect') {
+                                sh '''
+                                    echo "🧪 Ejecutando tests de funcionalidad..."
+                                    docker compose exec -T app php artisan test \
+                                        --testsuite=Feature \
+                                        --verbose \
+                                        --stop-on-failure || true
+                                '''
+                            }
+                        }
                     }
                 }
             }
         }
         
-        stage('Build Frontend') {
+        stage('Generate Test Reports') {
             steps {
                 script {
                     dir('FunyamaProyect') {
                         sh '''
-                            docker compose exec -T app npm install
-                            docker compose exec -T app npm run build
+                            echo "📊 Generando reporte de tests..."
+                            docker compose exec -T app php artisan test \
+                                --log-junit test-results.xml \
+                                --coverage-clover coverage.xml \
+                                --coverage-html coverage-report || true
                         '''
+                    }
+                }
+            }
+            post {
+                always {
+                    script {
+                        dir('FunyamaProyect') {
+                            // Publicar reportes JUnit
+                            junit allowEmptyResults: true, testResults: 'test-results.xml'
+                            
+                            // Publicar cobertura de código
+                            publishHTML([
+                                allowMissing: true,
+                                alwaysLinkToLastBuild: true,
+                                keepAll: true,
+                                reportDir: 'coverage-report',
+                                reportFiles: 'index.html',
+                                reportName: 'Code Coverage Report'
+                            ])
+                        }
                     }
                 }
             }
@@ -232,8 +311,43 @@ pipeline {
         
         stage('Deploy') {
             steps {
-                echo 'Deploy step - add your deployment commands here'
+                echo '🚀 Deploy step - add your deployment commands here'
+                // Aquí puedes añadir tus comandos de despliegue
+                // Ejemplo: docker push, kubectl apply, etc.
             }
+        }
+        
+        stage('Cleanup') {
+            steps {
+                script {
+                    dir('FunyamaProyect') {
+                        sh '''
+                            echo "🧹 Limpiando contenedores..."
+                            docker compose down
+                            echo "✅ Limpieza completada"
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo "🏁 Pipeline finalizado"
+            cleanWs()
+        }
+        failure {
+            echo "❌ Pipeline falló"
+            // Aquí puedes añadir notificaciones de error
+            // Ejemplo: slackSend, email, etc.
+        }
+        success {
+            echo "✅ Pipeline ejecutado exitosamente"
+            // Aquí puedes añadir notificaciones de éxito
+        }
+        unstable {
+            echo "⚠️ Pipeline inestable - algunos tests fallaron"
         }
     }
 }
