@@ -4,8 +4,8 @@ pipeline {
     environment {
         // Variables para docker-compose
         APP_PORT = '8081'
-        DB_PASSWORD = 'secret'
-        DB_DATABASE = 'laravel'
+        DB_PASSWORD = 'password'
+        DB_DATABASE = 'funyamaDb'
         DB_USERNAME = 'sail'
         WWWUSER = '1000'
         WWWGROUP = '1000'
@@ -223,7 +223,7 @@ pipeline {
             }
         }
         
-        stage('Run Migrations') {
+        stage('Run Migrations & Seeders') {
             steps {
                 script {
                     dir('FunyamaProyect') {
@@ -231,6 +231,10 @@ pipeline {
                             echo "🔄 Ejecutando migraciones..."
                             docker compose exec -T app php artisan migrate:fresh --force
                             echo "✅ Migraciones ejecutadas"
+
+                            echo "🌱 Ejecutando seeders..."
+                            docker compose exec -T app php artisan db:seed --force
+                            echo "✅ Seeders ejecutados
                         '''
                     }
                 }

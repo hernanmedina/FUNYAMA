@@ -12,7 +12,7 @@ services:
     environment:
       WWWUSER: '${WWWUSER:-1000}'
       WWWGROUP: '${WWWGROUP:-1000}'
-      DB_PASSWORD: '${DB_PASSWORD:-secret}'
+      DB_PASSWORD: '${DB_PASSWORD:-password}'
     
     depends_on:
       - mysql
@@ -26,10 +26,10 @@ services:
     ports:
       - '${FORWARD_DB_PORT:-3306}:3306'
     environment:
-      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-secret}'
-      MYSQL_DATABASE: '${DB_DATABASE:-laravel}'
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-password}'
+      MYSQL_DATABASE: '${DB_DATABASE:-funyamaDb}'
       MYSQL_USER: '${DB_USERNAME:-sail}'
-      MYSQL_PASSWORD: '${DB_PASSWORD:-secret}'
+      MYSQL_PASSWORD: '${DB_PASSWORD:-password}'
     volumes:
       - 'mysql-data:/var/lib/mysql'
     networks:
