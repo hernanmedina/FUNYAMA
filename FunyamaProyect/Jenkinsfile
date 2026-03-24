@@ -65,20 +65,6 @@ pipeline {
             }
         }
         
-        stage('Build Docker Images') {
-            steps {
-                script {
-                    dir('FunyamaProyect') {
-                        sh '''
-                            echo "🔨 Construyendo imágenes Docker..."
-                            docker compose build --no-cache
-                            echo "✅ Imágenes construidas correctamente"
-                        '''
-                    }
-                }
-            }
-        }
-        
         stage('Start Containers') {
             steps {
                 script {
@@ -86,11 +72,12 @@ pipeline {
                         sh '''
                             # Limpiar contenedores antiguos
                             echo "🧹 Limpiando contenedores antiguos..."
-                            docker compose down --remove-orphans 2>/dev/null || true
+                            # docker compose down --remove-orphans 2>/dev/null || true
                             
                             # Iniciar contenedores nuevos
                             echo "🚀 Iniciando nuevos contenedores..."
-                            docker compose up -d
+                            docker compose up -d --build
+                            
                             
                             # Esperar a que MySQL esté listo
                             echo "⏳ Esperando 15 segundos para que MySQL se inicialice..."
@@ -122,13 +109,21 @@ pipeline {
                         script {
                             dir('FunyamaProyect') {
                                 sh '''
-                                    echo "📦 Instalando dependencias PHP..."
-                                    docker compose exec -T app composer install \
-                                        --no-interaction \
-                                        --prefer-dist \
-                                        --optimize-autoloader \
-                                        --no-progress
-                                    echo "✅ Dependencias PHP instaladas"
+
+                                    echo "📦 Instalando dependencias PHP (solo si faltan)..."
+                                    
+                                    docker compose exec -T app sh -c '
+                                    if [ ! -d "vendor" ]; then
+                                        composer install \
+                                            --no-interaction \
+                                            --prefer-dist \
+                                            --optimize-autoloader \
+                                            --no-progress
+                                        echo "✅ Dependencias PHP instaladas"
+                                    else
+                                        echo "✅ vendor ya existe, saltando instalación"
+                                    fi
+                                    '
                                 '''
                             }
                         }
@@ -140,13 +135,16 @@ pipeline {
                         script {
                             dir('FunyamaProyect') {
                                 sh '''
-                                    echo "📦 Instalando dependencias Node..."
-                                    docker compose exec -T app npm ci \
-                                        --no-audit \
-                                        --no-fund \
-                                        --cache ${NPM_CACHE_DIR} \
-                                        --prefer-offline
-                                    echo "✅ Dependencias Node instaladas"
+
+                                    echo "📦 Instalando dependencias Node (solo si faltan)..."
+                                    
+                                    docker compose exec -T app sh -c '
+                                    if [ ! -d "node_modules" ]; then
+                                        npm install --prefer-offline --no-audit
+                                    else
+                                        echo "✅ node_modules ya existe, saltando instalación"
+                                    fi
+                                    '
                                 '''
                             }
                         }
@@ -162,14 +160,21 @@ pipeline {
                         sh '''
                             echo "🔨 Compilando assets con Vite..."
                             
-                            # Intentar producción primero
-                            if docker compose exec -T app npm run build; then
-                                echo "✅ Build de producción exitoso"
+                            # Verificar si existen dependencias antes de intentar el build
+                            if docker compose exec -T app test -d node_modules; then
+                                echo "📦 Dependencias encontradas, procediendo con build..."
+                                
+                                # Intentar producción primero
+                                if docker compose exec -T app npm run build; then
+                                    echo "✅ Build de producción exitoso"
+                                else
+                                    echo "⚠️  Build de producción falló, intentando build de desarrollo..."
+                                    docker compose exec -T app npm run dev
+                                fi
                             else
-                                echo "⚠️  Build de producción falló, intentando build de desarrollo..."
-                                docker compose exec -T app npm run dev
+                                echo "⏭️ Saltando build (sin dependencias instaladas)"
                             fi
-                            
+
                             # Verificar que el manifest existe
                             echo "🔍 Verificando manifest.json..."
                             if docker compose exec -T app test -f public/build/manifest.json; then
@@ -210,7 +215,13 @@ pipeline {
                             docker compose exec -T app sed -i "s/APP_DEBUG=.*/APP_DEBUG=true/" .env
                             
                             # Generar key
-                            docker compose exec -T app php artisan key:generate
+                            # Verificar si APP_KEY está configurada correctamente
+                            if docker compose exec -T app sh -c 'grep -q "^APP_KEY=$" .env || ! grep -q "^APP_KEY=base64:" .env'; then
+                                echo "📝 Generando APP_KEY..."
+                                docker compose exec -T app php artisan key:generate
+                            else
+                                echo "✅ APP_KEY válida encontrada"
+                            fi
                             
                             # Limpiar y cachear configuración
                             docker compose exec -T app php artisan config:clear
@@ -229,12 +240,17 @@ pipeline {
                     dir('FunyamaProyect') {
                         sh '''
                             echo "🔄 Ejecutando migraciones..."
-                            docker compose exec -T app php artisan migrate:fresh --force
+                            docker compose exec -T app php artisan migrate                                                              --force
                             echo "✅ Migraciones ejecutadas"
 
+                            # Ejecutar seeders solo en entorno testing
                             echo "🌱 Ejecutando seeders..."
-                            docker compose exec -T app php artisan db:seed --force
-                            echo "✅ Seeders ejecutados
+                            if docker compose exec -T app sh -c '[ "$APP_ENV" = "testing" ]'; then
+                                docker compose exec -T app php artisan db:seed --force
+                                echo "✅ Seeders ejecutados en entorno testing"
+                            else
+                                echo "⏭️ Saltando seeders (solo se ejecutan en entorno testing)"
+                            fi
                         '''
                     }
                 }
@@ -308,26 +324,11 @@ pipeline {
                 // Ejemplo: docker push, kubectl apply, etc.
             }
         }
-        
-        stage('Cleanup') {
-            steps {
-                script {
-                    dir('FunyamaProyect') {
-                        sh '''
-                            echo "🧹 Limpiando contenedores..."
-                            docker compose down
-                            echo "✅ Limpieza completada"
-                        '''
-                    }
-                }
-            }
-        }
     }
     
     post {
         always {
             echo "🏁 Pipeline finalizado"
-            cleanWs()
         }
         failure {
             echo "❌ Pipeline falló"
