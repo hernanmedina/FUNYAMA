@@ -239,9 +239,12 @@ pipeline {
                 dir('FunyamaProyect') {
                     sh '''
                         echo "🔧 Ajustando permisos..."
-                        docker compose exec -T app chown -R ${WWWUSER}:${WWWGROUP} storage bootstrap/cache
-                        docker compose exec -T app chmod -R 775 storage bootstrap/cache
-                        docker compose exec -T app php artisan storage:link
+
+                        docker compose exec -T app sh -c "
+                            chown -R www-data:www-data storage bootstrap/cache || true
+                            chmod -R 775 storage bootstrap/cache || true
+                        "
+
                         echo "✅ Permisos corregidos"
                     '''
                 }
