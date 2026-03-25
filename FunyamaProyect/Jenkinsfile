@@ -300,7 +300,7 @@ pipeline {
                         sh '''
                             echo "📊 Generando reporte de tests..."
                             docker compose exec -T app php artisan test \
-                                --log-junit test-results.xml || true
+                                --log-junit=storage/logs/test-results.xml || true
                         '''
                     }
                 }
@@ -310,7 +310,7 @@ pipeline {
                     script {
                         dir('FunyamaProyect') {
                             // Publicar reportes JUnit
-                            junit allowEmptyResults: true, testResults: 'test-results.xml'
+                            junit allowEmptyResults: true, testResults: 'storage/logs/test-results.xml'
                         }
                     }
                 }
