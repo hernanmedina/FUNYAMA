@@ -101,6 +101,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Fix Permissions') {
+            steps {
+                dir('FunyamaProyect') {
+                    sh '''
+                        echo "🔧 Ajustando permisos..."
+
+                        docker compose exec -T app sh -c "
+                            mkdir -p storage/logs bootstrap/cache
+                            chown -R www-data:www-data storage bootstrap/cache || true
+                            chmod -R 775 storage bootstrap/cache || true
+                        "
+
+                        echo "✅ Permisos Listos"
+                    '''
+                }
+            }
+        }
         
         stage('Install Dependencies (Parallel)') {
             parallel {
@@ -234,22 +252,6 @@ pipeline {
             }
         }
 
-        stage('Fix Permissions') {
-            steps {
-                dir('FunyamaProyect') {
-                    sh '''
-                        echo "🔧 Ajustando permisos..."
-
-                        docker compose exec -T app sh -c "
-                            chown -R www-data:www-data storage bootstrap/cache || true
-                            chmod -R 775 storage bootstrap/cache || true
-                        "
-
-                        echo "✅ Permisos corregidos"
-                    '''
-                }
-            }
-        }
         
         stage('Run Migrations & Seeders') {
             steps {
