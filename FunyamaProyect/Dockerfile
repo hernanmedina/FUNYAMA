@@ -38,7 +38,7 @@ RUN useradd -u 1000 -ms /bin/bash -g www www
 COPY --chown=www:www . /var/www/html
 
 # Cambiar al usuario www
-USER www
+USER www-data
 
 EXPOSE 80
 CMD ["apache2-foreground"]

@@ -233,6 +233,20 @@ pipeline {
                 }
             }
         }
+
+        stage('Fix Permissions') {
+            steps {
+                dir('FunyamaProyect') {
+                    sh '''
+                        echo "🔧 Ajustando permisos..."
+                        docker compose exec -T app chown -R ${WWWUSER}:${WWWGROUP} storage bootstrap/cache
+                        docker compose exec -T app chmod -R 775 storage bootstrap/cache
+                        docker compose exec -T app php artisan storage:link
+                        echo "✅ Permisos corregidos"
+                    '''
+                }
+            }
+        }
         
         stage('Run Migrations & Seeders') {
             steps {
@@ -320,7 +334,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo '🚀 Deploy step - add your deployment commands here'
-                // Aquí puedes añadir tus comandos de despliegue
+                // comandos de despliegue
                 // Ejemplo: docker push, kubectl apply, etc.
             }
         }
@@ -332,12 +346,12 @@ pipeline {
         }
         failure {
             echo "❌ Pipeline falló"
-            // Aquí puedes añadir notificaciones de error
+            // notificaciones de error
             // Ejemplo: slackSend, email, etc.
         }
         success {
             echo "✅ Pipeline ejecutado exitosamente"
-            // Aquí puedes añadir notificaciones de éxito
+            // notificaciones de éxito
         }
         unstable {
             echo "⚠️ Pipeline inestable - algunos tests fallaron"
