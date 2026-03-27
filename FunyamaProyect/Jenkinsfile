@@ -270,6 +270,7 @@ pipeline {
                             echo "🌱 Ejecutando seeders..."
                             if docker compose exec -T app sh -c '[ "$APP_ENV" = "testing" ]'; then
                                 docker compose exec -T app php artisan db:seed --force
+                                docker compose exec -it funyama-app php artisan db:seed --force 
                                 echo "✅ Seeders ejecutados en entorno testing"
                             else
                                 echo "⏭️ Saltando seeders (solo se ejecutan en entorno testing)"
