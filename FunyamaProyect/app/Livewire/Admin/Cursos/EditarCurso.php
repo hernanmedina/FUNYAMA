@@ -5,6 +5,8 @@ namespace App\Livewire\Admin\Cursos;
 use Livewire\Component;
 use App\Models\Curso;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Illuminate\Support\Str;
 
 class EditarCurso extends Component
@@ -83,11 +85,17 @@ class EditarCurso extends Component
 
         // Procesar imagen
         $imagenPath = $this->imagen_portada_temp;
-        if ($this->imagen_portada) {
+        //dd($this->imagen_portada);
+        if ($this->imagen_portada instanceof TemporaryUploadedFile) {
+            // Guardar nueva imagen
             $imagenPath = $this->imagen_portada->store('cursos', 'public');
+            //dd($this->imagen_portada->store('cursos', 'public'));
+            if (!Storage::disk('public')->exists($imagenPath)) {
+                dd('NO SE GUARDÓ', $imagenPath);
+            }
             // Eliminar imagen anterior si existe
-            if ($this->imagen_portada_temp) {
-                \Storage::disk('public')->delete($this->imagen_portada_temp);
+            if ($this->imagen_portada_temp && Storage::disk('public')->exists($this->imagen_portada_temp)) {
+                Storage::disk('public')->delete($this->imagen_portada_temp);
             }
         }
 
@@ -117,6 +125,9 @@ class EditarCurso extends Component
                 type: 'success',
                 message: 'Curso actualizado exitosamente.'
             );
+
+            // Redirigir después de la actualización
+            return $this->redirectRoute('admin.cursos.index');
 
         } catch (\Exception $e) {
             $this->dispatch('show-toast',

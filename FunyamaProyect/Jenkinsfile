@@ -102,23 +102,6 @@ pipeline {
             }
         }
 
-        stage('Fix Permissions') {
-            steps {
-                dir('FunyamaProyect') {
-                    sh '''
-                        echo "🔧 Ajustando permisos..."
-
-                        docker compose exec -T app sh -c "
-                            mkdir -p storage/logs bootstrap/cache
-                            chown -R www-data:www-data storage bootstrap/cache || true
-                            chmod -R 775 storage bootstrap/cache || true
-                        "
-
-                        echo "✅ Permisos Listos"
-                    '''
-                }
-            }
-        }
         
         stage('Install Dependencies (Parallel)') {
             parallel {
@@ -209,6 +192,27 @@ pipeline {
             }
         }
         
+        stage('Fix Permissions') {
+            steps {
+                dir('FunyamaProyect') {
+                    sh '''
+                        echo "🔧 Ajustando permisos..."
+                        docker compose exec -T app sh -c "
+                            mkdir -p storage/logs storage/framework bootstrap/cache
+                            chown -R www-data:www-data storage bootstrap/cache || true
+                            chmod -R 775 storage bootstrap/cache || true
+                        "
+                        echo "✅ Permisos listos"
+
+                        echo "🔗 Creando enlace storage..."
+                        docker compose exec -T app php artisan storage:link || true
+                        docker compose exec -T app php artisan livewire:publish --config || true
+                        echo "✅ Storage link listo"
+                    '''
+                }
+            }
+        }
+
         stage('Setup Environment') {
             steps {
                 script {
@@ -259,7 +263,7 @@ pipeline {
                     dir('FunyamaProyect') {
                         sh '''
                             echo "🔄 Ejecutando migraciones..."
-                            docker compose exec -T app php artisan migrate                                                              --force
+                            docker compose exec -T app php artisan migrate --force
                             echo "✅ Migraciones ejecutadas"
 
                             # Ejecutar seeders solo en entorno testing
