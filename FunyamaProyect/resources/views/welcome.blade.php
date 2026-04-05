@@ -52,6 +52,7 @@
             <div class="hidden md:flex space-x-8">
                 <a href="#inicio" class="text-gray-700 hover:text-blue-600 font-medium">Inicio</a>
                 <a href="#cursos" class="text-gray-700 hover:text-blue-600 font-medium">Cursos</a>
+                <a href="{{ route('eventos.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Eventos</a>
                 <a href="#nosotros" class="text-gray-700 hover:text-blue-600 font-medium">Nosotros</a> {{-- pendiente por validar si queda haí--}}
                 <a href="#contacto" class="text-gray-700 hover:text-blue-600 font-medium">Contacto</a>
             </div>
@@ -260,7 +261,7 @@
                         La Inteligencia Vs La Disciplina...
                     </li>
                 </ul>
-                {{--                Aqui debería de enrutar hacia la pagina de talleres cambiar cursos.index por talleres.index--}}
+                {{-- Aqui debería de enrutar hacia la pagina de talleres cambiar cursos.index por talleres.index--}}
                 <a href="{{ route('cursos.index') }}" class="text-purple-600 font-semibold hover:text-purple-700 flex items-center">
                     Ver Talleres
                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -296,7 +297,7 @@
             <div>
                 <h2 class="text-4xl font-bold text-gray-800 mb-6">Visión</h2>
                 <p class="text-lg text-gray-600 mb-6">
-                    Al 2027 ser una organización reconocida por el impacto de nuestras actuaciones en
+                    Al 2030 ser una organización reconocida por el impacto de nuestras actuaciones en
                     el bienestar y el desarrollo de las comunidades con las que trabajamos así como
                     por nuestra integridad y profesionalidad en el modo de actuar; ser reconocidos por
                     ofrecer respuestas adecuadas a las necesidades de formación integral e impulsar

@@ -36,6 +36,7 @@ RUN useradd -u 1000 -ms /bin/bash -g www www
 
 # Copiar archivos de la aplicación
 COPY --chown=www:www . /var/www/html
+COPY php.ini /usr/local/etc/php/
 
 # Cambiar al usuario www
 USER www

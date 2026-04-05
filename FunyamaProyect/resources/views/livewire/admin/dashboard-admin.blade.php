@@ -99,20 +99,19 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <!-- Acciones Rápidas -->
-            <!-- Acciones Rápidas -->
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h2 class="text-xl font-semibold text-gray-800">Acciones Rápidas</h2>
                 </div>
                 <div class="p-6">
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- Nuevo Curso -->
-                        <a href="{{ route('admin.cursos.create') }}"
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- Crear calendario de eventos -->
+                        <a href="{{ route('admin.eventos.create') }}"
                            class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
                             <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
-                            <span class="text-sm font-medium">Nuevo Curso</span>
+                            <span class="text-sm font-medium">Nuevo Evento</span>
                         </a>
 
                         <!-- Gestionar Cursos -->
@@ -122,6 +121,15 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                             </svg>
                             <span class="text-sm font-medium">Gestionar Cursos</span>
+                        </a>
+
+                        <!-- Gestionar Eventos -->
+                        <a href="{{ route('admin.eventos.index') }}"
+                           class="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
+                            <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span class="text-sm font-medium">Gestionar Eventos</span>
                         </a>
 
                         <!-- Gestionar Estudiantes -->

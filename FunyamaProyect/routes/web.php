@@ -5,8 +5,12 @@ use App\Livewire\Admin\Cursos\EditarCurso;
 use App\Livewire\Admin\Cursos\MostrarCurso;
 use App\Livewire\Admin\Cursos\IndexCursos;
 use App\Livewire\Admin\Cursos\CursosEliminados;
+use App\Livewire\Admin\Eventos\IndexEventos;
+use App\Livewire\Admin\Eventos\CrearEvento;
+use App\Livewire\Admin\Eventos\EditarEvento;
 use App\Livewire\Admin\DashboardAdmin;
 use App\Livewire\Cursos;
+use App\Livewire\CalendarioEventos;
 use App\Livewire\Estudiante\CrearEstudiante;
 use App\Livewire\Estudiante\DashboardEstudiante;
 use App\Livewire\Estudiante\EditarEstudiante;
@@ -25,6 +29,9 @@ Route::get('/', function () {
 // Cursos listado público con Livewire
 Route::get('/cursos', Cursos::class)->name('cursos.index');
 Route::get('/cursos/{curso}', MostrarCurso::class)->name('cursos.show');
+
+// Calendario de eventos público
+Route::get('/eventos', CalendarioEventos::class)->name('eventos.index');
 
 // Rutas protegidas
 Route::middleware([
@@ -78,6 +85,12 @@ Route::middleware([
             Route::get('/{estudiante}/editar', EditarEstudiante::class)->name('edit');
             Route::get('/{estudiante}', MostrarEstudiante::class)->name('show');
             Route::get('/', Estudiantes::class)->name('index');
+        });
+        // Gestión de eventos
+        Route::prefix('eventos')->name('eventos.')->group(function () {
+            Route::get('/', IndexEventos::class)->name('index');
+            Route::get('/crear', CrearEvento::class)->name('create');
+            Route::get('/{evento}/editar', EditarEvento::class)->name('edit');
         });
     });
 });

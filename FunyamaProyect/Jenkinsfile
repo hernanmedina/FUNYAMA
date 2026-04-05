@@ -199,6 +199,7 @@ pipeline {
                         echo "🔧 Ajustando permisos..."
                         docker compose exec -T app sh -c "
                             mkdir -p storage/logs storage/framework bootstrap/cache
+                            mkdir -p storage/framework/livewire-tmp
                             chown -R www-data:www-data storage bootstrap/cache || true
                             chmod -R 775 storage bootstrap/cache || true
                         "
