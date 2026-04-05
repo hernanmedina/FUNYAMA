@@ -49,6 +49,13 @@ class CrearEvento extends Component
     {
         $this->validate();
 
+        $admin = auth()->user()->administrador;
+
+        if (! $admin) {
+            session()->flash('error', 'No se encontró una cuenta de administrador asociada a este usuario.');
+            return;
+        }
+
         $data = [
             'titulo' => $this->titulo,
             'slug' => Str::slug($this->titulo),
@@ -66,7 +73,7 @@ class CrearEvento extends Component
             'enlace_virtual' => $this->enlace_virtual,
             'publicado' => $this->publicado,
             'destacado' => $this->destacado,
-            'creado_por_admin' => auth()->user()->id,
+            'creado_por_admin' => $admin->idAdmin,
         ];
 
         if ($this->imagen) {
