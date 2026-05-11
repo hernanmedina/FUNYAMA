@@ -30,38 +30,30 @@ jobs:
           node-version: '20'
 
       - name: Copy .env
-        working-directory: ./FunyamaProyect
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
       - name: Install Composer dependencies
-        working-directory: ./FunyamaProyect
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Set permissions
-        working-directory: ./FunyamaProyect
         run: chmod -R 777 storage bootstrap/cache
 
       - name: Install NPM dependencies
-        working-directory: ./FunyamaProyect
         run: npm install
 
       - name: Build frontend assets
-        working-directory: ./FunyamaProyect
         run: npm run build
 
       - name: Generate application key
-        working-directory: ./FunyamaProyect
         run: php artisan key:generate --force
 
       - name: Clear Laravel caches
-        working-directory: ./FunyamaProyect
         run: |
           php artisan config:clear
           php artisan route:clear
           php artisan view:clear
 
       - name: Cache Laravel config
-        working-directory: ./FunyamaProyect
         run: |
           php artisan config:cache
           php artisan route:cache
@@ -71,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: php-app
-          path: ./FunyamaProyect
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
