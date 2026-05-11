@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -14,8 +13,6 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens;
-
-    use SoftDeletes;
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
@@ -30,13 +27,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'apellido',
-        'documento_ID',
         'email',
         'password',
-        'role',
-        'telefono',
-        'direccion',
     ];
 
     /**
@@ -61,55 +53,15 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
-
-    // RELACIONES:
-    public function administrador()
+    protected function casts(): array
     {
-        return $this->hasOne(Administrador::class, 'user_id');
-    }
-
-    public function estudiante()
-    {
-        return $this->hasOne(Estudiante::class, 'user_id');
-    }
-
-    public function solicitudes()
-    {
-        return $this->hasMany(Solicitud::class, 'user_id');
-    }
-
-    // Helper methods
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
-    }
-
-    public function isEstudiante()
-    {
-        return $this->role === 'estu';
-    }
-
-    public function getNombreCompletoAttribute()
-    {
-        return trim($this->name . ' ' . $this->apellido);
-    }
-
-    public function getTipoUsuarioAttribute()
-    {
-        if ($this->isAdmin()) {
-            return 'Administrador';
-        } elseif ($this->isEstudiante()) {
-            return 'Estudiante';
-        } else {
-            return 'Usuario';
-        }
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 }
