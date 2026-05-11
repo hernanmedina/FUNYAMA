@@ -13,9 +13,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Trust Azure proxies - this ensures HTTPS is recognized correctly
-        $middleware->trustProxies(at: ['*']);
-        
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);

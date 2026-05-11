@@ -12,6 +12,7 @@
             </div>
         @endsession
 
+        {{--vista login--}}
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
