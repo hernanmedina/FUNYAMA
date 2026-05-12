@@ -22,6 +22,19 @@ use App\Livewire\Estudiante\MisCursos;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 
+// Configurar rutas de Livewire
+Livewire::setScriptRoute(function ($handle) {
+    return Route::post('/livewire/update', $handle)
+        ->middleware(['web', 'throttle:60,1'])
+        ->name('livewire.update');
+});
+
+Livewire::setUpdateRoute(function ($handle) {
+    return Route::post('/livewire/update', $handle)
+        ->middleware(['web', 'throttle:60,1'])
+        ->name('livewire.update');
+});
+
 // Página principal
 Route::get('/', function () {
     return view('welcome');
