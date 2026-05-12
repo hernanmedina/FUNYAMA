@@ -24,6 +24,7 @@ jobs:
       - name: Configure environment for build
         run: |
           sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
+          sed -i 's/DB_DATABASE=funyamaDb/DB_DATABASE=database\/database.sqlite/' .env
           sed -i 's/CACHE_STORE=database/CACHE_STORE=file/' .env
           sed -i 's/SESSION_DRIVER=database/SESSION_DRIVER=file/' .env
           sed -i 's/QUEUE_CONNECTION=database/QUEUE_CONNECTION=sync/' .env
