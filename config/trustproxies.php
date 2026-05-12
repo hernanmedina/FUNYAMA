@@ -40,6 +40,6 @@ return [
     | Default: HEADER_X_FORWARDED_ALL
     */
 
-    'headers' => \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_ALL,
+    'headers' => \Illuminate\Http\Request::HEADER_X_FORWARDED_ALL,
 
 ];
