@@ -25,19 +25,9 @@ jobs:
         run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
       - name: Generate application key
-        env:
-          DB_CONNECTION: sqlite
-          CACHE_STORE: file
-          SESSION_DRIVER: file
-          QUEUE_CONNECTION: sync
         run: php artisan key:generate --force
 
       - name: Clear Laravel caches
-        env:
-          DB_CONNECTION: sqlite
-          CACHE_STORE: file
-          SESSION_DRIVER: file
-          QUEUE_CONNECTION: sync
         run: |
           php artisan config:clear
           php artisan route:clear
