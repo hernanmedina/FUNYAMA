@@ -37,6 +37,8 @@ class Evento extends Model
 
     protected $casts = [
         'fecha' => 'date',
+        'hora_inicio' => 'datetime:H:i',
+        'hora_fin' => 'datetime:H:i',
         'costo' => 'decimal:2',
         'publicado' => 'boolean',
         'destacado' => 'boolean',

@@ -273,6 +273,9 @@
     </div>
 </section>
 
+<!-- Eventos Destacados Section con Livewire -->
+@livewire('eventos-destacados')
+
 <!-- About Section -->
 <section id="nosotros" class="bg-white py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
