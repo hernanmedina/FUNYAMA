@@ -8,6 +8,7 @@ use App\Models\Estudiante;
 use App\Models\Solicitud;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
+use Illuminate\Support\Arr;
 
 #[Layout('layouts.app')] 
 
@@ -21,6 +22,14 @@ class DashboardEstudiante extends Component
     public bool $mostrarModal = false;
     public ?string $cursoSeleccionado = null;
     public ?Curso $cursoData = null;
+
+    public string $nombre = '';
+    public string $apellido = '';
+    public string $documento_identidad = '';
+    public string $direccion = '';
+    public ?string $fecha_nacimiento = '';
+    public ?string $genero = '';
+    public ?string $nivel_educativo = '';
 
     #[Validate('required|string')]
     public string $mensaje = '';
@@ -42,10 +51,16 @@ class DashboardEstudiante extends Component
         if ($estudiante) {
             // Cursos en los que está inscrito el estudiante
             $this->cursosInscritos = $estudiante->cursos()
-                ->withPivot('estado', 'progreso', 'fecha_inscripcion')
+                ->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion')
                 ->orderBy('curso_estudiante.fecha_inscripcion', 'desc')
                 ->take(5)
                 ->get();
+
+            $this->cursosInscritos->each(function ($curso) {
+                $progreso = $this->calcularProgresoCurso($curso);
+                $curso->porcentaje_progreso = $progreso;
+                $curso->pivot->progreso = $progreso;
+            });
 
             // Cursos disponibles (no inscritos y publicados)
             $cursosInscritosIds = $estudiante->cursos()->pluck('codigo')->toArray() ?? [];
@@ -58,11 +73,16 @@ class DashboardEstudiante extends Component
                 ->get();
 
             // Estadísticas
+            $cursos = $estudiante->cursos()->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion')->get();
+            $cursos->each(function ($curso) {
+                $curso->porcentaje_progreso = $this->calcularProgresoCurso($curso);
+            });
+
             $this->estadisticas = [
-                'total_cursos' => $estudiante->cursos()->count(),
-                'cursos_completados' => $estudiante->cursos()->wherePivot('estado', 'completado')->count(),
-                'cursos_en_progreso' => $estudiante->cursos()->wherePivot('estado', 'en_progreso')->count(),
-                'promedio_progreso' => $estudiante->cursos()->avg('curso_estudiante.progreso') ?? 0,
+                'total_cursos' => $cursos->count(),
+                'cursos_completados' => $cursos->where('porcentaje_progreso', 100)->count(),
+                'cursos_en_progreso' => $cursos->where('porcentaje_progreso', '<', 100)->count(),
+                'promedio_progreso' => $cursos->avg('porcentaje_progreso') ?? 0,
             ];
         } else {
             // Inicializar vacío si no hay estudiante
@@ -75,6 +95,24 @@ class DashboardEstudiante extends Component
                 'promedio_progreso' => 0,
             ];
         }
+    }
+
+    protected function calcularProgresoCurso($curso): float
+    {
+        $temarioItems = $curso->temario_items ?? [];
+        $total = count($temarioItems);
+
+        if ($total === 0) {
+            return (float) ($curso->pivot->progreso ?? 0);
+        }
+
+        $progreso = $curso->pivot->temario_progreso ?? [];
+        $progreso = is_string($progreso) ? json_decode($progreso, true) : $progreso;
+        $progreso = is_array($progreso) ? $progreso : [];
+
+        $completados = count(array_filter($progreso, fn ($valor) => $valor === true));
+
+        return round(($completados / $total) * 100, 2);
     }
 
     public function inscribirCurso($codigo)
@@ -107,6 +145,20 @@ class DashboardEstudiante extends Component
             return;
         }
 
+        $user = Auth::user();
+        $this->nombre = $user->name ?? '';
+        $this->apellido = $user->apellido ?? '';
+        $this->email_contacto = $user->email ?? '';
+        $this->telefono = $user->telefono ?? '';
+        $this->documento_identidad = $user->documento_ID ?? '';
+        $this->direccion = $user->direccion ?? '';
+
+        if ($user?->estudiante) {
+            $this->fecha_nacimiento = $user->estudiante->fecha_nacimiento?->format('Y-m-d') ?? '';
+            $this->genero = $user->estudiante->genero ?? '';
+            $this->nivel_educativo = $user->estudiante->nivel_educativo ?? '';
+        }
+
         // Abrir modal para diligenciar solicitud
         $this->cursoSeleccionado = $codigo;
         $this->cursoData = $curso;
@@ -119,7 +171,7 @@ class DashboardEstudiante extends Component
         $this->mostrarModal = false;
         $this->cursoSeleccionado = null;
         $this->cursoData = null;
-        $this->reset(['mensaje', 'telefono', 'email_contacto', 'motivoInscripcion']);
+        $this->reset(['mensaje', 'telefono', 'email_contacto', 'motivoInscripcion', 'nombre', 'apellido', 'documento_identidad', 'direccion', 'fecha_nacimiento', 'genero', 'nivel_educativo']);
         $this->resetValidation();
     }
 
@@ -129,6 +181,17 @@ class DashboardEstudiante extends Component
 
         $user = Auth::user();
         $estudiante = $user->estudiante;
+
+        // Validar que no esté ya inscrito (doble protección)
+        $yaInscrito = $estudiante->cursos()->where('codigo', $this->cursoSeleccionado)->exists();
+        if ($yaInscrito) {
+            $this->dispatch('show-toast',
+                type: 'warning',
+                message: 'Ya estás inscrito en este curso. No puedes solicitar inscripción nuevamente.'
+            );
+            $this->cerrarModal();
+            return;
+        }
 
         // Crear solicitud de inscripción
         Solicitud::create([
@@ -141,7 +204,15 @@ class DashboardEstudiante extends Component
                 'codigo_curso' => $this->cursoSeleccionado,
                 'nombre_curso' => $this->cursoData->nombre,
                 'motivo_inscripcion' => $this->motivoInscripcion,
-                'estudiante_codigo' => $estudiante->codigo, // Usar 'codigo' como PK
+                'estudiante_codigo' => $estudiante->codigo,
+                'nombre' => $this->nombre,
+                'apellido' => $this->apellido,
+                'documento_ID' => $this->documento_identidad,
+                'direccion' => $this->direccion,
+                'fecha_nacimiento' => $this->fecha_nacimiento,
+                'genero' => $this->genero,
+                'nivel_educativo' => $this->nivel_educativo,
+                'email_contacto' => $this->email_contacto,
             ],
             'estado' => 'pendiente',
             'user_id' => $user->id,

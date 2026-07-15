@@ -193,6 +193,26 @@
                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 @error('fecha_inicio') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
+
+                            <!-- Enlace Classroom -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Enlace de Classroom</label>
+                                <input type="url"
+                                       wire:model="enlace_classroom"
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="https://classroom.google.com/...">
+                                @error('enlace_classroom') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Temario -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Temario</label>
+                                <textarea wire:model="temario"
+                                          rows="4"
+                                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                          placeholder="Escribe cada tema en una línea nueva"></textarea>
+                                @error('temario') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                            </div>
                         </div>
 
                         <!-- Precios -->

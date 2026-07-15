@@ -9,118 +9,144 @@
         </div>
 
         @if($eventos->count() > 0)
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                @foreach($eventos as $evento)
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                        <!-- Event Image -->
-                        <div class="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
-                            @if($evento->imagen)
-                                <img src="{{ asset('storage/' . $evento->imagen) }}" 
-                                     alt="{{ $evento->titulo }}" 
-                                     class="w-full h-full object-cover">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center">
-                                    <svg class="w-16 h-16 text-white opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                </div>
-                            @endif
-                            
-                            <!-- Event Type Badge -->
-                            <div class="absolute top-4 right-4">
-                                <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                    {{ ucfirst($evento->tipo_evento) }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Event Content -->
-                        <div class="p-6">
-                            <!-- Title -->
-                            <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2">
-                                {{ $evento->titulo }}
-                            </h3>
-
-                            <!-- Description -->
-                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                                {{ Str::limit($evento->descripcion, 100) }}
-                            </p>
-
-                            <!-- Event Details -->
-                            <div class="space-y-3 mb-6">
-                                <!-- Date -->
-                                <div class="flex items-center text-gray-700">
-                                    <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                    <span class="font-medium">
-                                        {{ $evento->fecha->format('d \d\e F \d\e Y') }}
+            <style>
+                .scroll-eventos::-webkit-scrollbar { height: 6px; }
+                .scroll-eventos::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+                .scroll-eventos::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 10px; }
+                .scroll-eventos::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
+            </style>
+            <div class="relative group">
+                <div class="scroll-eventos flex overflow-x-auto gap-6 pb-6 snap-x snap-mandatory" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #93c5fd #f1f5f9;">
+                    @foreach($eventos as $evento)
+                        <div class="snap-start flex-shrink-0 w-[340px] bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-200">
+                            <!-- Event Image -->
+                            <div class="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
+                                @if($evento->imagen)
+                                    <img src="{{ asset('storage/' . $evento->imagen) }}" 
+                                         alt="{{ $evento->titulo }}" 
+                                         class="w-full h-full object-cover">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <svg class="w-16 h-16 text-white opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                @endif
+                                
+                                <!-- Event Type Badge -->
+                                <div class="absolute top-4 right-4">
+                                    <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                        {{ ucfirst($evento->tipo_evento) }}
                                     </span>
                                 </div>
+                            </div>
 
-                                <!-- Time -->
-                                @if($evento->hora_inicio)
+                            <!-- Event Content -->
+                            <div class="p-6">
+                                <!-- Title -->
+                                <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2">
+                                    {{ $evento->titulo }}
+                                </h3>
+
+                                <!-- Description -->
+                                <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                                    {{ Str::limit($evento->descripcion, 100) }}
+                                </p>
+
+                                <!-- Event Details -->
+                                <div class="space-y-3 mb-6">
+                                    <!-- Date -->
                                     <div class="flex items-center text-gray-700">
-                                        <svg class="w-5 h-5 text-green-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                         </svg>
                                         <span class="font-medium">
-                                            @if(is_object($evento->hora_inicio))
-                                                {{ $evento->hora_inicio->format('H:i') }} - {{ $evento->hora_fin->format('H:i') }}
-                                            @else
-                                                {{ substr($evento->hora_inicio, 0, 5) }} - {{ substr($evento->hora_fin, 0, 5) }}
-                                            @endif
+                                            {{ $evento->fecha->format('d \d\e F \d\e Y') }}
                                         </span>
+                                    </div>
+
+                                    <!-- Time -->
+                                    @if($evento->hora_inicio)
+                                        <div class="flex items-center text-gray-700">
+                                            <svg class="w-5 h-5 text-green-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            <span class="font-medium">
+                                                @if(is_object($evento->hora_inicio))
+                                                    {{ $evento->hora_inicio->format('H:i') }} - {{ $evento->hora_fin->format('H:i') }}
+                                                @else
+                                                    {{ substr($evento->hora_inicio, 0, 5) }} - {{ substr($evento->hora_fin, 0, 5) }}
+                                                @endif
+                                            </span>
+                                        </div>
+                                    @endif
+
+                                    <!-- Location -->
+                                    @if($evento->ubicacion)
+                                        <div class="flex items-center text-gray-700">
+                                            <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                            <span class="font-medium text-sm">{{ $evento->ubicacion }}</span>
+                                        </div>
+                                    @endif
+
+                                    <!-- Capacity -->
+                                    @if($evento->cupo_maximo)
+                                        <div class="flex items-center text-gray-700">
+                                            <svg class="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20h12a6 6 0 00-12 0z"/>
+                                            </svg>
+                                            <span class="font-medium text-sm">
+                                                {{ $evento->inscritos_actual }}/{{ $evento->cupo_maximo }} Inscritos
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- Cost -->
+                                @if($evento->costo > 0)
+                                    <div class="mb-4 p-3 bg-amber-50 rounded-lg">
+                                        <span class="text-lg font-bold text-amber-700">
+                                            ${{ number_format($evento->costo, 2, ',', '.') }}
+                                        </span>
+                                    </div>
+                                @else
+                                    <div class="mb-4 p-3 bg-green-50 rounded-lg">
+                                        <span class="text-lg font-bold text-green-700">Evento Gratuito</span>
                                     </div>
                                 @endif
 
-                                <!-- Location -->
-                                @if($evento->ubicacion)
-                                    <div class="flex items-center text-gray-700">
-                                        <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        </svg>
-                                        <span class="font-medium text-sm">{{ $evento->ubicacion }}</span>
-                                    </div>
-                                @endif
-
-                                <!-- Capacity -->
-                                @if($evento->cupo_maximo)
-                                    <div class="flex items-center text-gray-700">
-                                        <svg class="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20h12a6 6 0 00-12 0z"/>
-                                        </svg>
-                                        <span class="font-medium text-sm">
-                                            {{ $evento->inscritos_actual }}/{{ $evento->cupo_maximo }} Inscritos
-                                        </span>
-                                    </div>
-                                @endif
+                                <!-- CTA Button -->
+                                <a href="{{ route('eventos.index') }}" 
+                                   class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center">
+                                    Ver Detalles
+                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
                             </div>
-
-                            <!-- Cost -->
-                            @if($evento->costo > 0)
-                                <div class="mb-4 p-3 bg-amber-50 rounded-lg">
-                                    <span class="text-lg font-bold text-amber-700">
-                                        ${{ number_format($evento->costo, 2, ',', '.') }}
-                                    </span>
-                                </div>
-                            @else
-                                <div class="mb-4 p-3 bg-green-50 rounded-lg">
-                                    <span class="text-lg font-bold text-green-700">Evento Gratuito</span>
-                                </div>
-                            @endif
-
-                            <!-- CTA Button -->
-                            <a href="{{ route('eventos.index') }}" 
-                               class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center">
-                                Ver Detalles
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </a>
                         </div>
-                    </div>
+                    @endforeach
+                </div>
+
+                <!-- Flechas de navegación -->
+                <button onclick="this.parentElement.querySelector('.scroll-eventos').scrollBy({left: -360, behavior: 'smooth'})" 
+                        class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white shadow-lg rounded-full p-2 hover:bg-gray-100 transition opacity-0 group-hover:opacity-100 hidden md:block z-10">
+                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button onclick="this.parentElement.querySelector('.scroll-eventos').scrollBy({left: 360, behavior: 'smooth'})" 
+                        class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white shadow-lg rounded-full p-2 hover:bg-gray-100 transition opacity-0 group-hover:opacity-100 hidden md:block z-10">
+                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+
+            <!-- Indicadores de scroll (dots) -->
+            <div class="flex justify-center gap-2 mt-4 md:hidden">
+                @foreach($eventos as $index => $evento)
+                    <button onclick="this.closest('section').querySelector('.scroll-eventos').children[{{ $index }}].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})" 
+                            class="w-2.5 h-2.5 rounded-full bg-blue-300 hover:bg-blue-500 transition"></button>
                 @endforeach
             </div>
 

@@ -15,7 +15,7 @@
 
 <div class="bg-gray-200 bg-opacity-25 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 p-6 lg:p-8">
     {{-- Validación de rol --}}
-    @if(Auth::check() && Auth::user()->role === 'admin')
+    @if(Auth::check() && Auth::user()->isAdmin())
         <div class="col-span-2">
             <div class="flex items-center mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"

@@ -4,7 +4,9 @@ namespace App\Livewire;
 
 use App\Models\Evento;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.public')]
 class CalendarioEventos extends Component
 {
     public $eventoSeleccionado = null;
@@ -83,3 +85,4 @@ class CalendarioEventos extends Component
         ]);
     }
 }
+

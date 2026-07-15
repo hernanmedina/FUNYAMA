@@ -8,6 +8,7 @@ use App\Livewire\Admin\Cursos\CursosEliminados;
 use App\Livewire\Admin\Eventos\IndexEventos;
 use App\Livewire\Admin\Eventos\CrearEvento;
 use App\Livewire\Admin\Eventos\EditarEvento;
+use App\Livewire\Admin\Solicitudes\SolicitudesInscripcion;
 use App\Livewire\Admin\DashboardAdmin;
 use App\Livewire\Cursos;
 use App\Livewire\CalendarioEventos;
@@ -23,16 +24,10 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 
 // Configurar rutas de Livewire
-Livewire::setScriptRoute(function ($handle) {
-    return Route::post('/livewire/update', $handle)
-        ->middleware(['web', 'throttle:60,1'])
-        ->name('livewire.update');
-});
-
+// Personalizar la ruta de actualización de Livewire (POST)
 Livewire::setUpdateRoute(function ($handle) {
     return Route::post('/livewire/update', $handle)
-        ->middleware(['web', 'throttle:60,1'])
-        ->name('livewire.update');
+        ->middleware(['web', 'throttle:60,1']);
 });
 
 // Página principal
@@ -58,12 +53,12 @@ Route::middleware([
     Route::get('/dashboard', function () {
         $user = auth()->user();
 
-        if ($user->role === 'admin') {
+        if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
         }
 
-        if ($user->role === 'estudiante' || $user->role === 'estu') {
-            return redirect()->route('admin.estudiantes.dashboard');
+        if ($user->isEstudiante()) {
+            return redirect()->route('estudiante.dashboard');
         }
 
         return redirect()->route('cursos.index');
@@ -75,10 +70,14 @@ Route::middleware([
     })->name('not-authorized');
 
     // ----------- RUTAS DE ESTUDIANTE (ALUMNO LOGUEADO) -----------
-    Route::get('/mis-cursos', MisCursos::class)->name('mis-cursos');
+    Route::prefix('estudiante')->name('estudiante.')->middleware('role:estu')->group(function () {
+        Route::get('/dashboard', DashboardEstudiante::class)->name('dashboard');
+        Route::get('/mis-certificados', MisCertificados::class)->name('certificados');
+        Route::get('/mis-cursos', MisCursos::class)->name('mis-cursos');
+    });
 
     // ----------- ADMIN DASHBOARD -----------
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         // Dashboard administrativo
         Route::get('/dashboard', DashboardAdmin::class)->name('dashboard');
 
@@ -94,8 +93,6 @@ Route::middleware([
         Route::prefix('estudiantes')->name('estudiantes.')->group(function () {
             Route::get('/crear', CrearEstudiante::class)->name('create');
             Route::get('/eliminados', EstudiantesEliminados::class)->name('eliminados');
-            Route::get('/dashboard', DashboardEstudiante::class)->name('dashboard');
-            Route::get('/mis-certificados', MisCertificados::class)->name('certificados');
             Route::get('/{estudiante}/editar', EditarEstudiante::class)->name('edit');
             Route::get('/{estudiante}', MostrarEstudiante::class)->name('show');
             Route::get('/', Estudiantes::class)->name('index');
@@ -105,6 +102,10 @@ Route::middleware([
             Route::get('/', IndexEventos::class)->name('index');
             Route::get('/crear', CrearEvento::class)->name('create');
             Route::get('/{evento}/editar', EditarEvento::class)->name('edit');
+        });
+        // Gestión de solicitudes de inscripción
+        Route::prefix('solicitudes')->name('solicitudes.')->group(function () {
+            Route::get('/inscripcion', SolicitudesInscripcion::class)->name('inscripcion');
         });
     });
 });

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Fundación YAMA - Enseñanzas Que Dejan Huella</title>
+    <title>Fundación YAMA -ñanzas Que Dejan Huella</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -103,7 +103,7 @@
                 Brindamos oportunidades de aprendizaje de calidad para construir un futuro mejor en nuestra comunidad.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('cursos.index') }}"
+                <a href="#cursos"
                    class="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition duration-200 shadow-lg">
                     Explorar Cursos
                 </a>
@@ -140,138 +140,8 @@
     </div>
 </section>
 
-<!-- Courses Section -->
-<section id="cursos" class="bg-gray-50 py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-800 mb-4">Nuestros Programas Educativos</h2>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                Ofrecemos una amplia variedad de cursos, Capacitaciones, Diplomados, Conferencias y Talleres  diseñados para desarrollar habilidades y competencias para el mundo actual.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Course Card 1 -->
-            <div class="bg-white rounded-xl shadow-lg card-hover p-6">
-                <div class="bg-blue-100 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">Herramientas Ofimáticas</h3>
-                <p class="text-gray-600 mb-4">
-                    Aprende las habilidades digitales más demandadas en el mercado laboral actual.
-                </p>
-                <ul class="text-gray-600 space-y-2 mb-6">
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Word, Excel, PowerPoint Básico
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Word, Excel, PowerPoint Intermedio
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Word, Excel, PowerPoint Avanzado...
-                    </li>
-                </ul>
-                <a href="{{ route('cursos.index') }}" class="text-blue-600 font-semibold hover:text-blue-700 flex items-center">
-                    Ver cursos
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-            </div>
-
-            <!-- Course Card 2 -->
-            <div class="bg-white rounded-xl shadow-lg card-hover p-6">
-                <div class="bg-green-100 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">Negocios y Emprendimiento</h3>
-                <p class="text-gray-600 mb-4">
-                    Desarrolla habilidades empresariales para crear y gestionar tu propio negocio.
-                </p>
-                <ul class="text-gray-600 space-y-2 mb-6">
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Administración y Estrategia Empresarial
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Finanzas Personales
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Gestión de Proyectos...
-                    </li>
-                </ul>
-{{--                Aqui debería de enrutar hacia la pagina de coferencias cambiar cursos.index por conferencias.index--}}
-                <a href="{{ route('cursos.index') }}" class="text-green-600 font-semibold hover:text-green-700 flex items-center">
-                    Ver Conferencias y Capacitaciones
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-            </div>
-
-            <!-- Course Card 3 -->
-            <div class="bg-white rounded-xl shadow-lg card-hover p-6">
-                <div class="bg-purple-100 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">Desarrollo Personal</h3>
-                <p class="text-gray-600 mb-4">
-                    Mejora tus habilidades blandas y desarrolla tu máximo potencial personal y profesional.
-                </p>
-                <ul class="text-gray-600 space-y-2 mb-6">
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Liderazgo y Comunicación
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Inteligencia Emocional
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        La Inteligencia Vs La Disciplina...
-                    </li>
-                </ul>
-                {{-- Aqui debería de enrutar hacia la pagina de talleres cambiar cursos.index por talleres.index--}}
-                <a href="{{ route('cursos.index') }}" class="text-purple-600 font-semibold hover:text-purple-700 flex items-center">
-                    Ver Talleres
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- Courses Section con Livewire -->
+@livewire("cursos-destacados")
 
 <!-- Eventos Destacados Section con Livewire -->
 @livewire('eventos-destacados')
@@ -279,12 +149,12 @@
 <!-- About Section -->
 <section id="nosotros" class="bg-white py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div class="flex flex-col h-full">
 
 
                 <h2 class="text-4xl font-bold text-gray-800 mb-6">Misión</h2>
-                <p class="text-lg text-gray-600 mb-6">
+                <p class="text-lg leading-8 text-gray-600 mb-6 justify-text">
                     La <span class="font-semibold text-purple-600">Fundación YAMA</span>, está comprometida a proveer programas en educación, conservación del medio ambiente y la preservación de la cultura con el fin de mejorar, enriquecer y contribuir a la calidad de vida de los menos privilegiados,
                     promoviendo el desarrollo de las personas a las que nos dirigimos y generando nuevas oportunidades garantizando el acceso a la educación en aquellos colectivos más desfavorecidos que se encuentran en riesgo de exclusión social, promoviendo
                     personas integrales, dando respuesta a todas sus necesidades personales, educativas y sociolaborales.
@@ -297,9 +167,9 @@
             </div>
 
             {{--Vison Fndación YAMA--}}
-            <div>
+            <div class="flex flex-col h-full">
                 <h2 class="text-4xl font-bold text-gray-800 mb-6">Visión</h2>
-                <p class="text-lg text-gray-600 mb-6">
+                <p class="text-lg leading-8 text-gray-600 mb-6 justify-text">
                     Al 2030 ser una organización reconocida por el impacto de nuestras actuaciones en
                     el bienestar y el desarrollo de las comunidades con las que trabajamos así como
                     por nuestra integridad y profesionalidad en el modo de actuar; ser reconocidos por

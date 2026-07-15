@@ -31,6 +31,8 @@ class EditarCurso extends Component
     public $precio_descuento;
     public $nivel;
     public $fecha_inicio;
+    public $enlace_classroom;
+    public $temario;
     public $publicado;
     public $destacado;
 
@@ -49,6 +51,8 @@ class EditarCurso extends Component
         'nivel' => 'required|in:principiante,intermedio,avanzado',
         'imagen_portada' => 'nullable|image|max:2048',
         'fecha_inicio' => 'nullable|date',
+        'enlace_classroom' => 'nullable|url',
+        'temario' => 'nullable|string',
         'publicado' => 'boolean',
         'destacado' => 'boolean',
     ];
@@ -64,7 +68,7 @@ class EditarCurso extends Component
             'nombre', 'descripcion', 'cronograma', 'requisitos', 'objetivos',
             'materiales_incluidos', 'cupo_total', 'duracion_horas', 'duracion_texto',
             'precio_regular', 'precio_descuento', 'nivel', 'fecha_inicio',
-            'publicado', 'destacado'
+            'enlace_classroom', 'temario', 'publicado', 'destacado'
         ]));
 
         $this->imagen_portada_temp = $curso->imagen_portada;
@@ -117,6 +121,8 @@ class EditarCurso extends Component
                 'nivel' => $this->nivel,
                 'imagen_portada' => $imagenPath,
                 'fecha_inicio' => $this->fecha_inicio,
+                'enlace_classroom' => $this->enlace_classroom,
+                'temario' => $this->temario,
                 'publicado' => $this->publicado,
                 'destacado' => $this->destacado,
             ]);

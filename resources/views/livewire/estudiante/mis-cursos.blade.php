@@ -87,13 +87,30 @@
                                 <div>
                                     <div class="flex items-center justify-between mb-1">
                                         <span class="text-xs font-medium text-slate-600">Progreso</span>
-                                        <span class="text-xs font-bold text-slate-700">{{ $curso->pivot ? $curso->pivot->progreso : 0 }}%</span>
+                                        <span class="text-xs font-bold {{ ($curso->pivot ? $curso->pivot->progreso : 0) >= 100 ? 'text-green-600' : 'text-blue-600' }}">
+                                            {{ $curso->pivot ? number_format($curso->pivot->progreso, 1) : 0 }}%
+                                        </span>
                                     </div>
-                                    <div class="w-full bg-slate-200 rounded-full h-2">
-                                        <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full transition-all duration-300"
+                                    <div class="w-full bg-slate-200 rounded-full h-2.5">
+                                        <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
                                              style="width: {{ $curso->pivot ? $curso->pivot->progreso : 0 }}%">
                                         </div>
                                     </div>
+                                    @if($curso->temario_items && count($curso->temario_items) > 0)
+                                        @php
+                                            $temarioProgreso = $curso->pivot->temario_progreso ?? [];
+                                            if (is_string($temarioProgreso)) {
+                                                $temarioProgreso = json_decode($temarioProgreso, true) ?? [];
+                                            }
+                                            $completados = is_array($temarioProgreso) ? count(array_filter($temarioProgreso, fn($v) => $v === true)) : 0;
+                                            $totalTemas = count($curso->temario_items);
+                                        @endphp
+                                        <div class="mt-1 text-right">
+                                            <span class="text-xs text-slate-400">
+                                                {{ $completados }}/{{ $totalTemas }} temas completados
+                                            </span>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <!-- Fecha de Inscripción -->
@@ -124,12 +141,22 @@
                                     Ver Detalles
                                 </a>
                                 @if($curso->pivot && $curso->pivot->estado !== 'completado')
-                                    <button
-                                        wire:click="$dispatch('modal:open', { component: 'estudiante.modal-curso-detalles', arguments: { codigo: '{{ $curso->codigo }}' } })"
-                                        class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors">
-                                        Continuar Curso
-                                        {{-- redirecionar para continuar con el cuso --}}
-                                    </button>
+                                    @if($curso->enlace_classroom)
+                                        <a href="{{ $curso->enlace_classroom }}"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                            </svg>
+                                            Ir a Classroom
+                                        </a>
+                                    @else
+                                        <a href="{{ route('cursos.show', $curso->codigo) }}"
+                                           class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors">
+                                            Continuar Curso
+                                        </a>
+                                    @endif
                                 @endif
                             </div>
                         </div>

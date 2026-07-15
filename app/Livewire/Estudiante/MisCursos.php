@@ -39,7 +39,7 @@ class MisCursos extends Component
         }
 
         $query = $estudiante->cursos()
-            ->withPivot('estado', 'progreso', 'fecha_inscripcion');
+            ->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion');
 
         // Aplicar búsqueda
         if ($this->search) {
@@ -56,7 +56,39 @@ class MisCursos extends Component
             $query->orderBy($this->sortBy, $this->sortDirection);
         }
 
-        return $query->paginate(9);
+        $cursos = $query->paginate(9);
+
+        // Calcular progreso real basado en el temario para cada curso
+        $cursos->each(function ($curso) {
+            $progreso = $this->calcularProgresoCurso($curso);
+            $curso->pivot->progreso = $progreso;
+        });
+
+        return $cursos;
+    }
+
+    protected function calcularProgresoCurso($curso): float
+    {
+        $temarioItems = $curso->temario_items;
+        $totalItems = count($temarioItems);
+
+        if ($totalItems === 0) {
+            return 0.0;
+        }
+
+        $temarioProgreso = $curso->pivot->temario_progreso ?? [];
+
+        if (is_string($temarioProgreso)) {
+            $temarioProgreso = json_decode($temarioProgreso, true) ?? [];
+        }
+
+        if (!is_array($temarioProgreso)) {
+            $temarioProgreso = [];
+        }
+
+        $completados = count(array_filter($temarioProgreso, fn ($valor) => $valor === true));
+
+        return round(($completados / $totalItems) * 100, 2);
     }
 
     public function render()

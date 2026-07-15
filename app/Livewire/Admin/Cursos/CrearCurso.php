@@ -29,6 +29,8 @@ class CrearCurso extends Component
     public $nivel = 'principiante';
     public $imagen_portada;
     public $fecha_inicio;
+    public $enlace_classroom;
+    public $temario;
     public $publicado = false;
     public $destacado = false;
 
@@ -49,6 +51,8 @@ class CrearCurso extends Component
         'nivel' => 'required|in:principiante,intermedio,avanzado',
         'imagen_portada' => 'nullable|image|max:2048',
         'fecha_inicio' => 'nullable|date|after_or_equal:today',
+        'enlace_classroom' => 'nullable|url',
+        'temario' => 'nullable|string',
         'publicado' => 'boolean',
         'destacado' => 'boolean',
     ];
@@ -111,6 +115,8 @@ class CrearCurso extends Component
                 'nivel' => $this->nivel,
                 'imagen_portada' => $imagenPath,
                 'fecha_inicio' => $this->fecha_inicio,
+                'enlace_classroom' => $this->enlace_classroom,
+                'temario' => $this->temario,
                 'publicado' => $this->publicado,
                 'destacado' => $this->destacado,
                 'creado_por_admin' => $admin->idAdmin,

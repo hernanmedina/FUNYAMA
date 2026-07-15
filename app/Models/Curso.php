@@ -33,6 +33,8 @@ class Curso extends Model
         'nivel',
         'imagen_portada',
         'video_presentacion',
+        'enlace_classroom',
+        'temario',
         'publicado',
         'destacado',
         'fecha_inicio',
@@ -59,7 +61,7 @@ class Curso extends Model
     public function estudiantes()
     {
         return $this->belongsToMany(Estudiante::class, 'curso_estudiante', 'curso_id', 'estudiante_id')
-            ->withPivot('estado', 'calificacion', 'pago_realizado', 'estado_pago', 'progreso', 'fecha_inscripcion')
+            ->withPivot('estado', 'calificacion', 'pago_realizado', 'estado_pago', 'progreso', 'temario_progreso', 'fecha_inscripcion')
             ->withTimestamps();
     }
 
@@ -98,5 +100,14 @@ class Curso extends Model
     public function getEstaDisponibleAttribute()
     {
         return $this->cupo_disponible > 0 && $this->publicado;
+    }
+
+    public function getTemarioItemsAttribute()
+    {
+        if (empty($this->temario)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $this->temario)), fn ($item) => $item !== ''));
     }
 }

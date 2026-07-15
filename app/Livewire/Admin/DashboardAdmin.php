@@ -238,22 +238,6 @@ class DashboardAdmin extends Component
                 'precio' => $curso->precioFinal
             ]);
 
-            // Inscribir al estudiante
-            $estudiante->cursos()->attach($codigoCurso, [
-                'estado' => 'en_progreso',
-                'fecha_inscripcion' => now(),
-                'pago_realizado' => $curso->precioFinal,
-                'estado_pago' => 'completo',
-                'progreso' => 0
-            ]);
-
-            Log::info('Estudiante inscrito en el curso');
-
-            // Decrementar cupo disponible
-            $curso->decrement('cupo_disponible');
-
-            Log::info('Cupo decrementado');
-
             // Obtener ID del administrador
             $adminId = null;
             $admin = auth()->user()?->administrador;
@@ -263,15 +247,30 @@ class DashboardAdmin extends Component
 
             Log::info('Admin ID: ' . ($adminId ?? 'null'));
 
-            // Actualizar solicitud
-            $this->solicitudActual->update([
-                'estado' => 'resuelta',
-                'respuesta' => $this->respuesta,
-                'fecha_respuesta' => now(),
-                'atendido_por_admin' => $adminId
-            ]);
+            // Realizar cambios en la base de datos dentro de una transacción
+            DB::transaction(function () use ($estudiante, $codigoCurso, $curso, $adminId) {
+                // Inscribir al estudiante
+                $estudiante->cursos()->attach($codigoCurso, [
+                    'estado' => 'en_progreso',
+                    'fecha_inscripcion' => now(),
+                    'pago_realizado' => $curso->precioFinal,
+                    'estado_pago' => 'completo',
+                    'progreso' => 0
+                ]);
 
-            Log::info('Solicitud actualizada a resuelta');
+                // Decrementar cupo disponible
+                $curso->decrement('cupo_disponible');
+
+                // Actualizar solicitud
+                $this->solicitudActual->update([
+                    'estado' => 'resuelta',
+                    'respuesta' => $this->respuesta,
+                    'fecha_respuesta' => now(),
+                    'atendido_por_admin' => $adminId
+                ]);
+            });
+
+            Log::info('Inscripción completada y solicitud actualizada en transacción');
 
             session()->flash('flash.banner', '✓ Inscripción aceptada y estudiante inscrito en el curso.');
             session()->flash('flash.bannerStyle', 'success');

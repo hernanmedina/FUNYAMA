@@ -55,8 +55,8 @@ class EditarEvento extends Component
         $this->descripcion = $evento->descripcion;
         $this->contenido = $evento->contenido;
         $this->fecha = $evento->fecha->format('Y-m-d');
-        $this->hora_inicio = $evento->hora_inicio;
-        $this->hora_fin = $evento->hora_fin;
+        $this->hora_inicio = $evento->hora_inicio ? \Carbon\Carbon::parse($evento->hora_inicio)->format('H:i') : '';
+        $this->hora_fin = $evento->hora_fin ? \Carbon\Carbon::parse($evento->hora_fin)->format('H:i') : '';
         $this->ubicacion = $evento->ubicacion;
         $this->direccion = $evento->direccion;
         $this->ciudad = $evento->ciudad;
@@ -111,3 +111,4 @@ class EditarEvento extends Component
         return view('livewire.admin.eventos.editar-evento');
     }
 }
+

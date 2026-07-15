@@ -1,21 +1,20 @@
 <?php
 
-namespace App\Livewire\Admin\Cursos;
+namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use App\Models\Curso;
 use App\Models\Solicitud;
 
-#[Layout('layouts.cursos')]
-class MostrarCurso extends Component
+#[Layout('layouts.public')]
+class CursoDetalle extends Component
 {
     public Curso $curso;
-    public array $temarioProgreso = [];
-    public bool $estaInscrito = false;
 
     // Modal de solicitud de inscripción
     public bool $mostrarModalSolicitud = false;
+    public array $temarioProgreso = [];
 
     // Datos del solicitante
     public $nombre_solicitante = '';
@@ -27,46 +26,10 @@ class MostrarCurso extends Component
     public $fecha_nacimiento_solicitante = '';
     public $genero_solicitante = '';
     public $nivel_educativo_solicitante = '';
+
+    // Datos de la solicitud
     public string $mensaje = '';
     public string $motivacion = '';
-
-    public function mount(Curso $curso)
-    {
-        $this->curso = $curso;
-
-        if (auth()->check() && auth()->user()->estudiante) {
-            $estudiante = auth()->user()->estudiante;
-            $inscripcion = $this->curso->estudiantes()
-                ->where('estudiante_id', $estudiante->codigo)
-                ->first();
-
-            $this->estaInscrito = $inscripcion !== null;
-            $this->temarioProgreso = $this->normalizarProgreso($inscripcion?->pivot?->temario_progreso ?? []);
-        }
-    }
-
-    protected function normalizarProgreso($progreso): array
-    {
-        if (is_string($progreso)) {
-            $decodificado = json_decode($progreso, true);
-            if (is_array($decodificado)) {
-                return $decodificado;
-            }
-        }
-
-        return is_array($progreso) ? $progreso : [];
-    }
-
-    protected function calcularProgreso(array $progreso, int $total): float
-    {
-        if ($total === 0) {
-            return 0.0;
-        }
-
-        $completados = count(array_filter($progreso, fn ($valor) => $valor === true));
-
-        return round(($completados / $total) * 100, 2);
-    }
 
     protected function rules()
     {
@@ -95,31 +58,31 @@ class MostrarCurso extends Component
         'motivacion.required' => 'Debes seleccionar una motivación.',
     ];
 
+    public function mount(Curso $curso)
+    {
+        $this->curso = $curso;
+
+        if (auth()->check() && auth()->user()->estudiante) {
+            $inscripcion = $curso->estudiantes()
+                ->where('estudiante_id', auth()->user()->estudiante->codigo)
+                ->first();
+
+            $this->temarioProgreso = $inscripcion?->pivot?->temario_progreso ?? [];
+        }
+    }
+
     public function abrirModalSolicitud()
     {
-        // Validar que el estudiante no esté ya inscrito
-        if (auth()->check() && auth()->user()->estudiante) {
-            $estudiante = auth()->user()->estudiante;
-            $yaInscrito = $this->curso->estudiantes()
-                ->where('estudiante_id', $estudiante->codigo)
-                ->exists();
-
-            if ($yaInscrito) {
-                $this->dispatch('show-toast', type: 'warning', message: 'Ya estás inscrito en este curso. No puedes solicitar inscripción nuevamente.');
-                return;
-            }
-        }
-
         $this->mostrarModalSolicitud = true;
 
         if (auth()->check()) {
             $user = auth()->user();
             $this->nombre_solicitante = $user->name;
-            $this->apellido_solicitante = $user->apellido ?? '';
+            $this->apellido_solicitante = $user->apellido;
             $this->email_solicitante = $user->email;
-            $this->telefono_solicitante = $user->telefono ?? '';
-            $this->documento_solicitante = $user->documento_ID ?? '';
-            $this->direccion_solicitante = $user->direccion ?? '';
+            $this->telefono_solicitante = $user->telefono;
+            $this->documento_solicitante = $user->documento_ID;
+            $this->direccion_solicitante = $user->direccion;
 
             if ($user->estudiante) {
                 $this->fecha_nacimiento_solicitante = $user->estudiante->fecha_nacimiento?->format('Y-m-d');
@@ -146,20 +109,6 @@ class MostrarCurso extends Component
     {
         $this->validate();
 
-        // Validar que el estudiante no esté ya inscrito
-        if (auth()->check() && auth()->user()->estudiante) {
-            $estudiante = auth()->user()->estudiante;
-            $yaInscrito = $this->curso->estudiantes()
-                ->where('estudiante_id', $estudiante->codigo)
-                ->exists();
-
-            if ($yaInscrito) {
-                $this->dispatch('show-toast', type: 'warning', message: 'Ya estás inscrito en este curso. No puedes solicitar inscripción nuevamente.');
-                $this->cerrarModal();
-                return;
-            }
-        }
-
         $solicitudExistente = Solicitud::where('email_contacto', $this->email_solicitante)
             ->where('tipo', 'inscripcion')
             ->where('estado', 'pendiente')
@@ -167,7 +116,7 @@ class MostrarCurso extends Component
             ->exists();
 
         if ($solicitudExistente) {
-            $this->dispatch('show-toast', type: 'warning', message: 'Ya tienes una solicitud pendiente para este curso.');
+            $this->dispatch('show-toast', type: 'warning', message: 'Ya tienes una solicitud pendiente para este curso. Espera a que sea revisada.');
             return;
         }
 
@@ -199,10 +148,9 @@ class MostrarCurso extends Component
         $this->cerrarModal();
     }
 
-    public function toggleTema(int $index)
+    public function toggleTema($index)
     {
         if (!auth()->check() || !auth()->user()->estudiante) {
-            $this->dispatch('show-toast', type: 'warning', message: 'Debes iniciar sesión como estudiante para actualizar tu progreso.');
             return;
         }
 
@@ -210,62 +158,24 @@ class MostrarCurso extends Component
         $inscripcion = $this->curso->estudiantes()->where('estudiante_id', $estudiante->codigo)->first();
 
         if (!$inscripcion) {
-            $this->dispatch('show-toast', type: 'warning', message: 'Debes estar inscrito en este curso para registrar tu progreso.');
             return;
         }
 
-        $progreso = $this->normalizarProgreso($this->temarioProgreso);
-        $progreso[$index] = !($progreso[$index] ?? false);
+        $progreso = is_array($this->temarioProgreso) ? $this->temarioProgreso : [];
+        $progreso[$index] = isset($progreso[$index]) ? !$progreso[$index] : true;
         $this->temarioProgreso = $progreso;
 
         $this->curso->estudiantes()->updateExistingPivot($estudiante->codigo, [
             'temario_progreso' => $progreso,
         ]);
 
-        $this->dispatch('show-toast', type: 'success', message: 'Progreso del temario actualizado.');
-    }
-
-    public function eliminarCurso()
-    {
-        // Verificar si hay estudiantes inscritos
-        if ($this->curso->estudiantes()->count() > 0) {
-            $this->dispatch('show-toast',
-                type: 'error',
-                message: 'No se puede eliminar el curso porque tiene estudiantes inscritos.'
-            );
-            return;
-        }
-
-        $this->curso->delete();
-
-        $this->dispatch('show-toast',
-            type: 'success',
-            message: 'Curso eliminado correctamente.'
-        );
-
-        return redirect()->route('admin.cursos.index');
-    }
-
-    public function togglePublicacion()
-    {
-        $this->curso->update(['publicado' => !$this->curso->publicado]);
-
-        $action = $this->curso->publicado ? 'publicado' : 'ocultado';
-        $this->dispatch('show-toast',
-            type: 'success',
-            message: "Curso {$action} correctamente."
-        );
+        $this->dispatch('show-toast', type: 'success', message: 'Progreso actualizado.');
     }
 
     public function render()
     {
-        $temarioItems = $this->curso->temario_items;
-        $progreso = $this->normalizarProgreso($this->temarioProgreso);
-
-        return view('livewire.admin.cursos.mostrar-curso', [
+        return view('livewire.curso-detalle', [
             'estudiantes' => $this->curso->estudiantes()->with('user')->get(),
-            'progresoPorcentaje' => $this->calcularProgreso($progreso, count($temarioItems)),
-            'temarioItems' => $temarioItems,
         ]);
     }
 }

@@ -18,7 +18,6 @@ class Estudiante extends Model
     protected $fillable = [
         'codigo',
         'user_id',
-        'cedula_estudiante',
         'fecha_nacimiento',
         'genero',
         'nivel_educativo',
@@ -41,7 +40,7 @@ class Estudiante extends Model
     public function cursos()
     {
         return $this->belongsToMany(Curso::class, 'curso_estudiante', 'estudiante_id', 'curso_id')
-            ->withPivot('estado', 'calificacion', 'pago_realizado', 'estado_pago', 'progreso', 'fecha_inscripcion')
+            ->withPivot('estado', 'calificacion', 'pago_realizado', 'estado_pago', 'progreso', 'temario_progreso', 'fecha_inscripcion')
             ->withTimestamps();
     }
 

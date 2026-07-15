@@ -17,12 +17,8 @@ class EventosDestacados extends Component
 
     public function cargarEventos()
     {
-        $hoy = Carbon::now()->startOfDay();
-        
         $this->eventos = Evento::where('publicado', true)
-            ->whereDate('fecha', '>=', $hoy)
             ->orderBy('fecha', 'asc')
-            ->limit(3)
             ->get();
     }
 
