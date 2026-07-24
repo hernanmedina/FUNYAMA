@@ -5,6 +5,7 @@ namespace App\Livewire\Estudiante;
 use Livewire\Component;
 use App\Models\Curso;
 use App\Models\Estudiante;
+use App\Models\Certificado;
 use App\Models\Solicitud;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
@@ -17,6 +18,7 @@ class DashboardEstudiante extends Component
     public $cursosInscritos;
     public $cursosDisponibles;
     public $estadisticas;
+    public $certificadosRecientes;
 
     // Modal de inscripción
     public bool $mostrarModal = false;
@@ -84,6 +86,14 @@ class DashboardEstudiante extends Component
                 'cursos_en_progreso' => $cursos->where('porcentaje_progreso', '<', 100)->count(),
                 'promedio_progreso' => $cursos->avg('porcentaje_progreso') ?? 0,
             ];
+
+            // Certificados recientes (con archivo PDF subido)
+            $this->certificadosRecientes = $estudiante->certificados()
+                ->with('curso')
+                ->whereNotNull('archivo_path')
+                ->orderBy('fecha_emision', 'desc')
+                ->take(4)
+                ->get();
         } else {
             // Inicializar vacío si no hay estudiante
             $this->cursosInscritos = collect();
@@ -94,6 +104,8 @@ class DashboardEstudiante extends Component
                 'cursos_en_progreso' => 0,
                 'promedio_progreso' => 0,
             ];
+
+            $this->certificadosRecientes = collect();
         }
     }
 

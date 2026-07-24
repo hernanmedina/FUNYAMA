@@ -9,7 +9,10 @@ use App\Models\User;
 use App\Models\Solicitud;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use App\Notifications\CredencialesEstudiante;
 
 class DashboardAdmin extends Component
 {
@@ -27,6 +30,7 @@ class DashboardAdmin extends Component
     public bool $mostrarModalResolucion = false;
     public ?Solicitud $solicitudActual = null;
     public string $respuesta = '';
+    public string $codigo_generado = '';
     public string $decision = ''; // 'aceptar' o 'rechazar'
 
     protected $queryString = [
@@ -47,6 +51,7 @@ class DashboardAdmin extends Component
     private function cargarEstadisticas()
     {
         $fechaInicio = now()->subDays($this->rangoFechas);
+        $solicitudesInscripcion = Solicitud::query()->where('tipo', 'inscripcion');
 
         // CORREGIDO: Usar DB::raw para calcular ingresos en lugar del modelo CursoEstudiante
         $this->estadisticas = [
@@ -54,7 +59,7 @@ class DashboardAdmin extends Component
             'cursos_publicados' => Curso::where('publicado', true)->count(),
             'total_estudiantes' => Estudiante::where('activo', true)->count(),
             'total_usuarios' => User::count(),
-            'solicitudes_pendientes' => Solicitud::where('estado', 'pendiente')->count(),
+            'solicitudes_pendientes' => (clone $solicitudesInscripcion)->where('estado', 'pendiente')->count(),
 
             // CORREGIDO: Calcular ingresos usando DB query
             'ingresos_totales' => \DB::table('curso_estudiante')->sum('pago_realizado'),
@@ -68,7 +73,8 @@ class DashboardAdmin extends Component
                 ->where('created_at', '>=', $fechaInicio)
                 ->sum('pago_realizado'),
 
-            'solicitudes_resueltas' => Solicitud::where('estado', 'resuelta')
+            'solicitudes_resueltas' => (clone $solicitudesInscripcion)
+                ->where('estado', 'resuelta')
                 ->where('updated_at', '>=', $fechaInicio)
                 ->count(),
         ];
@@ -93,6 +99,7 @@ class DashboardAdmin extends Component
             ->get();
 
         $this->solicitudesPendientes = Solicitud::with('usuario')
+            ->where('tipo', 'inscripcion')
             ->where('estado', 'pendiente')
             ->orderBy('created_at', 'desc')
             ->take(5)
@@ -143,10 +150,11 @@ class DashboardAdmin extends Component
     public function marcarSolicitudResuelta($solicitudId)
     {
         $solicitud = Solicitud::findOrFail($solicitudId);
-        
-        // Si es una solicitud de inscripción, abrir el modal
+
+        // Solo las solicitudes de inscripción abren el modal de resolución.
         if ($solicitud->tipo === 'inscripcion') {
             $this->solicitudActual = $solicitud;
+            $this->codigo_generado = $this->generarCodigoEstudiante();
             $this->mostrarModalResolucion = true;
             $this->reset(['respuesta', 'decision']);
             return;
@@ -156,7 +164,7 @@ class DashboardAdmin extends Component
         $solicitud->update([
             'estado' => 'resuelta',
             'fecha_respuesta' => now(),
-            'atendido_por_admin' => auth()->user()->administrador->idAdmin ?? null
+            'atendido_por_admin' => auth()->user()?->administrador?->idAdmin
         ]);
 
         $this->cargarEstadisticas();
@@ -172,185 +180,177 @@ class DashboardAdmin extends Component
     {
         $this->mostrarModalResolucion = false;
         $this->solicitudActual = null;
-        $this->reset(['respuesta', 'decision']);
+        $this->reset(['respuesta', 'codigo_generado', 'decision']);
     }
 
     public function aceptarInscripcion()
     {
-        Log::info('Iniciando aceptarInscripcion', [
-            'solicitud_actual' => $this->solicitudActual?->idSolicitud,
-            'respuesta_length' => strlen($this->respuesta)
+        Log::info('Iniciando aceptarInscripcion (Dashboard)', [
+            'solicitud_id' => $this->solicitudActual?->idSolicitud,
         ]);
 
-        // Validación usando el sistema de Livewire
         $this->validate([
-            'respuesta' => 'required|min:10'
-        ], [
-            'respuesta.required' => 'La respuesta es obligatoria.',
-            'respuesta.min' => 'La respuesta debe tener al menos 10 caracteres.'
+            'respuesta' => 'nullable|string|max:1000',
         ]);
 
         if (!$this->solicitudActual) {
-            Log::error('solicitudActual es null en aceptarInscripcion');
-            session()->flash('flash.banner', 'La solicitud no se encontró.');
-            session()->flash('flash.bannerStyle', 'danger');
+            $this->dispatch('show-toast', type: 'error', message: 'La solicitud no se encontró.');
             $this->cerrarModal();
             return;
         }
 
+        $solicitud = $this->solicitudActual;
+        $datos = $solicitud->datos_adicionales;
+
+        // Verificar que el curso exista y tenga cupos
+        $curso = Curso::where('codigo', $datos['codigo_curso'])->first();
+        if (!$curso) {
+            $this->dispatch('show-toast', type: 'error', message: 'El curso asociado a esta solicitud ya no existe.');
+            return;
+        }
+
+        if ($curso->cupo_disponible <= 0) {
+            $this->dispatch('show-toast', type: 'error', message: 'El curso "' . $curso->nombre . '" ya no tiene cupos disponibles.');
+            return;
+        }
+
+        DB::beginTransaction();
         try {
-            $datos = $this->solicitudActual->datos_adicionales;
-            $codigoCurso = $datos['codigo_curso'] ?? null;
-            $estudianteCodigo = $datos['estudiante_codigo'] ?? null;
+            // 1. Usar el documento_ID como contraseña
+            $password = (string) ($datos['documento_ID'] ?? Str::random(10));
 
-            Log::info('Datos extraídos de solicitud', [
-                'codigo_curso' => $codigoCurso,
-                'estudiante_codigo' => $estudianteCodigo,
-            ]);
+            // 2. Verificar si ya existe un usuario con ese email
+            $user = User::where('email', $solicitud->email_contacto)->first();
 
-            if (!$codigoCurso || !$estudianteCodigo) {
-                throw new \Exception('Datos de inscripción incompletos. Falta código de curso o estudiante.');
+            if (!$user) {
+                // Crear el usuario
+                $user = User::create([
+                    'name' => $datos['nombre'] ?? $solicitud->email_contacto,
+                    'apellido' => $datos['apellido'] ?? '',
+                    'email' => $solicitud->email_contacto,
+                    'documento_ID' => $datos['documento_ID'] ?? 'S/N',
+                    'password' => Hash::make($password),
+                    'telefono' => $solicitud->telefono ?? '',
+                    'direccion' => $datos['direccion'] ?? '',
+                    'role' => 'estu',
+                ]);
+            } else {
+                // Si ya existe, solo actualizamos algunos datos
+                $user->update([
+                    'name' => $datos['nombre'] ?? $user->name,
+                    'apellido' => $datos['apellido'] ?? $user->apellido,
+                    'telefono' => $solicitud->telefono ?? $user->telefono,
+                ]);
             }
 
-            $curso = Curso::where('codigo', $codigoCurso)->first();
-            if (!$curso) {
-                throw new \Exception("El curso con código '{$codigoCurso}' no existe.");
-            }
+            // 3. Verificar si ya existe un estudiante asociado a ese usuario
+            $estudiante = Estudiante::where('user_id', $user->id)->first();
 
-            $estudiante = Estudiante::where('codigo', $estudianteCodigo)->first();
             if (!$estudiante) {
-                throw new \Exception("El estudiante con código '{$estudianteCodigo}' no existe.");
+                // Crear el estudiante con el código generado al abrir el modal
+                $estudiante = Estudiante::create([
+                    'codigo' => $this->codigo_generado,
+                    'user_id' => $user->id,
+                    'fecha_nacimiento' => !empty($datos['fecha_nacimiento']) ? $datos['fecha_nacimiento'] : null,
+                    'genero' => !empty($datos['genero']) ? $datos['genero'] : null,
+                    'nivel_educativo' => !empty($datos['nivel_educativo']) ? $datos['nivel_educativo'] : null,
+                    'intereses' => 'Inscrito vía solicitud - Curso: ' . ($datos['nombre_curso'] ?? ''),
+                    'fecha_registro' => now(),
+                    'activo' => true,
+                ]);
             }
 
-            // Verificar si ya está inscrito
-            if ($estudiante->cursos()->where('codigo', $codigoCurso)->exists()) {
-                throw new \Exception('El estudiante ya está inscrito en este curso.');
-            }
+            // 4. Inscribir al estudiante en el curso (si no está ya inscrito)
+            $yaInscrito = $estudiante->cursos()->where('curso_id', $curso->codigo)->exists();
 
-            // Verificar cupo disponible
-            if ($curso->cupo_disponible <= 0) {
-                throw new \Exception('No hay cupos disponibles en este curso.');
-            }
-
-            Log::info('Validaciones pasadas, procediendo con inscripción', [
-                'estudiante_codigo' => $estudianteCodigo,
-                'curso_codigo' => $codigoCurso,
-                'precio' => $curso->precioFinal
-            ]);
-
-            // Obtener ID del administrador
-            $adminId = null;
-            $admin = auth()->user()?->administrador;
-            if ($admin) {
-                $adminId = $admin->idAdmin;
-            }
-
-            Log::info('Admin ID: ' . ($adminId ?? 'null'));
-
-            // Realizar cambios en la base de datos dentro de una transacción
-            DB::transaction(function () use ($estudiante, $codigoCurso, $curso, $adminId) {
-                // Inscribir al estudiante
-                $estudiante->cursos()->attach($codigoCurso, [
-                    'estado' => 'en_progreso',
+            if (!$yaInscrito) {
+                $estudiante->cursos()->attach($curso->codigo, [
+                    'estado' => 'inscrito',
+                    'pago_realizado' => 0,
+                    'estado_pago' => 'pendiente',
                     'fecha_inscripcion' => now(),
-                    'pago_realizado' => $curso->precioFinal,
-                    'estado_pago' => 'completo',
-                    'progreso' => 0
+                    'progreso' => 0,
                 ]);
 
-                // Decrementar cupo disponible
+                // Actualizar cupo disponible
                 $curso->decrement('cupo_disponible');
+            }
 
-                // Actualizar solicitud
-                $this->solicitudActual->update([
-                    'estado' => 'resuelta',
-                    'respuesta' => $this->respuesta,
-                    'fecha_respuesta' => now(),
-                    'atendido_por_admin' => $adminId
-                ]);
-            });
+            // 5. Marcar solicitud como resuelta (usando el método del modelo)
+            $admin = auth()->user()->administrador;
+            $solicitud->marcarComoResuelta(
+                $this->respuesta ?: 'Solicitud aprobada. Se ha creado tu cuenta y se te ha inscrito en el curso.',
+                $admin?->idAdmin
+            );
 
-            Log::info('Inscripción completada y solicitud actualizada en transacción');
+            DB::commit();
 
-            session()->flash('flash.banner', '✓ Inscripción aceptada y estudiante inscrito en el curso.');
-            session()->flash('flash.bannerStyle', 'success');
+            // 6. Enviar correo con credenciales
+            try {
+                $user->notify(new CredencialesEstudiante(
+                    $user->name,
+                    $user->email,
+                    $password,
+                    $estudiante->codigo
+                ));
+            } catch (\Exception $e) {
+                // Si falla el envío de correo, no detenemos el proceso
+                Log::error('Error al enviar credenciales: ' . $e->getMessage());
+            }
+
+            $this->dispatch('show-toast', type: 'success', message: 'Solicitud aprobada. Estudiante creado e inscrito exitosamente. Se han enviado las credenciales por correo.');
             $this->cerrarModal();
             $this->cargarEstadisticas();
             $this->cargarDatosRecientes();
 
         } catch (\Exception $e) {
-            Log::error('Error en aceptarInscripcion: ' . $e->getMessage(), [
+            DB::rollBack();
+            Log::error('Error en aceptarInscripcion (Dashboard): ' . $e->getMessage(), [
                 'solicitud_id' => $this->solicitudActual?->idSolicitud,
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
-            session()->flash('flash.banner', 'Error: ' . $e->getMessage());
-            session()->flash('flash.bannerStyle', 'danger');
+            $this->dispatch('show-toast', type: 'error', message: 'Error al procesar la solicitud: ' . $e->getMessage());
         }
     }
 
     public function rechazarInscripcion()
     {
-        Log::info('Iniciando rechazarInscripcion', [
-            'solicitud_actual' => $this->solicitudActual?->idSolicitud,
-            'respuesta_length' => strlen($this->respuesta)
-        ]);
-
-        // Validación usando el sistema de Livewire
         $this->validate([
-            'respuesta' => 'required|min:10'
-        ], [
-            'respuesta.required' => 'La respuesta es obligatoria.',
-            'respuesta.min' => 'La respuesta debe tener al menos 10 caracteres.'
+            'respuesta' => 'required|string|min:10|max:1000',
         ]);
 
         if (!$this->solicitudActual) {
-            Log::error('solicitudActual es null en rechazarInscripcion');
-            session()->flash('flash.banner', 'La solicitud no se encontró.');
-            session()->flash('flash.bannerStyle', 'danger');
+            $this->dispatch('show-toast', type: 'error', message: 'La solicitud no se encontró.');
             $this->cerrarModal();
             return;
         }
 
-        try {
-            // Obtener ID del administrador
-            $adminId = null;
-            $admin = auth()->user()?->administrador;
-            if ($admin) {
-                $adminId = $admin->idAdmin;
-            }
+        $solicitud = $this->solicitudActual;
+        $admin = auth()->user()->administrador;
 
-            $this->solicitudActual->update([
-                'estado' => 'cancelada',
-                'respuesta' => $this->respuesta,
-                'fecha_respuesta' => now(),
-                'atendido_por_admin' => $adminId
-            ]);
+        $solicitud->marcarComoResuelta($this->respuesta, $admin?->idAdmin);
+        // Usamos estado 'cancelada' para rechazos (mismo comportamiento que SolicitudesInscripcion)
+        $solicitud->update(['estado' => 'cancelada']);
 
-            Log::info('Inscripción rechazada exitosamente', [
-                'solicitud_id' => $this->solicitudActual->idSolicitud,
-                'admin_id' => $adminId
-            ]);
+        $this->dispatch('show-toast', type: 'info', message: 'Solicitud rechazada correctamente.');
+        $this->cerrarModal();
+        $this->cargarEstadisticas();
+        $this->cargarDatosRecientes();
+    }
 
-            session()->flash('flash.banner', '✗ Solicitud de inscripción rechazada.');
-            session()->flash('flash.bannerStyle', 'success');
-            $this->cerrarModal();
-            $this->cargarEstadisticas();
-            $this->cargarDatosRecientes();
+    private function generarCodigoEstudiante()
+    {
+        $year = now()->year;
+        $month = now()->format('m');
+        $random = strtoupper(Str::random(4));
+        $codigo = "EST-{$year}{$month}-{$random}";
 
-        } catch (\Exception $e) {
-            Log::error('Error en rechazarInscripcion: ' . $e->getMessage(), [
-                'solicitud_id' => $this->solicitudActual?->idSolicitud,
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            session()->flash('flash.banner', 'Error: ' . $e->getMessage());
-            session()->flash('flash.bannerStyle', 'danger');
+        while (Estudiante::where('codigo', $codigo)->exists()) {
+            $random = strtoupper(Str::random(4));
+            $codigo = "EST-{$year}{$month}-{$random}";
         }
+
+        return $codigo;
     }
 
     public function render()

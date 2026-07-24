@@ -5,6 +5,7 @@ namespace App\Livewire\Estudiante;
 use Livewire\Component;
 use App\Models\Certificado;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class MisCertificados extends Component
 {
@@ -42,12 +43,20 @@ class MisCertificados extends Component
             return;
         }
 
+        // Verificar que el archivo exista
+        if (!$certificado->archivo_path || !Storage::disk('public')->exists($certificado->archivo_path)) {
+            session()->flash('error', 'El archivo del certificado no está disponible. Contacta al administrador.');
+            return;
+        }
+
         // Registrar descarga
         $certificado->registrarDescarga();
 
-        session()->flash('message', 'Descarga registrada correctamente.');
-        // En un caso real, aquí retornarías la descarga del archivo PDF
-        // return response()->download($certificado->archivo_path);
+        // Retornar la descarga del archivo PDF
+        return response()->download(
+            Storage::disk('public')->path($certificado->archivo_path),
+            'certificado_' . $certificado->curso->nombre . '.pdf'
+        );
     }
 
     public function render()

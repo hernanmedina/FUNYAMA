@@ -149,6 +149,15 @@
                             </svg>
                             <span class="text-sm font-medium">Solicitudes</span>
                         </a>
+
+                        <!-- Subir Certificados -->
+                        <a href="{{ route('admin.certificados') }}"
+                           class="bg-yellow-600 hover:bg-yellow-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
+                            <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-sm font-medium">Certificados</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -181,21 +190,17 @@
                                         </div>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <button wire:click="togglePublicacion('{{ $curso->codigo }}')"
-                                                class="text-{{ $curso->publicado ? 'green' : 'gray' }}-600 hover:text-{{ $curso->publicado ? 'green' : 'gray' }}-800"
-                                                title="{{ $curso->publicado ? 'Ocultar' : 'Publicar' }}">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                        </button>
-                                        <a href="{{ route('admin.cursos.edit', $curso->codigo) }}"
-                                           class="text-blue-600 hover:text-blue-800"
-                                           title="Editar">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                            </svg>
+
+                                        <a href="{{ route('admin.cursos.show', $curso->codigo) }}" class="text-blue-600 hover:text-blue-900" title="Ver">
+                                            <!-- ojo: iconos pequeños y con padding para no pegar -->
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
+                                        <a href="{{ route('admin.cursos.edit', $curso->codigo) }}" class="text-green-600 hover:text-green-900" title="Editar">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        </a>
+                                        <button wire:click="deleteCurso('{{ $curso->codigo }}')" wire:confirm="¿Estás seguro de eliminar este curso?" class="text-red-600 hover:text-red-900" title="Eliminar">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
                                     </div>
                                 </div>
                             @endforeach
@@ -354,11 +359,11 @@
                         <div class="grid grid-cols-2 gap-4 text-sm">
                             <div>
                                 <p class="text-gray-600">Nombre:</p>
-                                <p class="font-medium text-gray-900">{{ $solicitudActual->usuario->name }} {{ $solicitudActual->usuario->apellido }}</p>
+                                <p class="font-medium text-gray-900">{{ $solicitudActual->usuario?->name ?? 'No disponible' }} {{ $solicitudActual->usuario?->apellido ?? '' }}</p>
                             </div>
                             <div>
                                 <p class="text-gray-600">Email:</p>
-                                <p class="font-medium text-gray-900">{{ $solicitudActual->usuario->email }}</p>
+                                <p class="font-medium text-gray-900">{{ $solicitudActual->usuario?->email ?? $solicitudActual->email_contacto ?? 'No disponible' }}</p>
                             </div>
                             <div>
                                 <p class="text-gray-600">Teléfono:</p>
@@ -373,7 +378,7 @@
 
                     <!-- Información del Curso -->
                     @php
-                        $datos = $solicitudActual->datos_adicionales;
+                        $datos = is_array($solicitudActual->datos_adicionales) ? $solicitudActual->datos_adicionales : [];
                         $nombreCurso = $datos['nombre_curso'] ?? 'Desconocido';
                         $motivoInscripcion = $datos['motivo_inscripcion'] ?? '';
                     @endphp
@@ -403,20 +408,76 @@
                         </div>
                     </div>
 
-                    <!-- Respuesta del Admin -->
+                    <!-- Datos Personales del Solicitante -->
+                    @php
+                        $datos = is_array($solicitudActual->datos_adicionales) ? $solicitudActual->datos_adicionales : [];
+                    @endphp
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-3">Datos Personales</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500">Nombre completo:</p>
+                                <p class="font-medium">
+                                    {{ $datos['nombre'] ?? '' }}
+                                    {{ $datos['apellido'] ?? '' }}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Email:</p>
+                                <p class="font-medium">{{ $solicitudActual->email_contacto }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Documento:</p>
+                                <p class="font-medium">{{ $datos['documento_ID'] ?? 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Teléfono:</p>
+                                <p class="font-medium">{{ $solicitudActual->telefono ?? 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Dirección:</p>
+                                <p class="font-medium">{{ $datos['direccion'] ?? 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Fecha Nacimiento:</p>
+                                <p class="font-medium">{{ $datos['fecha_nacimiento'] ?? 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Género:</p>
+                                <p class="font-medium">{{ $datos['genero'] ?? 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Nivel Educativo:</p>
+                                <p class="font-medium">{{ $datos['nivel_educativo'] ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Código de Estudiante -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Código de Estudiante (generado automáticamente)
+                        </label>
+                        <input type="text" readonly disabled
+                               value="{{ $codigo_generado }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600">
+                        <p class="mt-1 text-xs text-gray-500">Este código se asignará al nuevo estudiante.</p>
+                    </div>
+
+                    <!-- Respuesta -->
                     <div>
                         <label for="respuesta" class="block text-sm font-medium text-gray-700 mb-2">
-                            Tu Respuesta <span class="text-red-500">*</span>
+                            Mensaje de respuesta
                         </label>
                         <textarea wire:model="respuesta"
                                   id="respuesta"
                                   rows="4"
                                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('respuesta') border-red-500 @else border-gray-300 @enderror"
-                                  placeholder="Ingresa tu respuesta al estudiante (mínimo 10 caracteres)..."></textarea>
+                                  placeholder="Escribe un mensaje para el solicitante..."></textarea>
                         @error('respuesta')
                             <p class="mt-2 text-sm text-red-500 font-medium">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-gray-500">Mínimo 10 caracteres. Esta respuesta será registrada en la solicitud.</p>
+                        <p class="mt-1 text-xs text-gray-500">Requerido para rechazar. Opcional para aprobar.</p>
                     </div>
 
                     <!-- Información importante -->

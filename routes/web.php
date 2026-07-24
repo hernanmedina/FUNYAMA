@@ -10,6 +10,7 @@ use App\Livewire\Admin\Eventos\CrearEvento;
 use App\Livewire\Admin\Eventos\EditarEvento;
 use App\Livewire\Admin\Solicitudes\SolicitudesInscripcion;
 use App\Livewire\Admin\DashboardAdmin;
+use App\Livewire\Admin\GestionarCertificados;
 use App\Livewire\Cursos;
 use App\Livewire\CalendarioEventos;
 use App\Livewire\Estudiante\CrearEstudiante;
@@ -107,6 +108,9 @@ Route::middleware([
         Route::prefix('solicitudes')->name('solicitudes.')->group(function () {
             Route::get('/inscripcion', SolicitudesInscripcion::class)->name('inscripcion');
         });
+
+        // Gestión de certificados
+        Route::get('/certificados', GestionarCertificados::class)->name('certificados');
     });
 });
 
