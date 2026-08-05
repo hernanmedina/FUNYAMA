@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('nivel')->default('principiante');
             $table->string('imagen_portada')->nullable();
             $table->string('video_presentacion')->nullable();
+            $table->string('enlace_classroom')->nullable();
+            $table->text('temario')->nullable();
             $table->boolean('publicado')->default(false);
             $table->boolean('destacado')->default(false);
             $table->date('fecha_inicio')->nullable();

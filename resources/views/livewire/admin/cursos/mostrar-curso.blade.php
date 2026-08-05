@@ -6,37 +6,39 @@
                 <h1 class="text-2xl font-bold text-gray-800">{{ $curso->nombre }}</h1>
                 <p class="text-gray-600 mt-1">Detalles completos del curso</p>
             </div>
-            <div class="flex space-x-3">
+            <div class="flex flex-wrap gap-3">
                 @if(auth()->check() && auth()->user()->isAdmin())
-                    <button wire:click="togglePublicacion"
-                            class="bg-{{ $curso->publicado ? 'green' : 'gray' }}-600 hover:bg-{{ $curso->publicado ? 'green' : 'gray' }}-700 text-white px-4 py-2 rounded-lg flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
-                        {{ $curso->publicado ? 'Ocultar' : 'Publicar' }}
-                    </button>
+                    <div class="flex flex-wrap gap-3">
+                        <button wire:click="togglePublicacion"
+                                class="bg-{{ $curso->publicado ? 'green' : 'gray' }}-600 hover:bg-{{ $curso->publicado ? 'green' : 'gray' }}-700 text-white px-4 py-2 rounded-lg flex items-center whitespace-nowrap">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            {{ $curso->publicado ? 'Ocultar' : 'Publicar' }}
+                        </button>
 
-                    <a href="{{ route('admin.cursos.edit', $curso->codigo) }}"
-                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                        Editar
-                    </a>
+                        <a href="{{ route('admin.cursos.edit', $curso->codigo) }}"
+                           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center whitespace-nowrap">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Editar
+                        </a>
 
-                    <button wire:click="eliminarCurso"
-                            wire:confirm="¿Estás seguro de eliminar este curso?"
-                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                        Eliminar
-                    </button>
+                        <button wire:click="eliminarCurso"
+                                wire:confirm="¿Estás seguro de eliminar este curso?"
+                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center whitespace-nowrap">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Eliminar
+                        </button>
+                    </div>
                 @endif
 
                 <a href="{{ (auth()->check() && auth()->user()->isAdmin()) ? route('admin.cursos.index') : route('cursos.index') }}"
-                   class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center">
+                   class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center whitespace-nowrap">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
@@ -125,6 +127,13 @@
                             <p class="text-gray-600 whitespace-pre-line">{{ $curso->materiales_incluidos ?? 'No especificado' }}</p>
                         </div>
                         <div class="md:col-span-2">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Información Importante</h2>
+                            <p class="text-gray-600 whitespace-pre-line">- La información de los estudiantes inscritos es privada.</p>
+                            <p class="text-gray-600 whitespace-pre-line">- Asegurece de haber marcado todas las casillas que realizó.</p>
+                            <p class="text-gray-600 whitespace-pre-line">- Recuerde que una vez finalizado el curso, este no podrá ser modificado.</p>
+                            <p class="text-gray-600 whitespace-pre-line">- Para marcar un curso como finalizado, debe hacerlo desde la sección de mis cursos inscritos.</p>
+                        </div>
+                        <div class="md:col-span-2">
                             <h3 class="text-lg font-medium text-gray-700 mb-2">Temario</h3>
                             @if($curso->temario)
                                 <div class="w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-700 whitespace-pre-line leading-relaxed min-h-[180px]">
@@ -163,13 +172,11 @@
                                 {{ $curso->fecha_inicio ? $curso->fecha_inicio->format('d/m/Y') : 'No definida' }}
                             </span>
                         </div>
-                        @if($curso->enlace_classroom)
+                        @if($curso->enlace_classroom && auth()->check() && (auth()->user()->isAdmin() || (auth()->user()->isEstudiante() && $estaInscrito)))
                             <div>
                                 <span class="text-sm font-medium text-gray-500">Classroom:</span>
-                                <a href="{{ $curso->enlace_classroom }}" target="_blank" rel="noopener noreferrer" class="ml-2 text-blue-600 hover:underline">Abrir enlace</a>
+                                {{-- <a href="{{ $curso->enlace_classroom }}" target="_blank" rel="noopener noreferrer" class="ml-2 text-blue-600 hover:underline">Abrir enlace</a> --}}
                             </div>
-                        @endif
-                        @if(auth()->check() && auth()->user()->isEstudiante() && $curso->enlace_classroom)
                             <div class="pt-2">
                                 <a href="{{ $curso->enlace_classroom }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                                     Ir a Classroom
@@ -213,10 +220,11 @@
                         @if($curso->temario_items)
                             <div class="space-y-3">
                                 @foreach($curso->temario_items as $index => $item)
-                                    <label class="flex items-center gap-3 p-2 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                                    <label class="flex items-center gap-3 p-2 rounded-lg border border-gray-200 {{ ($estadoCurso === 'completado') ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer' }}">
                                         <input type="checkbox"
                                                wire:click="toggleTema({{ $index }})"
                                                @checked(!empty($temarioProgreso[$index]))
+                                               @disabled($estadoCurso === 'completado')
                                                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                         <span class="text-sm text-gray-700">{{ $item }}</span>
                                     </label>
@@ -274,13 +282,31 @@
                     </div>
                 @else
                     <div class="bg-white rounded-lg shadow p-6">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Estudiantes Inscritos</h2>
-                        <p class="text-gray-500 text-sm">La información de los estudiantes inscritos es privada.</p>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Contacto</h2>
+                        <p class="text-gray-500 text-sm">¿Tienes preguntas sobre el curso? Contáctanos para más información.</p>
                     </div>
                 @endif
             </div>
         </div>
     </div>
+
+    <!-- Footer de contacto -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto py-8 px-4 text-center">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Síguenos en nuestras redes</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="https://youtube.com/@profebarragan" target="_blank" rel="noopener noreferrer" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center">
+                    YouTube
+                </a>
+                <a href="https://www.tiktok.com/@profebarragan" target="_blank" rel="noopener noreferrer" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center">
+                    TikTok
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=100086488552580" target="_blank" rel="noopener noreferrer" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                    Facebook
+                </a>
+            </div>
+        </div>
+    </footer>
 
     <!-- Modal de Solicitud de Inscripción -->
     @if($mostrarModalSolicitud)

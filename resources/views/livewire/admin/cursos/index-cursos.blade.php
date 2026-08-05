@@ -138,11 +138,11 @@
 
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">
-                                        {{ $curso->cupo_disponible }} / {{ $curso->cupo_total }}
+                                        {{ $curso->inscritos_actuales }} / {{ $curso->cupo_total }} inscritos
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
                                         <div class="bg-blue-600 h-2 rounded-full"
-                                             style="width: {{ $curso->cupo_total > 0 ? (100 - ($curso->cupo_disponible / $curso->cupo_total * 100)) : 0 }}%"></div>
+                                             style="width: {{ $curso->cupo_total > 0 ? (($curso->inscritos_actuales / $curso->cupo_total) * 100) : 0 }}%"></div>
                                     </div>
                                 </td>
 
@@ -218,7 +218,7 @@
 
                                     <div class="mt-3 flex items-center justify-between">
                                         <div class="flex items-center space-x-2">
-                                            <span class="text-xs text-gray-600">{{ $curso->cupo_disponible }} / {{ $curso->cupo_total }} cupos</span>
+                                            <span class="text-xs text-gray-600">{{ $curso->inscritos_actuales }} / {{ $curso->cupo_total }} inscritos</span>
                                             @if($curso->destacado)
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Destacado</span>
                                             @endif

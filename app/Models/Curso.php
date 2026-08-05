@@ -11,8 +11,11 @@ class Curso extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'cursos';
+
     protected $primaryKey = 'codigo';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -39,7 +42,7 @@ class Curso extends Model
         'destacado',
         'fecha_inicio',
         'fecha_fin',
-        'creado_por_admin'
+        'creado_por_admin',
     ];
 
     protected $casts = [
@@ -50,7 +53,7 @@ class Curso extends Model
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
         'cupo_total' => 'integer',
-        'cupo_disponible' => 'integer'
+        'cupo_disponible' => 'integer',
     ];
 
     public function administrador()
@@ -90,6 +93,15 @@ class Curso extends Model
     public function getCuposDisponiblesAttribute()
     {
         return $this->cupo_disponible;
+    }
+
+    public function getInscritosActualesAttribute()
+    {
+        if (isset($this->attributes['estudiantes_count'])) {
+            return (int) $this->attributes['estudiantes_count'];
+        }
+
+        return max(0, $this->cupo_total - $this->cupo_disponible);
     }
 
     public function getPrecioFinalAttribute()

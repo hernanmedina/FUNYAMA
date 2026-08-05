@@ -106,13 +106,13 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm">
-                                    <div class="flex space-x-2">
+                                    <div class="flex flex-wrap gap-3">
                                         <a href="{{ route('admin.eventos.edit', $evento->idEvento) }}"
-                                           class="text-blue-600 hover:text-blue-800 font-medium">
+                                           class="text-blue-600 hover:text-blue-800 font-medium whitespace-nowrap">
                                             Editar
                                         </a>
                                         <button wire:click="$dispatch('confirmarEliminar', {id: {{ $evento->idEvento }}})"
-                                                class="text-red-600 hover:text-red-800 font-medium">
+                                                class="text-red-600 hover:text-red-800 font-medium whitespace-nowrap">
                                             Eliminar
                                         </button>
                                     </div>

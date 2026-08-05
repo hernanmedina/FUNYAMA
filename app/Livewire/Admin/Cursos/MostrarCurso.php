@@ -2,16 +2,18 @@
 
 namespace App\Livewire\Admin\Cursos;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
 use App\Models\Curso;
 use App\Models\Solicitud;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.cursos')]
 class MostrarCurso extends Component
 {
     public Curso $curso;
+
     public array $temarioProgreso = [];
+
     public bool $estaInscrito = false;
 
     // Modal de solicitud de inscripción
@@ -19,15 +21,25 @@ class MostrarCurso extends Component
 
     // Datos del solicitante
     public $nombre_solicitante = '';
+
     public $apellido_solicitante = '';
+
     public $email_solicitante = '';
+
     public $telefono_solicitante = '';
+
     public $documento_solicitante = '';
+
     public $direccion_solicitante = '';
+
     public $fecha_nacimiento_solicitante = '';
+
     public $genero_solicitante = '';
+
     public $nivel_educativo_solicitante = '';
+
     public string $mensaje = '';
+
     public string $motivacion = '';
 
     public function mount(Curso $curso)
@@ -106,6 +118,7 @@ class MostrarCurso extends Component
 
             if ($yaInscrito) {
                 $this->dispatch('show-toast', type: 'warning', message: 'Ya estás inscrito en este curso. No puedes solicitar inscripción nuevamente.');
+
                 return;
             }
         }
@@ -138,7 +151,7 @@ class MostrarCurso extends Component
             'nombre_solicitante', 'apellido_solicitante', 'email_solicitante',
             'telefono_solicitante', 'documento_solicitante', 'direccion_solicitante',
             'fecha_nacimiento_solicitante', 'genero_solicitante', 'nivel_educativo_solicitante',
-            'mensaje', 'motivacion'
+            'mensaje', 'motivacion',
         ]);
     }
 
@@ -156,6 +169,7 @@ class MostrarCurso extends Component
             if ($yaInscrito) {
                 $this->dispatch('show-toast', type: 'warning', message: 'Ya estás inscrito en este curso. No puedes solicitar inscripción nuevamente.');
                 $this->cerrarModal();
+
                 return;
             }
         }
@@ -168,6 +182,7 @@ class MostrarCurso extends Component
 
         if ($solicitudExistente) {
             $this->dispatch('show-toast', type: 'warning', message: 'Ya tienes una solicitud pendiente para este curso.');
+
             return;
         }
 
@@ -175,7 +190,7 @@ class MostrarCurso extends Component
 
         Solicitud::create([
             'tipo' => 'inscripcion',
-            'asunto' => 'Solicitud de inscripción al curso: ' . $this->curso->nombre,
+            'asunto' => 'Solicitud de inscripción al curso: '.$this->curso->nombre,
             'mensaje' => $this->mensaje,
             'telefono' => $this->telefono_solicitante,
             'email_contacto' => $this->email_solicitante,
@@ -201,21 +216,29 @@ class MostrarCurso extends Component
 
     public function toggleTema(int $index)
     {
-        if (!auth()->check() || !auth()->user()->estudiante) {
+        if (! auth()->check() || ! auth()->user()->estudiante) {
             $this->dispatch('show-toast', type: 'warning', message: 'Debes iniciar sesión como estudiante para actualizar tu progreso.');
+
             return;
         }
 
         $estudiante = auth()->user()->estudiante;
         $inscripcion = $this->curso->estudiantes()->where('estudiante_id', $estudiante->codigo)->first();
 
-        if (!$inscripcion) {
+        if (! $inscripcion) {
             $this->dispatch('show-toast', type: 'warning', message: 'Debes estar inscrito en este curso para registrar tu progreso.');
+
+            return;
+        }
+
+        if ($inscripcion->pivot->estado === 'completado') {
+            $this->dispatch('show-toast', type: 'warning', message: 'El curso ya ha sido completado y no puede ser modificado.');
+
             return;
         }
 
         $progreso = $this->normalizarProgreso($this->temarioProgreso);
-        $progreso[$index] = !($progreso[$index] ?? false);
+        $progreso[$index] = ! ($progreso[$index] ?? false);
         $this->temarioProgreso = $progreso;
 
         $this->curso->estudiantes()->updateExistingPivot($estudiante->codigo, [
@@ -233,6 +256,7 @@ class MostrarCurso extends Component
                 type: 'error',
                 message: 'No se puede eliminar el curso porque tiene estudiantes inscritos.'
             );
+
             return;
         }
 
@@ -248,7 +272,7 @@ class MostrarCurso extends Component
 
     public function togglePublicacion()
     {
-        $this->curso->update(['publicado' => !$this->curso->publicado]);
+        $this->curso->update(['publicado' => ! $this->curso->publicado]);
 
         $action = $this->curso->publicado ? 'publicado' : 'ocultado';
         $this->dispatch('show-toast',
@@ -262,10 +286,15 @@ class MostrarCurso extends Component
         $temarioItems = $this->curso->temario_items;
         $progreso = $this->normalizarProgreso($this->temarioProgreso);
 
+        $estudiante = auth()->check() ? auth()->user()->estudiante : null;
+        $inscripcion = $estudiante ? $this->curso->estudiantes()->where('estudiante_id', $estudiante->codigo)->first() : null;
+        $estadoCurso = $inscripcion?->pivot?->estado;
+
         return view('livewire.admin.cursos.mostrar-curso', [
             'estudiantes' => $this->curso->estudiantes()->with('user')->get(),
             'progresoPorcentaje' => $this->calcularProgreso($progreso, count($temarioItems)),
             'temarioItems' => $temarioItems,
+            'estadoCurso' => $estadoCurso,
         ]);
     }
 }

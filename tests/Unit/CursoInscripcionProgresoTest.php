@@ -10,7 +10,7 @@ class CursoInscripcionProgresoTest extends TestCase
 {
     public function test_esta_inscrito_es_false_por_defecto(): void
     {
-        $component = new MostrarCurso();
+        $component = new MostrarCurso;
         $reflection = new \ReflectionProperty($component, 'estaInscrito');
         $reflection->setAccessible(true);
 
@@ -19,7 +19,7 @@ class CursoInscripcionProgresoTest extends TestCase
 
     public function test_temario_progreso_es_array_vacio_por_defecto(): void
     {
-        $component = new MostrarCurso();
+        $component = new MostrarCurso;
         $reflection = new \ReflectionProperty($component, 'temarioProgreso');
         $reflection->setAccessible(true);
 
@@ -29,7 +29,7 @@ class CursoInscripcionProgresoTest extends TestCase
 
     public function test_normalizar_progreso_con_string_json(): void
     {
-        $component = new MostrarCurso();
+        $component = new MostrarCurso;
         $reflection = new \ReflectionMethod($component, 'normalizarProgreso');
         $reflection->setAccessible(true);
 
@@ -44,7 +44,7 @@ class CursoInscripcionProgresoTest extends TestCase
 
     public function test_normalizar_progreso_con_array(): void
     {
-        $component = new MostrarCurso();
+        $component = new MostrarCurso;
         $reflection = new \ReflectionMethod($component, 'normalizarProgreso');
         $reflection->setAccessible(true);
 
@@ -57,7 +57,7 @@ class CursoInscripcionProgresoTest extends TestCase
 
     public function test_normalizar_progreso_con_string_invalido_retorna_array_vacio(): void
     {
-        $component = new MostrarCurso();
+        $component = new MostrarCurso;
         $reflection = new \ReflectionMethod($component, 'normalizarProgreso');
         $reflection->setAccessible(true);
 
@@ -69,7 +69,7 @@ class CursoInscripcionProgresoTest extends TestCase
 
     public function test_calcular_progreso_con_todos_completados(): void
     {
-        $component = new MostrarCurso();
+        $component = new MostrarCurso;
         $reflection = new \ReflectionMethod($component, 'calcularProgreso');
         $reflection->setAccessible(true);
 
@@ -81,7 +81,7 @@ class CursoInscripcionProgresoTest extends TestCase
 
     public function test_calcular_progreso_con_ninguno_completado(): void
     {
-        $component = new MostrarCurso();
+        $component = new MostrarCurso;
         $reflection = new \ReflectionMethod($component, 'calcularProgreso');
         $reflection->setAccessible(true);
 
@@ -93,7 +93,7 @@ class CursoInscripcionProgresoTest extends TestCase
 
     public function test_calcular_progreso_con_cero_items(): void
     {
-        $component = new MostrarCurso();
+        $component = new MostrarCurso;
         $reflection = new \ReflectionMethod($component, 'calcularProgreso');
         $reflection->setAccessible(true);
 
@@ -105,7 +105,7 @@ class CursoInscripcionProgresoTest extends TestCase
 
     public function test_calcular_progreso_con_mitad_completados(): void
     {
-        $component = new MostrarCurso();
+        $component = new MostrarCurso;
         $reflection = new \ReflectionMethod($component, 'calcularProgreso');
         $reflection->setAccessible(true);
 
@@ -139,5 +139,25 @@ class CursoInscripcionProgresoTest extends TestCase
 
         $this->assertIsArray($items);
         $this->assertEmpty($items);
+    }
+
+    public function test_inscritos_actuales_se_calcula_a_partir_de_los_cupos(): void
+    {
+        $curso = new Curso([
+            'cupo_total' => 10,
+            'cupo_disponible' => 6,
+        ]);
+
+        $this->assertSame(4, $curso->inscritos_actuales);
+    }
+
+    public function test_inscritos_actuales_no_puede_ser_negativo(): void
+    {
+        $curso = new Curso([
+            'cupo_total' => 5,
+            'cupo_disponible' => 8,
+        ]);
+
+        $this->assertSame(0, $curso->inscritos_actuales);
     }
 }

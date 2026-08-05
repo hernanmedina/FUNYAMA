@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Admin\Cursos;
 
-use Livewire\Component;
 use App\Models\Curso;
+use Livewire\Component;
 use Livewire\WithPagination;
 
 class IndexCursos extends Component
@@ -11,10 +11,15 @@ class IndexCursos extends Component
     use WithPagination;
 
     public $search = '';
+
     public $perPage = 10;
+
     public $sortField = 'nombre';
+
     public $sortDirection = 'asc';
+
     public $selected = []; // Inicializar como array vacío
+
     public $selectAll = false;
 
     protected $queryString = [
@@ -59,6 +64,7 @@ class IndexCursos extends Component
                 type: 'error',
                 message: 'No se puede eliminar el curso porque tiene estudiantes inscritos.'
             );
+
             return;
         }
 
@@ -73,11 +79,12 @@ class IndexCursos extends Component
     public function bulkDelete()
     {
         // Verificar que selected no sea null
-        if (!$this->selected || count($this->selected) === 0) {
+        if (! $this->selected || count($this->selected) === 0) {
             $this->dispatch('show-toast',
                 type: 'warning',
                 message: 'Selecciona al menos un curso para eliminar.'
             );
+
             return;
         }
 
@@ -91,6 +98,7 @@ class IndexCursos extends Component
                 type: 'error',
                 message: 'Algunos cursos seleccionados tienen estudiantes inscritos y no pueden ser eliminados.'
             );
+
             return;
         }
 
@@ -106,7 +114,7 @@ class IndexCursos extends Component
     public function togglePublicacion($cursoId)
     {
         $curso = Curso::findOrFail($cursoId);
-        $curso->update(['publicado' => !$curso->publicado]);
+        $curso->update(['publicado' => ! $curso->publicado]);
 
         $action = $curso->publicado ? 'publicado' : 'ocultado';
         $this->dispatch('show-toast',
@@ -118,9 +126,10 @@ class IndexCursos extends Component
     public function render()
     {
         $cursos = Curso::query()
+            ->withCount('estudiantes')
             ->when($this->search, function ($query) {
-                $query->where('nombre', 'like', '%' . $this->search . '%')
-                    ->orWhere('descripcion', 'like', '%' . $this->search . '%');
+                $query->where('nombre', 'like', '%'.$this->search.'%')
+                    ->orWhere('descripcion', 'like', '%'.$this->search.'%');
             })
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);

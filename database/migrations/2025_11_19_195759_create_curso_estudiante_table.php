@@ -20,6 +20,7 @@ return new class extends Migration
             $table->timestamp('fecha_inscripcion')->useCurrent();
             $table->timestamp('fecha_completado')->nullable();
             $table->integer('progreso')->default(0);
+            $table->json('temario_progreso')->nullable();
             $table->text('notas_administrativas')->nullable();
             $table->softDeletes();
             $table->timestamps();

@@ -74,15 +74,24 @@
         <div class="space-y-1">
             <div class="w-full bg-gray-100 rounded-full h-1.5">
                 @php
-                    $porcentajeCupos = $curso->cupo_total > 0
-                        ? (($curso->cupo_total - $curso->cupo_disponible) / $curso->cupo_total) * 100
+                    // Calculamos los inscritos reales mediante la relación
+                    $inscritos = $curso->estudiantes()->count();
+                    $cupoTotal = $curso->cupo_total;
+                    $cuposDisponibles = max(0, $cupoTotal - $inscritos);
+                    
+                    $porcentajeOcupacion = $cupoTotal > 0
+                        ? ($inscritos / $cupoTotal) * 100
                         : 0;
                 @endphp
-                <div class="h-1.5 rounded-full {{ $porcentajeCupos > 80 ? 'bg-red-500' : ($porcentajeCupos > 50 ? 'bg-orange-400' : 'bg-green-500') }}"
-                     style="width: {{ $porcentajeCupos }}%"></div>
+                <div class="h-1.5 rounded-full {{ $porcentajeOcupacion > 80 ? 'bg-red-500' : ($porcentajeOcupacion > 50 ? 'bg-orange-400' : 'bg-green-500') }}"
+                     style="width: {{ $porcentajeOcupacion }}%"></div>
             </div>
-            <p class="text-xs text-gray-400">
-                {{ $curso->cupo_disponible }} de {{ $curso->cupo_total }} cupos disponibles
+            <p class="text-xs text-gray-500 font-medium">
+                @if($cuposDisponibles > 0)
+                    {{ $cuposDisponibles }} cupos disponibles de {{ $cupoTotal }}
+                @else
+                    <span class="text-red-600 font-bold">Sin cupos disponibles</span>
+                @endif
             </p>
         </div>
 
@@ -90,7 +99,7 @@
         <div class="border-t border-gray-100"></div>
 
         <!-- Precio y botón -->
-        <div class="flex items-end justify-between mt-auto pt-1">
+        <div class="flex items-end justify-between mt-auto pt-1 gap-4">
             <div>
                 @if($curso->precio_descuento)
                     <span class="text-xs text-gray-400 line-through">${{ number_format($curso->precio_regular, 0) }}</span>
@@ -101,14 +110,19 @@
                 </p>
             </div>
             @if($estaInscrito)
-                <span class="bg-green-100 text-green-700 text-sm font-semibold px-4 py-2 rounded-lg border border-green-200">
+                <span class="bg-green-100 text-green-700 text-sm font-semibold px-4 py-2 rounded-lg border border-green-200 text-center">
                     ✓ Ya inscrito
                 </span>
             @else
                 <button wire:click="abrirModalSolicitud('{{ $curso->codigo }}')"
-                        class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm hover:shadow">
+                    class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm hover:shadow text-center">
                     Inscribirse
                 </button>
+
+                <a href="{{ route('cursos.show', $curso->codigo) }}"
+                    class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm hover:shadow text-center">
+                    Ver Detalles
+                </a>
             @endif
         </div>
     </div>
