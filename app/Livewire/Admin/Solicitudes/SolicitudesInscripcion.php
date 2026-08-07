@@ -2,30 +2,36 @@
 
 namespace App\Livewire\Admin\Solicitudes;
 
-use Livewire\Component;
-use Livewire\WithPagination;
+use App\Models\Curso;
+use App\Models\Estudiante;
 use App\Models\Solicitud;
 use App\Models\User;
-use App\Models\Estudiante;
-use App\Models\Curso;
+use App\Notifications\CredencialesEstudiante;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Notifications\CredencialesEstudiante;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class SolicitudesInscripcion extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $perPage = 15;
+
     public $filtroEstado = 'pendiente';
 
     // Modal de revisión
     public $mostrarModalRevision = false;
+
     public $solicitudId = null;
+
     public $solicitudSeleccionada = null;
+
     public $respuesta = '';
+
     public $codigo_generado = '';
 
     protected $queryString = [
@@ -51,9 +57,9 @@ class SolicitudesInscripcion extends Component
             })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('asunto', 'like', '%' . $this->search . '%')
-                        ->orWhere('email_contacto', 'like', '%' . $this->search . '%')
-                        ->orWhere('mensaje', 'like', '%' . $this->search . '%');
+                    $q->where('asunto', 'like', '%'.$this->search.'%')
+                        ->orWhere('email_contacto', 'like', '%'.$this->search.'%')
+                        ->orWhere('mensaje', 'like', '%'.$this->search.'%');
                 });
             })
             ->orderBy('created_at', 'desc')
@@ -93,13 +99,15 @@ class SolicitudesInscripcion extends Component
 
         // Verificar que el curso exista y tenga cupos
         $curso = Curso::where('codigo', $datos['codigo_curso'])->first();
-        if (!$curso) {
+        if (! $curso) {
             $this->addError('general', 'El curso asociado a esta solicitud ya no existe.');
+
             return;
         }
 
         if ($curso->cupo_disponible <= 0) {
-            $this->addError('general', 'El curso "' . $curso->nombre . '" ya no tiene cupos disponibles.');
+            $this->addError('general', 'El curso "'.$curso->nombre.'" ya no tiene cupos disponibles.');
+
             return;
         }
 
@@ -111,7 +119,7 @@ class SolicitudesInscripcion extends Component
             // 2. Verificar si ya existe un usuario con ese email
             $user = User::where('email', $solicitud->email_contacto)->first();
 
-            if (!$user) {
+            if (! $user) {
                 // Crear el usuario
                 $user = User::create([
                     'name' => $datos['nombre'] ?? $solicitud->email_contacto,
@@ -136,15 +144,15 @@ class SolicitudesInscripcion extends Component
             // 3. Verificar si ya existe un estudiante asociado a ese usuario
             $estudiante = Estudiante::where('user_id', $user->id)->first();
 
-            if (!$estudiante) {
+            if (! $estudiante) {
                 // Crear el estudiante
                 $estudiante = Estudiante::create([
                     'codigo' => $this->codigo_generado,
                     'user_id' => $user->id,
-                    'fecha_nacimiento' => !empty($datos['fecha_nacimiento']) ? $datos['fecha_nacimiento'] : null,
-                    'genero' => !empty($datos['genero']) ? $datos['genero'] : null,
-                    'nivel_educativo' => !empty($datos['nivel_educativo']) ? $datos['nivel_educativo'] : null,
-                    'intereses' => 'Inscrito vía solicitud - Curso: ' . ($datos['nombre_curso'] ?? ''),
+                    'fecha_nacimiento' => ! empty($datos['fecha_nacimiento']) ? $datos['fecha_nacimiento'] : null,
+                    'genero' => ! empty($datos['genero']) ? $datos['genero'] : null,
+                    'nivel_educativo' => ! empty($datos['nivel_educativo']) ? $datos['nivel_educativo'] : null,
+                    'intereses' => 'Inscrito vía solicitud - Curso: '.($datos['nombre_curso'] ?? ''),
                     'fecha_registro' => now(),
                     'activo' => true,
                 ]);
@@ -153,11 +161,13 @@ class SolicitudesInscripcion extends Component
             // 4. Inscribir al estudiante en el curso (si no está ya inscrito)
             $yaInscrito = $estudiante->cursos()->where('curso_id', $curso->codigo)->exists();
 
-            if (!$yaInscrito) {
+            if (! $yaInscrito) {
+                $precioInscripcion = (float) $curso->precioFinal;
+
                 $estudiante->cursos()->attach($curso->codigo, [
                     'estado' => 'inscrito',
-                    'pago_realizado' => 0,
-                    'estado_pago' => 'pendiente',
+                    'pago_realizado' => $precioInscripcion,
+                    'estado_pago' => $precioInscripcion > 0 ? 'completo' : 'pendiente',
                     'fecha_inscripcion' => now(),
                     'progreso' => 0,
                 ]);
@@ -185,7 +195,7 @@ class SolicitudesInscripcion extends Component
                 ));
             } catch (\Exception $e) {
                 // Si falla el envío de correo, no detenemos el proceso
-                \Log::error('Error al enviar credenciales: ' . $e->getMessage());
+                \Log::error('Error al enviar credenciales: '.$e->getMessage());
             }
 
             $this->dispatch('show-toast', type: 'success', message: 'Solicitud aprobada. Estudiante creado e inscrito exitosamente. Se han enviado las credenciales por correo.');
@@ -193,7 +203,7 @@ class SolicitudesInscripcion extends Component
 
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->addError('general', 'Error al procesar la solicitud: ' . $e->getMessage());
+            $this->addError('general', 'Error al procesar la solicitud: '.$e->getMessage());
         }
     }
 

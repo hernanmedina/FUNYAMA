@@ -144,6 +144,7 @@
                                 @if($curso->pivot && $curso->pivot->estado === 'completado' && is_null($curso->pivot->calificacion))
                                     <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                                         <h4 class="text-sm font-semibold text-yellow-800 mb-2">¡Califica este curso!</h4>
+                                        <p class="text-gray-600">Esta es una autoevaluación de tu experiencia en este curso, esta nota será tenida en cuenta según el criterio del docente </p>
                                         <form wire:submit="registrarEvaluacion('{{ $curso->codigo }}')">
                                             <input type="number" wire:model="evaluaciones.{{ $curso->codigo }}.calificacion" min="1" max="5" placeholder="Puntuación (1-5)" class="w-full mb-2 p-2 border rounded" required>
                                             <textarea wire:model="evaluaciones.{{ $curso->codigo }}.comentario" placeholder="Tu comentario..." class="w-full mb-2 p-2 border rounded" required></textarea>
@@ -152,7 +153,7 @@
                                     </div>
                                 @elseif($curso->pivot && $curso->pivot->estado === 'completado' && !is_null($curso->pivot->calificacion))
                                     <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                                        <p class="text-sm text-green-800">Has calificado este curso con {{ $curso->pivot->calificacion }}/5.</p>
+                                        <p class="text-sm text-green-800">Has calificado este curso con {{ $curso->pivot->calificacion }}/5</p>
                                     </div>
                                 @endif
 

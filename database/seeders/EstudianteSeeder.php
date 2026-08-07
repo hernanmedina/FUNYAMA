@@ -20,7 +20,7 @@ class EstudianteSeeder extends Seeder
                 'apellido' => 'FunYama',
                 'documento_ID' => '111222333444',
                 'email' => 'admin@funyama.com',
-                'password' => Hash::make('admin123456'),
+                'password' => Hash::make('admin1234'),
                 'role' => 'admin',
                 'telefono' => '9999999999',
             ]

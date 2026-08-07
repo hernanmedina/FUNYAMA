@@ -2,46 +2,69 @@
 
 namespace App\Livewire\Estudiante;
 
-use Livewire\Component;
 use App\Models\Curso;
 use App\Models\Estudiante;
-use App\Models\Certificado;
 use App\Models\Solicitud;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Validate;
-use Illuminate\Support\Arr;
+use Livewire\Component;
 
-#[Layout('layouts.app')] 
+#[Layout('layouts.app')]
 
 class DashboardEstudiante extends Component
 {
     public $cursosInscritos;
+
+    public $cursosFinalizados;
+
     public $cursosDisponibles;
+
     public $estadisticas;
+
     public $certificadosRecientes;
 
     // Modal de inscripción
     public bool $mostrarModal = false;
+
     public ?string $cursoSeleccionado = null;
+
     public ?Curso $cursoData = null;
 
+    // Modal de opinión del estudiante
+    public bool $mostrarModalOpinion = false;
+
+    public ?string $cursoOpinionId = null;
+
+    public ?string $cursoOpinionNombre = null;
+
+    public int $ratingOpinion = 0;
+
+    public string $textoOpinion = '';
+
     public string $nombre = '';
+
     public string $apellido = '';
+
     public string $documento_identidad = '';
+
     public string $direccion = '';
+
     public ?string $fecha_nacimiento = '';
+
     public ?string $genero = '';
+
     public ?string $nivel_educativo = '';
 
     #[Validate('required|string')]
     public string $mensaje = '';
-    
+
     #[Validate('required|regex:/^[0-9]{10}$/')]
     public string $telefono = '';
-    
+
     #[Validate('required|email')]
     public string $email_contacto = '';
-    
+
     #[Validate('nullable|string')]
     public string $motivoInscripcion = '';
 
@@ -51,22 +74,34 @@ class DashboardEstudiante extends Component
         $estudiante = $user?->estudiante;
 
         if ($estudiante) {
-            // Cursos en los que está inscrito el estudiante
-            $this->cursosInscritos = $estudiante->cursos()
-                ->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion')
+            // Cursos en los que está inscrito el estudiante (todos)
+            $todosCursos = $estudiante->cursos()
+                ->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion', 'calificacion', 'comentario_calificacion', 'fecha_completado')
                 ->orderBy('curso_estudiante.fecha_inscripcion', 'desc')
-                ->take(5)
                 ->get();
 
-            $this->cursosInscritos->each(function ($curso) {
+            $todosCursos->each(function ($curso) {
                 $progreso = $this->calcularProgresoCurso($curso);
                 $curso->porcentaje_progreso = $progreso;
-                $curso->pivot->progreso = $progreso;
+                if ($curso->pivot) {
+                    $curso->pivot->progreso = $progreso;
+                }
             });
+
+            // Separar: cursos activos (no completados) vs finalizados
+            $this->cursosInscritos = $todosCursos
+                ->filter(fn ($c) => ($c->porcentaje_progreso ?? 0) < 100)
+                ->take(5)
+                ->values();
+
+            $this->cursosFinalizados = $todosCursos
+                ->filter(fn ($c) => ($c->porcentaje_progreso ?? 0) >= 100)
+                ->take(5)
+                ->values();
 
             // Cursos disponibles (no inscritos y publicados)
             $cursosInscritosIds = $estudiante->cursos()->pluck('codigo')->toArray() ?? [];
-            
+
             $this->cursosDisponibles = Curso::where('publicado', true)
                 ->whereNotIn('codigo', $cursosInscritosIds)
                 ->where('cupo_disponible', '>', 0)
@@ -75,7 +110,7 @@ class DashboardEstudiante extends Component
                 ->get();
 
             // Estadísticas
-            $cursos = $estudiante->cursos()->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion')->get();
+            $cursos = $estudiante->cursos()->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion', 'calificacion', 'comentario_calificacion', 'fecha_completado')->get();
             $cursos->each(function ($curso) {
                 $curso->porcentaje_progreso = $this->calcularProgresoCurso($curso);
             });
@@ -97,6 +132,7 @@ class DashboardEstudiante extends Component
         } else {
             // Inicializar vacío si no hay estudiante
             $this->cursosInscritos = collect();
+            $this->cursosFinalizados = collect();
             $this->cursosDisponibles = collect();
             $this->estadisticas = [
                 'total_cursos' => 0,
@@ -131,11 +167,12 @@ class DashboardEstudiante extends Component
     {
         $curso = Curso::where('codigo', $codigo)->first();
 
-        if (!$curso) {
+        if (! $curso) {
             $this->dispatch('show-toast',
                 type: 'error',
                 message: 'Curso no encontrado.'
             );
+
             return;
         }
 
@@ -144,6 +181,7 @@ class DashboardEstudiante extends Component
                 type: 'error',
                 message: 'No hay cupos disponibles en este curso.'
             );
+
             return;
         }
 
@@ -154,6 +192,7 @@ class DashboardEstudiante extends Component
                 type: 'warning',
                 message: 'Ya estás inscrito en este curso.'
             );
+
             return;
         }
 
@@ -187,6 +226,67 @@ class DashboardEstudiante extends Component
         $this->resetValidation();
     }
 
+    // ─── Modal de Opinión del Estudiante ───────────────────────────────
+
+    public function abrirModalOpinion(string $cursoId, string $cursoNombre): void
+    {
+        $user = Auth::user();
+
+        if (! $user?->estudiante) {
+            return;
+        }
+
+        $pivot = DB::table('curso_estudiante')
+            ->where('curso_id', $cursoId)
+            ->where('estudiante_id', $user->estudiante->codigo)
+            ->first();
+
+        $this->cursoOpinionId = $cursoId;
+        $this->cursoOpinionNombre = $cursoNombre;
+        $this->ratingOpinion = (int) ($pivot?->rating_estudiante ?? 0);
+        $this->textoOpinion = $pivot?->opinion_estudiante ?? '';
+        $this->mostrarModalOpinion = true;
+    }
+
+    public function cerrarModalOpinion(): void
+    {
+        $this->mostrarModalOpinion = false;
+        $this->reset(['cursoOpinionId', 'cursoOpinionNombre', 'ratingOpinion', 'textoOpinion']);
+    }
+
+    public function setRating(int $rating): void
+    {
+        $this->ratingOpinion = max(1, min(5, $rating));
+    }
+
+    public function enviarOpinion(): void
+    {
+        $this->validate([
+            'ratingOpinion' => ['required', 'integer', 'min:1', 'max:5'],
+            'textoOpinion' => ['required', 'string', 'min:10', 'max:1000'],
+            'cursoOpinionId' => ['required', 'string'],
+        ]);
+
+        $user = Auth::user();
+
+        if (! $user?->estudiante) {
+            return;
+        }
+
+        DB::table('curso_estudiante')
+            ->where('curso_id', $this->cursoOpinionId)
+            ->where('estudiante_id', $user->estudiante->codigo)
+            ->update([
+                'rating_estudiante' => $this->ratingOpinion,
+                'opinion_estudiante' => $this->textoOpinion,
+                'updated_at' => now(),
+            ]);
+
+        $this->dispatch('show-toast', type: 'success', message: '¡Gracias por tu opinión! Tu retroalimentación ha sido guardada.');
+        $this->cerrarModalOpinion();
+        $this->mount();
+    }
+
     public function enviarSolicitud()
     {
         $this->validate();
@@ -202,13 +302,14 @@ class DashboardEstudiante extends Component
                 message: 'Ya estás inscrito en este curso. No puedes solicitar inscripción nuevamente.'
             );
             $this->cerrarModal();
+
             return;
         }
 
         // Crear solicitud de inscripción
         Solicitud::create([
             'tipo' => 'inscripcion',
-            'asunto' => 'Solicitud de inscripción al curso: ' . $this->cursoData->nombre,
+            'asunto' => 'Solicitud de inscripción al curso: '.$this->cursoData->nombre,
             'mensaje' => $this->mensaje,
             'telefono' => $this->telefono,
             'email_contacto' => $this->email_contacto,

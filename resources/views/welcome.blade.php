@@ -82,7 +82,7 @@
 
 <!-- Logo -->
 <div class="flex justify-center mb-6">
-    <div class="bg-white  w-64 h-64 flex items-center justify-center ">
+    <div class="bg-white w-[700px] h-[auto] mt-8 flex items-center justify-center ">
         <x-application-mark class="h-30 w-30 object-contain" />
     </div>
 </div>
