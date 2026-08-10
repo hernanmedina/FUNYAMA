@@ -1,26 +1,33 @@
 <?php
 
+use App\Livewire\Admin\Blog\CrearBlog;
+use App\Livewire\Admin\Blog\EditarBlog;
+use App\Livewire\Admin\Blog\IndexBlog;
+use App\Livewire\Admin\ControlPagos;
 use App\Livewire\Admin\Cursos\CrearCurso;
-use App\Livewire\Admin\Cursos\EditarCurso;
-use App\Livewire\Admin\Cursos\MostrarCurso;
-use App\Livewire\Admin\Cursos\IndexCursos;
 use App\Livewire\Admin\Cursos\CursosEliminados;
-use App\Livewire\Admin\Eventos\IndexEventos;
+use App\Livewire\Admin\Cursos\EditarCurso;
+use App\Livewire\Admin\Cursos\IndexCursos;
+use App\Livewire\Admin\Cursos\MostrarCurso;
+use App\Livewire\Admin\DashboardAdmin;
 use App\Livewire\Admin\Eventos\CrearEvento;
 use App\Livewire\Admin\Eventos\EditarEvento;
-use App\Livewire\Admin\Solicitudes\SolicitudesInscripcion;
-use App\Livewire\Admin\DashboardAdmin;
+use App\Livewire\Admin\Eventos\IndexEventos;
 use App\Livewire\Admin\GestionarCertificados;
-use App\Livewire\Cursos;
+use App\Livewire\Admin\OpinionesEstudiantes;
+use App\Livewire\Admin\Solicitudes\SolicitudesInscripcion;
+use App\Livewire\Blog;
+use App\Livewire\BlogDetalle;
 use App\Livewire\CalendarioEventos;
+use App\Livewire\Cursos;
 use App\Livewire\Estudiante\CrearEstudiante;
 use App\Livewire\Estudiante\DashboardEstudiante;
 use App\Livewire\Estudiante\EditarEstudiante;
 use App\Livewire\Estudiante\Estudiantes;
 use App\Livewire\Estudiante\EstudiantesEliminados;
-use App\Livewire\Estudiante\MostrarEstudiante;
 use App\Livewire\Estudiante\MisCertificados;
 use App\Livewire\Estudiante\MisCursos;
+use App\Livewire\Estudiante\MostrarEstudiante;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 
@@ -42,6 +49,10 @@ Route::get('/cursos/{curso}', MostrarCurso::class)->name('cursos.show');
 
 // Calendario de eventos público
 Route::get('/eventos', CalendarioEventos::class)->name('eventos.index');
+
+// Blog y Noticias público
+Route::get('/blog', Blog::class)->name('blog.index');
+Route::get('/blog/{articulo}', BlogDetalle::class)->name('blog.detalle');
 
 // Rutas protegidas
 Route::middleware([
@@ -111,7 +122,18 @@ Route::middleware([
 
         // Gestión de certificados
         Route::get('/certificados', GestionarCertificados::class)->name('certificados');
+
+        // Opiniones de estudiantes
+        Route::get('/opiniones', OpinionesEstudiantes::class)->name('opiniones');
+
+        // Control de pagos
+        Route::get('/pagos', ControlPagos::class)->name('pagos');
+
+        // Blog / Noticias
+        Route::prefix('blog')->name('blog.')->group(function () {
+            Route::get('/', IndexBlog::class)->name('index');
+            Route::get('/crear', CrearBlog::class)->name('create');
+            Route::get('/{articulo}/editar', EditarBlog::class)->name('edit');
+        });
     });
 });
-
-

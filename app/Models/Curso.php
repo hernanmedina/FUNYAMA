@@ -43,6 +43,7 @@ class Curso extends Model
         'fecha_inicio',
         'fecha_fin',
         'creado_por_admin',
+        'instructor_id',
     ];
 
     protected $casts = [
@@ -61,10 +62,15 @@ class Curso extends Model
         return $this->belongsTo(Administrador::class, 'creado_por_admin', 'idAdmin');
     }
 
+    public function instructor()
+    {
+        return $this->belongsTo(User::class, 'instructor_id');
+    }
+
     public function estudiantes()
     {
         return $this->belongsToMany(Estudiante::class, 'curso_estudiante', 'curso_id', 'estudiante_id')
-            ->withPivot('estado', 'calificacion', 'pago_realizado', 'estado_pago', 'progreso', 'temario_progreso', 'fecha_inscripcion')
+            ->withPivot('estado', 'calificacion', 'comentario_calificacion', 'rating_estudiante', 'opinion_estudiante', 'pago_realizado', 'estado_pago', 'progreso', 'temario_progreso', 'fecha_inscripcion')
             ->withTimestamps();
     }
 

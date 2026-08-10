@@ -184,6 +184,19 @@
                                 @error('nivel') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
 
+                            <!-- Instructor -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Instructor</label>
+                                <select wire:model="instructor_id"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Seleccionar instructor...</option>
+                                    @foreach($usuarios as $usuario)
+                                        <option value="{{ $usuario->id }}">{{ $usuario->nombre_completo }} ({{ $usuario->role }})</option>
+                                    @endforeach
+                                </select>
+                                @error('instructor_id') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                            </div>
+
                             <!-- Fecha Inicio -->
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio</label>

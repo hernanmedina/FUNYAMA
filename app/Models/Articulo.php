@@ -11,6 +11,7 @@ class Articulo extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'articulos';
+
     protected $primaryKey = 'idPost';
 
     protected $fillable = [
@@ -30,23 +31,42 @@ class Articulo extends Model
         'destacado',
         'comentarios_habilitados',
         'fecha_publicacion',
-        'autor_id_admin'
+        'autor_id_admin',
     ];
 
     protected $casts = [
-        'etiquetas' => 'array',
         'publicado' => 'boolean',
         'destacado' => 'boolean',
         'comentarios_habilitados' => 'boolean',
         'fecha_publicacion' => 'datetime',
         'vistas' => 'integer',
         'likes' => 'integer',
-        'tiempo_lectura' => 'integer'
+        'tiempo_lectura' => 'integer',
     ];
 
     public function administrador()
     {
         return $this->belongsTo(Administrador::class, 'autor_id_admin', 'idAdmin');
+    }
+
+    protected function getEtiquetasAttribute($value): array
+    {
+        if ($value === null || $value === '') {
+            return [];
+        }
+
+        $decoded = is_array($value) ? $value : json_decode($value, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    protected function setEtiquetasAttribute(array|string|null $value): void
+    {
+        if (is_array($value)) {
+            $this->attributes['etiquetas'] = json_encode($value, JSON_UNESCAPED_UNICODE);
+        } else {
+            $this->attributes['etiquetas'] = $value;
+        }
     }
 
     // Scopes

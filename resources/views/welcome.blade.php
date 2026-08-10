@@ -53,7 +53,8 @@
                 <a href="#inicio" class="text-gray-700 hover:text-blue-600 font-medium">Inicio</a>
                 <a href="#cursos" class="text-gray-700 hover:text-blue-600 font-medium">Cursos</a>
                 <a href="#eventos" class="text-gray-700 hover:text-blue-600 font-medium">Eventos</a>
-                <a href="#nosotros" class="text-gray-700 hover:text-blue-600 font-medium">Nosotros</a> {{-- pendiente por validar si queda haí--}}
+                <a href="{{ route('blog.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Blog</a>
+                <a href="#nosotros" class="text-gray-700 hover:text-blue-600 font-medium">Nosotros</a>
                 <a href="#contacto" class="text-gray-700 hover:text-blue-600 font-medium">Contacto</a>
             </div>
 

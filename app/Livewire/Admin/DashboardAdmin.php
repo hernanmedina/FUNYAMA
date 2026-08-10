@@ -33,15 +33,11 @@ class DashboardAdmin extends Component
 
     public $estudiantesRecientes;
 
-    public $controlPagos = [];
-
     // Filtros para estadísticas
     public $rangoFechas = '30'; // 7, 30, 90, 365 días
 
     // Modal para resolver solicitud de inscripción
     public bool $mostrarModalResolucion = false;
-
-    public bool $mostrarModalPagos = false;
 
     public bool $mostrarModalExport = false;
 
@@ -59,11 +55,6 @@ class DashboardAdmin extends Component
     public array $cursosConEstudiantes = [];
 
     public array $estudiantesParaCalificar = [];
-
-    // Modal de Opiniones de Estudiantes
-    public bool $mostrarModalOpiniones = false;
-
-    public array $opinionesEstudiantes = [];
 
     public string $tipoReporte = 'cursos';
 
@@ -91,7 +82,6 @@ class DashboardAdmin extends Component
     {
         $this->cargarEstadisticas();
         $this->cargarDatosRecientes();
-        $this->cargarControlPagos();
         $this->cargarCursosParaExport();
     }
 
@@ -131,7 +121,6 @@ class DashboardAdmin extends Component
             ->update($payload);
 
         $this->cargarEstadisticas();
-        $this->cargarControlPagos();
 
         $this->dispatch('show-toast', type: 'success', message: 'Estado de pago actualizado correctamente.');
     }
@@ -203,35 +192,6 @@ class DashboardAdmin extends Component
         }
 
         return (float) $query->value('total');
-    }
-
-    private function cargarControlPagos(): void
-    {
-        $this->controlPagos = DB::table('curso_estudiante as ce')
-            ->join('cursos as c', 'c.codigo', '=', 'ce.curso_id')
-            ->join('estudiantes as e', 'e.codigo', '=', 'ce.estudiante_id')
-            ->join('users as u', 'u.id', '=', 'e.user_id')
-            ->select([
-                'ce.curso_id',
-                'ce.estudiante_id',
-                'c.nombre as curso_nombre',
-                'u.name',
-                'u.apellido',
-                'ce.estado_pago',
-                'ce.pago_realizado',
-                'ce.fecha_inscripcion',
-            ])
-            ->orderByDesc('ce.fecha_inscripcion')
-            ->get()
-            ->map(function ($fila) {
-                foreach ($fila as $clave => $valor) {
-                    if (is_string($valor)) {
-                        $fila->{$clave} = $this->sanitizarTextoUtf8($valor);
-                    }
-                }
-
-                return $fila;
-            });
     }
 
     private function cargarDatosRecientes()
@@ -345,7 +305,6 @@ class DashboardAdmin extends Component
         $this->cursosRecientes = $this->sanitizarValorRecursivo($this->cursosRecientes);
         $this->solicitudesPendientes = $this->sanitizarValorRecursivo($this->solicitudesPendientes);
         $this->estudiantesRecientes = $this->sanitizarValorRecursivo($this->estudiantesRecientes);
-        $this->controlPagos = $this->sanitizarValorRecursivo($this->controlPagos);
         $this->cursosParaExport = $this->sanitizarArrayUtf8($this->cursosParaExport);
     }
 
@@ -466,17 +425,6 @@ class DashboardAdmin extends Component
         );
     }
 
-    public function abrirModalControlPagos(): void
-    {
-        $this->cargarControlPagos();
-        $this->mostrarModalPagos = true;
-    }
-
-    public function cerrarModalControlPagos(): void
-    {
-        $this->mostrarModalPagos = false;
-    }
-
     public function abrirModalExport(): void
     {
         $this->cargarCursosParaExport();
@@ -588,50 +536,6 @@ class DashboardAdmin extends Component
 
         $this->dispatch('show-toast', type: 'success', message: 'Calificación y retroalimentación guardadas correctamente.');
         $this->cerrarModalCalificacion();
-    }
-
-    // ─── Modal de Opiniones de Estudiantes ──────────────────────────────
-
-    public function abrirModalOpiniones(): void
-    {
-        $this->opinionesEstudiantes = DB::table('curso_estudiante as ce')
-            ->join('cursos as c', 'c.codigo', '=', 'ce.curso_id')
-            ->join('estudiantes as e', 'e.codigo', '=', 'ce.estudiante_id')
-            ->join('users as u', 'u.id', '=', 'e.user_id')
-            ->where(function ($q) {
-                $q->whereNotNull('ce.opinion_estudiante')
-                    ->orWhereNotNull('ce.rating_estudiante');
-            })
-            ->select(
-                'c.codigo as curso_id',
-                'c.nombre as curso_nombre',
-                'e.codigo as estudiante_id',
-                'u.name',
-                'u.apellido',
-                'ce.rating_estudiante',
-                'ce.opinion_estudiante',
-                'ce.updated_at'
-            )
-            ->orderBy('ce.updated_at', 'desc')
-            ->take(50)
-            ->get()
-            ->map(function ($row) {
-                return [
-                    'curso_nombre' => $row->curso_nombre,
-                    'nombre_estudiante' => $this->sanitizarTextoUtf8($row->name.' '.$row->apellido),
-                    'rating' => (int) $row->rating_estudiante,
-                    'opinion' => $row->opinion_estudiante ? $this->sanitizarTextoUtf8($row->opinion_estudiante) : null,
-                    'fecha' => $row->updated_at,
-                ];
-            })
-            ->toArray();
-
-        $this->mostrarModalOpiniones = true;
-    }
-
-    public function cerrarModalOpiniones(): void
-    {
-        $this->mostrarModalOpiniones = false;
     }
 
     public function updatedTipoReporte(): void

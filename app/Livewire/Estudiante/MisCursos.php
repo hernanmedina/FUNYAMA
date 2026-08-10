@@ -22,12 +22,29 @@ class MisCursos extends Component
 
     public $evaluaciones = [];
 
+    public bool $showModalOpinion = false;
+
+    public string $cursoSeleccionadoCodigo = '';
+
+    public string $cursoSeleccionadoNombre = '';
+
+    public ?int $ratingEstudiante = null;
+
+    public string $opinionEstudiante = '';
+
+    public string $tab = 'activos';
+
     public function updatedSearch()
     {
         $this->resetPage();
     }
 
     public function updatedSortBy()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedTab()
     {
         $this->resetPage();
     }
@@ -43,7 +60,15 @@ class MisCursos extends Component
         }
 
         $query = $estudiante->cursos()
-            ->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion');
+            ->with('instructor')
+            ->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion', 'calificacion', 'rating_estudiante', 'opinion_estudiante');
+
+        // Filtrar por pestaña
+        if ($this->tab === 'completados') {
+            $query->wherePivot('estado', 'completado');
+        } else {
+            $query->wherePivot('estado', '!=', 'completado');
+        }
 
         // Aplicar búsqueda
         if ($this->search) {
@@ -93,6 +118,58 @@ class MisCursos extends Component
         $completados = count(array_filter($temarioProgreso, fn ($valor) => $valor === true));
 
         return round(($completados / $totalItems) * 100, 2);
+    }
+
+    public function abrirModalOpinion(string $codigo, string $nombre): void
+    {
+        $estudiante = Auth::user()?->estudiante;
+
+        if (! $estudiante) {
+            return;
+        }
+
+        $curso = $estudiante->cursos()
+            ->where('curso_id', $codigo)
+            ->first();
+
+        $this->cursoSeleccionadoCodigo = $codigo;
+        $this->cursoSeleccionadoNombre = $nombre;
+        $this->ratingEstudiante = $curso?->pivot?->rating_estudiante;
+        $this->opinionEstudiante = $curso?->pivot?->opinion_estudiante ?? '';
+        $this->showModalOpinion = true;
+    }
+
+    public function cerrarModalOpinion(): void
+    {
+        $this->showModalOpinion = false;
+        $this->cursoSeleccionadoCodigo = '';
+        $this->cursoSeleccionadoNombre = '';
+        $this->ratingEstudiante = null;
+        $this->opinionEstudiante = '';
+    }
+
+    public function guardarOpinion(): void
+    {
+        if (! $this->ratingEstudiante) {
+            $this->dispatch('show-toast', type: 'error', message: 'Debes seleccionar una puntuación.');
+
+            return;
+        }
+
+        $estudiante = Auth::user()?->estudiante;
+
+        if (! $estudiante) {
+            return;
+        }
+
+        $estudiante->cursos()->updateExistingPivot($this->cursoSeleccionadoCodigo, [
+            'rating_estudiante' => $this->ratingEstudiante,
+            'opinion_estudiante' => $this->opinionEstudiante,
+        ]);
+
+        $this->cerrarModalOpinion();
+
+        $this->dispatch('show-toast', type: 'success', message: '¡Gracias por tu opinión!');
     }
 
     public function registrarEvaluacion($cursoCodigo)

@@ -172,6 +172,15 @@
                             <span class="text-sm font-medium">Gestionar Eventos</span>
                         </a>
 
+                        <!-- Gestionar Blog -->
+                        <a href="{{ route('admin.blog.index') }}"
+                           class="bg-emerald-600 hover:bg-emerald-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
+                            <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                            </svg>
+                            <span class="text-sm font-medium">Gestionar Blog</span>
+                        </a>
+
                         <!-- Gestionar Estudiantes -->
                         <a href="{{ route('admin.estudiantes.index') }}"
                            class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
@@ -191,14 +200,13 @@
                         </a>
 
                         <!-- Control de Pagos -->
-                        <button type="button"
-                                wire:click="abrirModalControlPagos"
-                                class="bg-amber-600 hover:bg-amber-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
+                        <a href="{{ route('admin.pagos') }}"
+                           class="bg-amber-600 hover:bg-amber-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
                             <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                             </svg>
                             <span class="text-sm font-medium">Control de Pagos</span>
-                        </button>
+                        </a>
 
                         <!-- Exportar Reportes -->
                         <button type="button"
@@ -230,14 +238,13 @@
                         </button>
 
                         <!-- Opiniones de Estudiantes -->
-                        <button type="button"
-                                wire:click="abrirModalOpiniones"
-                                class="bg-rose-600 hover:bg-rose-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
+                        <a href="{{ route('admin.opiniones') }}"
+                           class="bg-rose-600 hover:bg-rose-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
                             <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                             </svg>
                             <span class="text-sm font-medium">Opiniones</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -291,59 +298,6 @@
                 </div>
             </div>
         </div>
-
-        @if($mostrarModalPagos)
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="cerrarModalControlPagos"></div>
-
-                    <div class="relative w-full max-w-4xl transform overflow-hidden rounded-xl bg-white shadow-xl transition-all">
-                        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">Control de Pagos</h3>
-                                <p class="text-sm text-gray-500">Actualiza el estado de pago de las matrículas verificadas.</p>
-                            </div>
-                            <button type="button"
-                                    wire:click="cerrarModalControlPagos"
-                                    class="rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div class="max-h-[70vh] overflow-y-auto p-6">
-                            @if(is_countable($controlPagos) && count($controlPagos) > 0)
-                                <div class="space-y-4">
-                                    @foreach($controlPagos as $matricula)
-                                        <div wire:key="pago-{{ $matricula->curso_id }}-{{ $matricula->estudiante_id }}" class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border border-gray-200 rounded-lg p-3">
-                                            <div>
-                                                <p class="font-medium text-gray-900">{{ $matricula->curso_nombre }}</p>
-                                                <p class="text-sm text-gray-600">{{ $matricula->name }} {{ $matricula->apellido }}</p>
-                                                <p class="text-xs text-gray-500 mt-1">Monto registrado: ${{ number_format((float) $matricula->pago_realizado, 2) }}</p>
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <label class="text-xs font-medium text-gray-600">Estado</label>
-                                                <select
-                                                    wire:change="actualizarEstadoPago('{{ $matricula->curso_id }}', '{{ $matricula->estudiante_id }}', $event.target.value)"
-                                                    class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                >
-                                                    <option value="pendiente" @selected($matricula->estado_pago === 'pendiente')>Pendiente</option>
-                                                    <option value="parcial" @selected($matricula->estado_pago === 'parcial')>Parcial</option>
-                                                    <option value="completo" @selected($matricula->estado_pago === 'completo')>Completo</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <p class="text-gray-500 text-center py-4">No hay matrículas registradas para controlar pagos.</p>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
 
         @if($mostrarModalExport)
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -825,7 +779,7 @@
                                        step="0.1"
                                        min="1"
                                        max="5"
-                                       placeholder="Ej: 8.5"
+                                       placeholder="Ej: 4.5"
                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                                 @error('notaCalificacion')
                                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
@@ -864,67 +818,6 @@
                                 </svg>
                             </span>
                         </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Modal de Opiniones de Estudiantes --}}
-    @if($mostrarModalOpiniones)
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="cerrarModalOpiniones"></div>
-
-                <div class="relative w-full max-w-3xl transform overflow-hidden rounded-xl bg-white shadow-xl transition-all">
-                    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Opiniones de Estudiantes</h3>
-                            <p class="text-sm text-gray-500">{{ count($opinionesEstudiantes) }} opiniones recibidas</p>
-                        </div>
-                        <button type="button"
-                                wire:click="cerrarModalOpiniones"
-                                class="rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="max-h-[70vh] overflow-y-auto p-6">
-                        @if(count($opinionesEstudiantes) > 0)
-                            <div class="space-y-4">
-                                @foreach($opinionesEstudiantes as $opinion)
-                                    <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                        <div class="flex items-start justify-between mb-2">
-                                            <div>
-                                                <p class="font-medium text-gray-900">{{ $opinion['nombre_estudiante'] }}</p>
-                                                <p class="text-sm text-indigo-600">{{ $opinion['curso_nombre'] }}</p>
-                                            </div>
-                                            <div class="flex items-center gap-1 text-yellow-400">
-                                                @for($i = 1; $i <= 5; $i++)
-                                                    <span class="{{ $opinion['rating'] >= $i ? '' : 'opacity-20' }}">★</span>
-                                                @endfor
-                                            </div>
-                                        </div>
-                                        @if($opinion['opinion'])
-                                            <p class="text-sm text-gray-700 italic leading-relaxed">"{{ $opinion['opinion'] }}"</p>
-                                        @endif
-                                        <p class="text-xs text-gray-400 mt-2">
-                                            {{ \Carbon\Carbon::parse($opinion['fecha'])->diffForHumans() }}
-                                        </p>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="text-center py-12">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                                </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900">Sin opiniones aún</h3>
-                                <p class="mt-1 text-sm text-gray-500">Los estudiantes aún no han dejado opiniones sobre los cursos.</p>
-                            </div>
-                        @endif
                     </div>
                 </div>
             </div>

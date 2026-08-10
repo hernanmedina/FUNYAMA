@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -15,12 +16,12 @@ class User extends Authenticatable
 {
     use HasApiTokens;
 
-    use SoftDeletes;
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasProfilePhoto;
     use Notifiable;
+    use SoftDeletes;
     use TwoFactorAuthenticatable;
 
     /**
@@ -96,9 +97,19 @@ class User extends Authenticatable
         return $this->role === 'estu';
     }
 
+    public function isInstructor(): bool
+    {
+        return $this->role === 'instructor';
+    }
+
+    public function isAdminOrInstructor(): bool
+    {
+        return $this->isAdmin() || $this->isInstructor();
+    }
+
     public function getNombreCompletoAttribute()
     {
-        return trim($this->name . ' ' . $this->apellido);
+        return trim($this->name.' '.$this->apellido);
     }
 
     public function getTipoUsuarioAttribute()

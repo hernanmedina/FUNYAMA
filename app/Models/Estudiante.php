@@ -11,8 +11,11 @@ class Estudiante extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'estudiantes';
+
     protected $primaryKey = 'codigo';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -23,13 +26,13 @@ class Estudiante extends Model
         'nivel_educativo',
         'intereses',
         'fecha_registro',
-        'activo'
+        'activo',
     ];
 
     protected $casts = [
         'fecha_nacimiento' => 'date',
         'fecha_registro' => 'date',
-        'activo' => 'boolean'
+        'activo' => 'boolean',
     ];
 
     public function user()
@@ -40,7 +43,7 @@ class Estudiante extends Model
     public function cursos()
     {
         return $this->belongsToMany(Curso::class, 'curso_estudiante', 'estudiante_id', 'curso_id')
-            ->withPivot('estado', 'calificacion', 'pago_realizado', 'estado_pago', 'progreso', 'temario_progreso', 'fecha_inscripcion')
+            ->withPivot('estado', 'calificacion', 'comentario_calificacion', 'rating_estudiante', 'opinion_estudiante', 'pago_realizado', 'estado_pago', 'progreso', 'temario_progreso', 'fecha_inscripcion')
             ->withTimestamps();
     }
 

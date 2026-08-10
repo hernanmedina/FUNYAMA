@@ -2,37 +2,60 @@
 
 namespace App\Livewire\Admin\Cursos;
 
-use Livewire\Component;
-use App\Models\Curso;
 use App\Models\Administrador;
+use App\Models\Curso;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Livewire\WithFileUploads;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class CrearCurso extends Component
 {
     use WithFileUploads;
 
     public $codigo;
+
     public $slug;
+
     public $nombre;
+
     public $descripcion;
+
     public $cronograma;
+
     public $requisitos;
+
     public $objetivos;
+
     public $materiales_incluidos;
+
     public $cupo_total;
+
     public $duracion_horas;
+
     public $duracion_texto;
+
     public $precio_regular;
+
     public $precio_descuento;
+
     public $nivel = 'principiante';
+
     public $imagen_portada;
+
     public $fecha_inicio;
+
     public $enlace_classroom;
+
     public $temario;
+
     public $publicado = false;
+
     public $destacado = false;
+
+    public $instructor_id = null;
 
     protected $rules = [
         'codigo' => 'required|string|max:50|unique:cursos,codigo',
@@ -55,6 +78,7 @@ class CrearCurso extends Component
         'temario' => 'nullable|string',
         'publicado' => 'boolean',
         'destacado' => 'boolean',
+        'instructor_id' => 'nullable|exists:users,id',
     ];
 
     protected $messages = [
@@ -80,19 +104,20 @@ class CrearCurso extends Component
             // Obtener administrador
             $admin = Administrador::where('user_id', Auth::id())->first();
 
-            if (!$admin) {
-                \Log::error('❌ No se encontró administrador para el usuario: ' . Auth::id());
+            if (! $admin) {
+                \Log::error('❌ No se encontró administrador para el usuario: '.Auth::id());
                 session()->flash('error', 'No tienes permisos de administrador para crear cursos.');
+
                 return;
             }
 
-            \Log::info('✅ Administrador encontrado: ' . $admin->idAdmin);
+            \Log::info('✅ Administrador encontrado: '.$admin->idAdmin);
 
             // Procesar imagen
             $imagenPath = null;
             if ($this->imagen_portada) {
                 $imagenPath = $this->imagen_portada->store('cursos', 'public');
-                \Log::info('✅ Imagen guardada: ' . $imagenPath);
+                \Log::info('✅ Imagen guardada: '.$imagenPath);
             }
 
             \Log::info('🔄 Creando curso...');
@@ -120,31 +145,34 @@ class CrearCurso extends Component
                 'publicado' => $this->publicado,
                 'destacado' => $this->destacado,
                 'creado_por_admin' => $admin->idAdmin,
+                'instructor_id' => $this->instructor_id ?: null,
             ]);
 
-            \Log::info('🎉 Curso creado exitosamente: ' . $curso->codigo);
+            \Log::info('🎉 Curso creado exitosamente: '.$curso->codigo);
 
             // Limpiar el formulario
             $this->reset();
 
             // Mostrar mensaje de éxito y redirigir
             session()->flash('success', 'Curso creado exitosamente!');
+
             return redirect()->route('admin.cursos.index');
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             \Log::error('❌ Error de validación:', $e->errors());
             // Los errores de validación se mostrarán automáticamente
             throw $e;
-
         } catch (\Exception $e) {
-            \Log::error('❌ Error al crear curso: ' . $e->getMessage());
-            session()->flash('error', 'Error al crear el curso: ' . $e->getMessage());
+            \Log::error('❌ Error al crear curso: '.$e->getMessage());
+            session()->flash('error', 'Error al crear el curso: '.$e->getMessage());
         }
     }
 
     public function render()
     {
-        return view('livewire.admin.cursos.crear-curso')
+        $usuarios = User::where('role', '!=', 'estu')->orderBy('name')->get();
+
+        return view('livewire.admin.cursos.crear-curso', compact('usuarios'))
             ->layout('layouts.app');
     }
 }

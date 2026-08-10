@@ -2,8 +2,22 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-4xl font-bold text-slate-900 mb-2">Mis Cursos Inscritos</h1>
+            <h1 class="text-4xl font-bold text-slate-900 mb-2">Mis Cursos</h1>
             <p class="text-slate-600">Visualiza y gestiona todos los cursos en los que estás inscrito</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-6">
+            <button
+                wire:click="$set('tab', 'activos')"
+                class="px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 {{ $tab === 'activos' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 shadow-sm' }}">
+                📚 Cursos en Progreso
+            </button>
+            <button
+                wire:click="$set('tab', 'completados')"
+                class="px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 {{ $tab === 'completados' ? 'bg-green-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 shadow-sm' }}">
+                ✅ Cursos Finalizados
+            </button>
         </div>
 
         <!-- Filtros y Búsqueda -->
@@ -126,7 +140,7 @@
                             <div class="border-t border-slate-200 pt-4 mb-4 space-y-2 text-sm">
                                 <div class="flex items-center justify-between">
                                     <span class="text-slate-600">Instructor:</span>
-                                    <span class="font-medium text-slate-900">{{ $curso->instructor }}</span>
+                                    <span class="font-medium text-slate-900">{{ $curso->instructor?->nombre_completo ?? 'Sin asignar' }}</span>
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <span class="text-slate-600">Duración:</span>
@@ -145,11 +159,16 @@
                                     <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                                         <h4 class="text-sm font-semibold text-yellow-800 mb-2">¡Califica este curso!</h4>
                                         <p class="text-gray-600">Esta es una autoevaluación de tu experiencia en este curso, esta nota será tenida en cuenta según el criterio del docente </p>
-                                        <form wire:submit="registrarEvaluacion('{{ $curso->codigo }}')">
+                                         <button type="button"
+                                                wire:click="abrirModalOpinion('{{ $curso->codigo }}', '{{ addslashes($curso->nombre) }}')"
+                                                class="text-sm {{ ($curso->pivot && ($curso->pivot->opinion_estudiante || $curso->pivot->rating_estudiante)) ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800' }} font-medium whitespace-nowrap ml-2">
+                                            {{ ($curso->pivot && ($curso->pivot->opinion_estudiante || $curso->pivot->rating_estudiante)) ? '✏️ Editar opinión' : '💬 Dar opinión' }}
+                                        </button>
+                                        {{-- <form wire:submit="registrarEvaluacion('{{ $curso->codigo }}')">
                                             <input type="number" wire:model="evaluaciones.{{ $curso->codigo }}.calificacion" min="1" max="5" placeholder="Puntuación (1-5)" class="w-full mb-2 p-2 border rounded" required>
                                             <textarea wire:model="evaluaciones.{{ $curso->codigo }}.comentario" placeholder="Tu comentario..." class="w-full mb-2 p-2 border rounded" required></textarea>
                                             <button type="submit" class="w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600">Enviar</button>
-                                        </form>
+                                        </form> --}}
                                     </div>
                                 @elseif($curso->pivot && $curso->pivot->estado === 'completado' && !is_null($curso->pivot->calificacion))
                                     <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -192,16 +211,98 @@
         @else
             <!-- Estado Vacío -->
             <div class="bg-white rounded-lg shadow-md p-12 text-center">
-                <svg class="mx-auto h-16 w-16 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C6.5 6.253 2 10.753 2 16.5S6.5 26.747 12 26.747s10-4.5 10-10.247S17.5 6.253 12 6.253z" />
-                </svg>
-                <h3 class="text-lg font-semibold text-slate-900 mb-2">No hay cursos inscritos</h3>
-                <p class="text-slate-600 mb-6">Aún no te has inscrito en ningún curso. ¡Explora el catálogo de cursos disponibles!</p>
-                <a href="{{ route('cursos.index') }}"
-                   class="inline-flex items-center px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">
-                    Explorar Cursos
-                </a>
+                @if($tab === 'completados')
+                    <svg class="mx-auto h-16 w-16 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-2">Sin cursos finalizados</h3>
+                    <p class="text-slate-600 mb-6">Aún no has completado ningún curso. ¡Sigue avanzando en tus cursos activos!</p>
+                    <button wire:click="$set('tab', 'activos')"
+                            class="inline-flex items-center px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">
+                        Ver Cursos en Progreso
+                    </button>
+                @else
+                    <svg class="mx-auto h-16 w-16 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C6.5 6.253 2 10.753 2 16.5S6.5 26.747 12 26.747s10-4.5 10-10.247S17.5 6.253 12 6.253z" />
+                    </svg>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-2">No hay cursos en progreso</h3>
+                    <p class="text-slate-600 mb-6">Aún no te has inscrito en ningún curso. ¡Explora el catálogo de cursos disponibles!</p>
+                    <a href="{{ route('cursos.index') }}"
+                       class="inline-flex items-center px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">
+                        Explorar Cursos
+                    </a>
+                @endif
             </div>
         @endif
     </div>
+
+    {{-- Modal de Opinión --}}
+    @if($showModalOpinion)
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                {{-- Overlay --}}
+                <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity" wire:click="cerrarModalOpinion"></div>
+
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                {{-- Modal Content --}}
+                <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-semibold text-slate-900" id="modal-title">
+                                    Tu opinión sobre el curso
+                                </h3>
+                                <p class="mt-2 text-sm text-slate-600">
+                                    <strong>{{ $cursoSeleccionadoNombre }}</strong>
+                                </p>
+
+                                {{-- Stars Rating --}}
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Puntuación</label>
+                                    <div class="flex items-center gap-1">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <button type="button"
+                                                    wire:click="$set('ratingEstudiante', {{ $i }})"
+                                                    class="text-3xl focus:outline-none transition-transform hover:scale-110 {{ $ratingEstudiante && $i <= $ratingEstudiante ? 'text-yellow-400' : 'text-slate-300' }}">
+                                                ★
+                                            </button>
+                                        @endfor
+                                        @if($ratingEstudiante)
+                                            <span class="ml-2 text-sm text-slate-500">{{ $ratingEstudiante }}/5</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Opinion Text --}}
+                                <div class="mt-4">
+                                    <label for="opinionEstudiante" class="block text-sm font-medium text-slate-700 mb-2">Tu opinión</label>
+                                    <textarea
+                                        wire:model="opinionEstudiante"
+                                        id="opinionEstudiante"
+                                        rows="4"
+                                        placeholder="Comparte tu experiencia con este curso..."
+                                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                        <button type="button"
+                                wire:click="guardarOpinion"
+                                class="w-full inline-flex justify-center rounded-lg border border-transparent px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm">
+                            Guardar opinión
+                        </button>
+                        <button type="button"
+                                wire:click="cerrarModalOpinion"
+                                class="mt-3 w-full inline-flex justify-center rounded-lg border border-slate-300 px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

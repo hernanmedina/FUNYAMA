@@ -2,39 +2,60 @@
 
 namespace App\Livewire\Admin\Cursos;
 
-use Livewire\Component;
 use App\Models\Curso;
-use Livewire\WithFileUploads;
+use App\Models\User;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Illuminate\Support\Str;
+use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 class EditarCurso extends Component
 {
     use WithFileUploads;
 
     public Curso $curso;
+
     public $imagen_portada;
+
     public $imagen_portada_temp;
 
     // Campos del formulario
     public $nombre;
+
     public $descripcion;
+
     public $cronograma;
+
     public $requisitos;
+
     public $objetivos;
+
     public $materiales_incluidos;
+
     public $cupo_total;
+
     public $duracion_horas;
+
     public $duracion_texto;
+
     public $precio_regular;
+
     public $precio_descuento;
+
     public $nivel;
+
     public $fecha_inicio;
+
     public $enlace_classroom;
+
     public $temario;
+
     public $publicado;
+
     public $destacado;
+
+    public $instructor_id = null;
 
     protected $rules = [
         'nombre' => 'required|string|max:255',
@@ -55,6 +76,7 @@ class EditarCurso extends Component
         'temario' => 'nullable|string',
         'publicado' => 'boolean',
         'destacado' => 'boolean',
+        'instructor_id' => 'nullable|exists:users,id',
     ];
 
     protected $messages = [
@@ -68,7 +90,7 @@ class EditarCurso extends Component
             'nombre', 'descripcion', 'cronograma', 'requisitos', 'objetivos',
             'materiales_incluidos', 'cupo_total', 'duracion_horas', 'duracion_texto',
             'precio_regular', 'precio_descuento', 'nivel', 'fecha_inicio',
-            'enlace_classroom', 'temario', 'publicado', 'destacado'
+            'enlace_classroom', 'temario', 'publicado', 'destacado', 'instructor_id',
         ]));
 
         $this->imagen_portada_temp = $curso->imagen_portada;
@@ -89,12 +111,12 @@ class EditarCurso extends Component
 
         // Procesar imagen
         $imagenPath = $this->imagen_portada_temp;
-        //dd($this->imagen_portada);
+        // dd($this->imagen_portada);
         if ($this->imagen_portada instanceof TemporaryUploadedFile) {
             // Guardar nueva imagen
             $imagenPath = $this->imagen_portada->store('cursos', 'public');
-            //dd($this->imagen_portada->store('cursos', 'public'));
-            if (!Storage::disk('public')->exists($imagenPath)) {
+            // dd($this->imagen_portada->store('cursos', 'public'));
+            if (! Storage::disk('public')->exists($imagenPath)) {
                 dd('NO SE GUARDÓ', $imagenPath);
             }
             // Eliminar imagen anterior si existe
@@ -125,6 +147,7 @@ class EditarCurso extends Component
                 'temario' => $this->temario,
                 'publicado' => $this->publicado,
                 'destacado' => $this->destacado,
+                'instructor_id' => $this->instructor_id ?: null,
             ]);
 
             $this->dispatch('show-toast',
@@ -138,15 +161,18 @@ class EditarCurso extends Component
         } catch (\Exception $e) {
             $this->dispatch('show-toast',
                 type: 'error',
-                message: 'Error al actualizar el curso: ' . $e->getMessage()
+                message: 'Error al actualizar el curso: '.$e->getMessage()
             );
         }
     }
 
     public function render()
     {
+        $usuarios = User::where('role', '!=', 'estu')->orderBy('name')->get();
+
         return view('livewire.admin.cursos.editar-curso', [
             'inscritos' => $this->curso->estudiantes()->count(),
+            'usuarios' => $usuarios,
         ])->layout('layouts.app');
     }
 }

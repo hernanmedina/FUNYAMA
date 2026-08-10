@@ -90,12 +90,12 @@ class DashboardEstudiante extends Component
 
             // Separar: cursos activos (no completados) vs finalizados
             $this->cursosInscritos = $todosCursos
-                ->filter(fn ($c) => ($c->porcentaje_progreso ?? 0) < 100)
+                ->filter(fn ($c) => $c->pivot->estado !== 'completado')
                 ->take(5)
                 ->values();
 
             $this->cursosFinalizados = $todosCursos
-                ->filter(fn ($c) => ($c->porcentaje_progreso ?? 0) >= 100)
+                ->filter(fn ($c) => $c->pivot->estado === 'completado')
                 ->take(5)
                 ->values();
 
