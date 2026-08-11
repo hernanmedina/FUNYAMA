@@ -59,6 +59,7 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+        'genero',
     ];
 
     /**
@@ -110,6 +111,11 @@ class User extends Authenticatable
     public function getNombreCompletoAttribute()
     {
         return trim($this->name.' '.$this->apellido);
+    }
+
+    public function getGeneroAttribute()
+    {
+        return $this->estudiante?->genero;
     }
 
     public function getTipoUsuarioAttribute()

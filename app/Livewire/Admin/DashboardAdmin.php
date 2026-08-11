@@ -41,21 +41,6 @@ class DashboardAdmin extends Component
 
     public bool $mostrarModalExport = false;
 
-    // Modal para calificar estudiantes que completaron cursos
-    public bool $mostrarModalCalificacion = false;
-
-    public ?string $cursoCalificarId = null;
-
-    public ?string $estudianteCalificarId = null;
-
-    public ?float $notaCalificacion = null;
-
-    public string $retroalimentacion = '';
-
-    public array $cursosConEstudiantes = [];
-
-    public array $estudiantesParaCalificar = [];
-
     public string $tipoReporte = 'cursos';
 
     public string $subtipoReporte = 'gratuitos';
@@ -434,108 +419,6 @@ class DashboardAdmin extends Component
     public function cerrarModalExport(): void
     {
         $this->mostrarModalExport = false;
-    }
-
-    // ─── Modal de Calificación ───────────────────────────────────────────
-
-    public function abrirModalCalificacion(): void
-    {
-        $this->reset(['cursoCalificarId', 'estudianteCalificarId', 'notaCalificacion', 'retroalimentacion', 'estudiantesParaCalificar']);
-
-        $this->cursosConEstudiantes = Curso::query()
-            ->whereHas('estudiantes', function ($q) {
-                $q->whereIn('curso_estudiante.estado', ['completado', 'en_progreso']);
-            })
-            ->orderBy('nombre')
-            ->get(['codigo', 'nombre'])
-            ->map(fn ($c) => ['codigo' => $c->codigo, 'nombre' => $c->nombre])
-            ->toArray();
-
-        $this->mostrarModalCalificacion = true;
-    }
-
-    public function cerrarModalCalificacion(): void
-    {
-        $this->mostrarModalCalificacion = false;
-        $this->reset(['cursoCalificarId', 'estudianteCalificarId', 'notaCalificacion', 'retroalimentacion', 'estudiantesParaCalificar']);
-    }
-
-    public function updatedCursoCalificarId(?string $value): void
-    {
-        $this->estudianteCalificarId = null;
-        $this->estudiantesParaCalificar = [];
-
-        if (! $value) {
-            return;
-        }
-
-        $this->estudiantesParaCalificar = DB::table('curso_estudiante as ce')
-            ->join('estudiantes as e', 'e.codigo', '=', 'ce.estudiante_id')
-            ->join('users as u', 'u.id', '=', 'e.user_id')
-            ->where('ce.curso_id', $value)
-            ->whereIn('ce.estado', ['completado', 'en_progreso'])
-            ->select(
-                'e.codigo as estudiante_id',
-                'u.name',
-                'u.apellido',
-                'ce.estado',
-                'ce.calificacion',
-                'ce.comentario_calificacion'
-            )
-            ->orderBy('u.name')
-            ->get()
-            ->map(function ($row) {
-                return [
-                    'estudiante_id' => $row->estudiante_id,
-                    'nombre_completo' => $this->sanitizarTextoUtf8($row->name.' '.$row->apellido),
-                    'estado' => $row->estado,
-                    'calificacion_actual' => $row->calificacion,
-                    'retroalimentacion_actual' => $row->comentario_calificacion,
-                ];
-            })
-            ->toArray();
-    }
-
-    public function updatedEstudianteCalificarId(?string $value): void
-    {
-        $this->notaCalificacion = null;
-        $this->retroalimentacion = '';
-
-        if (! $value) {
-            return;
-        }
-
-        $encontrado = collect($this->estudiantesParaCalificar)
-            ->firstWhere('estudiante_id', $value);
-
-        if ($encontrado) {
-            $this->notaCalificacion = $encontrado['calificacion_actual'] !== null
-                ? (float) $encontrado['calificacion_actual']
-                : null;
-            $this->retroalimentacion = $encontrado['retroalimentacion_actual'] ?? '';
-        }
-    }
-
-    public function guardarCalificacion(): void
-    {
-        $this->validate([
-            'cursoCalificarId' => ['required', 'string', 'exists:cursos,codigo'],
-            'estudianteCalificarId' => ['required', 'string', 'exists:estudiantes,codigo'],
-            'notaCalificacion' => ['required', 'numeric', 'min:0', 'max:10'],
-            'retroalimentacion' => ['nullable', 'string', 'max:1000'],
-        ]);
-
-        DB::table('curso_estudiante')
-            ->where('curso_id', $this->cursoCalificarId)
-            ->where('estudiante_id', $this->estudianteCalificarId)
-            ->update([
-                'calificacion' => $this->notaCalificacion,
-                'comentario_calificacion' => $this->sanitizarTextoUtf8($this->retroalimentacion),
-                'updated_at' => now(),
-            ]);
-
-        $this->dispatch('show-toast', type: 'success', message: 'Calificación y retroalimentación guardadas correctamente.');
-        $this->cerrarModalCalificacion();
     }
 
     public function updatedTipoReporte(): void
@@ -951,12 +834,10 @@ class DashboardAdmin extends Component
             $yaInscrito = $estudiante->cursos()->where('curso_id', $curso->codigo)->exists();
 
             if (! $yaInscrito) {
-                $precioInscripcion = (float) $curso->precioFinal;
-
                 $estudiante->cursos()->attach($curso->codigo, [
                     'estado' => 'inscrito',
-                    'pago_realizado' => $precioInscripcion,
-                    'estado_pago' => $precioInscripcion > 0 ? 'completo' : 'pendiente',
+                    'pago_realizado' => 0,
+                    'estado_pago' => 'pendiente',
                     'fecha_inscripcion' => now(),
                     'progreso' => 0,
                 ]);

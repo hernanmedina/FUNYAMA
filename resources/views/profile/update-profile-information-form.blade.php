@@ -66,6 +66,18 @@
             <x-input-error for="apellido" class="mt-2" />
         </div>
 
+        <!-- Género -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="genero" value="{{ __('Gender') }}" />
+            <select id="genero" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" wire:model="state.genero">
+                <option value="">Selecciona una opción...</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
+            </select>
+            <x-input-error for="genero" class="mt-2" />
+        </div>
+
         <!-- Email -->
         <div class="col-span-6 sm:col-span-4">
             <x-label for="email" value="{{ __('Email') }}" />

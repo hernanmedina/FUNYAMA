@@ -59,6 +59,37 @@ class ControlPagos extends Component
         $this->dispatch('show-toast', type: 'success', message: 'Estado de pago actualizado correctamente.');
     }
 
+    public function marcarCursoCompletado(string $cursoId, string $estudianteId): void
+    {
+        $inscripcion = DB::table('curso_estudiante')
+            ->where('curso_id', $cursoId)
+            ->where('estudiante_id', $estudianteId)
+            ->first();
+
+        if (! $inscripcion) {
+            $this->dispatch('show-toast', type: 'error', message: 'No se encontró la matrícula.');
+
+            return;
+        }
+
+        if ($inscripcion->estado_pago !== 'completo') {
+            $this->dispatch('show-toast', type: 'error', message: 'Debes marcar el pago como completo antes de finalizar el curso.');
+
+            return;
+        }
+
+        DB::table('curso_estudiante')
+            ->where('curso_id', $cursoId)
+            ->where('estudiante_id', $estudianteId)
+            ->update([
+                'estado' => 'completado',
+                'fecha_completado' => now(),
+                'progreso' => 100,
+            ]);
+
+        $this->dispatch('show-toast', type: 'success', message: 'Curso marcado como finalizado correctamente.');
+    }
+
     public function render()
     {
         $query = DB::table('curso_estudiante as ce')
@@ -88,6 +119,7 @@ class ControlPagos extends Component
                 'u.name',
                 'u.apellido',
                 'ce.estado_pago',
+                'ce.estado',
                 'ce.pago_realizado',
                 'ce.fecha_inscripcion',
             ])

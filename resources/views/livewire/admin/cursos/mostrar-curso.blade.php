@@ -404,6 +404,38 @@
                                        placeholder="Tu dirección">
                                 @error('direccion_solicitante') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                             </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
+                                <input wire:model="fecha_nacimiento_solicitante" type="date"
+                                       class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('fecha_nacimiento_solicitante') border-red-500 @else border-gray-300 @enderror">
+                                @error('fecha_nacimiento_solicitante') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Género</label>
+                                <select wire:model="genero_solicitante"
+                                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('genero_solicitante') border-red-500 @else border-gray-300 @enderror">
+                                    <option value="">Selecciona una opción...</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="femenino">Femenino</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                                @error('genero_solicitante') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nivel Educativo</label>
+                                <select wire:model="nivel_educativo_solicitante"
+                                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('nivel_educativo_solicitante') border-red-500 @else border-gray-300 @enderror">
+                                    <option value="">Selecciona una opción...</option>
+                                    <option value="primaria">Primaria</option>
+                                    <option value="secundaria">Secundaria</option>
+                                    <option value="bachiller">Bachiller</option>
+                                    <option value="tecnico">Técnico</option>
+                                    <option value="tecnologo">Tecnólogo</option>
+                                    <option value="universitario">Universitario</option>
+                                    <option value="posgrado">Posgrado</option>
+                                </select>
+                                @error('nivel_educativo_solicitante') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                            </div>
                         </div>
                     </div>
                     <!-- Motivación y Mensaje -->

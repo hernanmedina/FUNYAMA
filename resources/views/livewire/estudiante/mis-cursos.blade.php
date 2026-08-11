@@ -177,10 +177,22 @@
                                 @endif
 
                                 @if($curso->pivot && $curso->pivot->estado !== 'completado')
-                                    <button wire:click="marcarComoCompletado('{{ $curso->codigo }}')"
-                                            class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">
-                                        Marcar como Finalizado
-                                    </button>
+                                    @if($curso->pivot->estado_pago === 'completo')
+                                        <button wire:click="marcarComoCompletado('{{ $curso->codigo }}')"
+                                                class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">
+                                            Marcar como Finalizado
+                                        </button>
+                                    @else
+                                        <div class="flex-1 flex flex-col gap-1">
+                                            <button wire:click="marcarComoCompletado('{{ $curso->codigo }}')"
+                                                    class="inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-400 font-medium rounded-lg cursor-not-allowed">
+                                                Marcar como Finalizado
+                                            </button>
+                                            <p class="text-xs text-amber-600 text-center">
+                                                ⚠️ El administrador debe confirmar el pago para finalizar este curso
+                                            </p>
+                                        </div>
+                                    @endif
                                     @if($curso->enlace_classroom)
                                         <a href="{{ $curso->enlace_classroom }}"
                                            target="_blank"

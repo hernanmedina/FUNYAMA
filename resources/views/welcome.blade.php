@@ -70,10 +70,6 @@
                        class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium transition duration-200">
                         Iniciar Sesión
                     </a>
-                    {{-- <a href="{{ route('register') }}"
-                       class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium transition duration-200">
-                        Registrarse
-                    </a> --}}
                 @endauth
             </div>
         </div>
@@ -243,10 +239,6 @@
                     Ir a Mi Dashboard
                 </a>
             @else
-                <a href="{{ route('register') }}"
-                   class="bg-white text-purple-600 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition duration-200 shadow-lg">
-                    Crear Cuenta Gratis
-                </a>
                 <a href="{{ route('login') }}"
                    class="border-2 border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4 rounded-lg font-bold text-lg transition duration-200">
                     Iniciar Sesión

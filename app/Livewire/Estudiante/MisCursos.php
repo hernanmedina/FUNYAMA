@@ -61,7 +61,7 @@ class MisCursos extends Component
 
         $query = $estudiante->cursos()
             ->with('instructor')
-            ->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion', 'calificacion', 'rating_estudiante', 'opinion_estudiante');
+            ->withPivot('estado', 'progreso', 'temario_progreso', 'fecha_inscripcion', 'calificacion', 'rating_estudiante', 'opinion_estudiante', 'estado_pago');
 
         // Filtrar por pestaña
         if ($this->tab === 'completados') {
@@ -196,6 +196,22 @@ class MisCursos extends Component
     public function marcarComoCompletado($cursoCodigo)
     {
         $estudiante = Auth::user()->estudiante;
+
+        $inscripcion = $estudiante->cursos()
+            ->where('curso_id', $cursoCodigo)
+            ->first();
+
+        if (! $inscripcion) {
+            $this->dispatch('show-toast', type: 'error', message: 'No estás inscrito en este curso.');
+
+            return;
+        }
+
+        if ($inscripcion->pivot->estado_pago !== 'completo') {
+            $this->dispatch('show-toast', type: 'error', message: 'El administrador no ha confirmado el pago de este curso. No puedes marcarlo como finalizado.');
+
+            return;
+        }
 
         $estudiante->cursos()->updateExistingPivot($cursoCodigo, [
             'estado' => 'completado',

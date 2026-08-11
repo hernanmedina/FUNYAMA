@@ -116,6 +116,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estudiante</th>
                                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Monto Pagado</th>
                                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado del Curso</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inscripcion</th>
                             </tr>
                         </thead>
@@ -155,6 +156,25 @@
                                             <option value="parcial" @selected($matricula->estado_pago === 'parcial')>Parcial</option>
                                             <option value="completo" @selected($matricula->estado_pago === 'completo')>Completo</option>
                                         </select>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if($matricula->estado === 'completado')
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                                ✅ Finalizado
+                                            </span>
+                                        @else
+                                            <button
+                                                wire:click="marcarCursoCompletado('{{ $matricula->curso_id }}', '{{ $matricula->estudiante_id }}')"
+                                                wire:confirm="¿Estás seguro de marcar este curso como finalizado?"
+                                                class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
+                                                    {{ $matricula->estado_pago === 'completo'
+                                                        ? 'bg-green-500 hover:bg-green-600 text-white'
+                                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed' }}"
+                                                @if($matricula->estado_pago !== 'completo') disabled @endif
+                                            >
+                                                Marcar Finalizado
+                                            </button>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ \Carbon\Carbon::parse($matricula->fecha_inscripcion)->format('d/m/Y') }}

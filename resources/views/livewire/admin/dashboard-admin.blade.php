@@ -228,14 +228,13 @@
                         </a>
 
                         <!-- Calificar Estudiantes -->
-                        <button type="button"
-                                wire:click="abrirModalCalificacion"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
+                        <a href="{{ route('admin.calificar') }}"
+                           class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
                             <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                             </svg>
                             <span class="text-sm font-medium">Calificar</span>
-                        </button>
+                        </a>
 
                         <!-- Opiniones de Estudiantes -->
                         <a href="{{ route('admin.opiniones') }}"
@@ -711,116 +710,4 @@
         </div>
     @endif
 
-    {{-- Modal de Calificación --}}
-    @if($mostrarModalCalificacion)
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="cerrarModalCalificacion"></div>
-
-                <div class="relative w-full max-w-lg transform overflow-hidden rounded-xl bg-white shadow-xl transition-all">
-                    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Calificar Estudiante</h3>
-                            <p class="text-sm text-gray-500">Asigna una calificación final y retroalimentación.</p>
-                        </div>
-                        <button type="button"
-                                wire:click="cerrarModalCalificacion"
-                                class="rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="p-6 space-y-5">
-                        {{-- Seleccionar Curso --}}
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Curso</label>
-                            <select wire:model.live="cursoCalificarId"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="">-- Selecciona un curso --</option>
-                                @foreach($cursosConEstudiantes as $curso)
-                                    <option value="{{ $curso['codigo'] }}">{{ $curso['nombre'] }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Seleccionar Estudiante --}}
-                        @if($cursoCalificarId)
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Estudiante</label>
-                                <select wire:model.live="estudianteCalificarId"
-                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <option value="">-- Selecciona un estudiante --</option>
-                                    @foreach($estudiantesParaCalificar as $est)
-                                        <option value="{{ $est['estudiante_id'] }}">
-                                            {{ $est['nombre_completo'] }}
-                                            ({{ $est['estado'] === 'completado' ? 'Completado' : 'En progreso' }})
-                                            @if($est['calificacion_actual'] !== null)
-                                                — Nota actual: {{ $est['calificacion_actual'] }}
-                                            @endif
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @if(empty($estudiantesParaCalificar))
-                                    <p class="text-sm text-gray-500 mt-1">No hay estudiantes completados/en progreso en este curso.</p>
-                                @endif
-                            </div>
-                        @endif
-
-                        {{-- Calificación y Retroalimentación --}}
-                        @if($estudianteCalificarId)
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Calificación (1 - 5)
-                                </label>
-                                <input type="number"
-                                       wire:model="notaCalificacion"
-                                       step="0.1"
-                                       min="1"
-                                       max="5"
-                                       placeholder="Ej: 4.5"
-                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                                @error('notaCalificacion')
-                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Retroalimentación
-                                </label>
-                                <textarea wire:model="retroalimentacion"
-                                          rows="4"
-                                          maxlength="1000"
-                                          placeholder="Escribe comentarios sobre el desempeño del estudiante..."
-                                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                                <p class="text-xs text-gray-500 mt-1">{{ Str::length($retroalimentacion) }}/1000 caracteres</p>
-                            </div>
-                        @endif
-                    </div>
-
-                    <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-                        <button type="button"
-                                wire:click="cerrarModalCalificacion"
-                                class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-white transition-colors">
-                            Cancelar
-                        </button>
-                        <button type="button"
-                                wire:click="guardarCalificacion"
-                                wire:loading.attr="disabled"
-                                class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium">
-                            <span wire:loading.remove>Guardar Calificación</span>
-                            <span wire:loading>
-                                <svg class="animate-spin h-4 w-4 inline" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 </div>

@@ -20,6 +20,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'apellido' => ['nullable', 'string', 'max:255'],
+            'genero' => ['nullable', 'in:masculino,femenino,otro'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
         ])->validateWithBag('updateProfileInformation');
@@ -37,6 +38,13 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
                 'apellido' => $input['apellido'] ?? null,
                 'email' => $input['email'],
             ])->save();
+        }
+
+        // Actualizar el género en el modelo Estudiante si existe
+        if ($user->estudiante) {
+            $user->estudiante->update([
+                'genero' => $input['genero'] ?? null,
+            ]);
         }
     }
 

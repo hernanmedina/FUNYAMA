@@ -162,12 +162,10 @@ class SolicitudesInscripcion extends Component
             $yaInscrito = $estudiante->cursos()->where('curso_id', $curso->codigo)->exists();
 
             if (! $yaInscrito) {
-                $precioInscripcion = (float) $curso->precioFinal;
-
                 $estudiante->cursos()->attach($curso->codigo, [
                     'estado' => 'inscrito',
-                    'pago_realizado' => $precioInscripcion,
-                    'estado_pago' => $precioInscripcion > 0 ? 'completo' : 'pendiente',
+                    'pago_realizado' => 0,
+                    'estado_pago' => 'pendiente',
                     'fecha_inscripcion' => now(),
                     'progreso' => 0,
                 ]);

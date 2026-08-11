@@ -3,6 +3,7 @@
 use App\Livewire\Admin\Blog\CrearBlog;
 use App\Livewire\Admin\Blog\EditarBlog;
 use App\Livewire\Admin\Blog\IndexBlog;
+use App\Livewire\Admin\CalificarEstudiantes;
 use App\Livewire\Admin\ControlPagos;
 use App\Livewire\Admin\Cursos\CrearCurso;
 use App\Livewire\Admin\Cursos\CursosEliminados;
@@ -128,6 +129,9 @@ Route::middleware([
 
         // Control de pagos
         Route::get('/pagos', ControlPagos::class)->name('pagos');
+
+        // Calificar estudiantes
+        Route::get('/calificar', CalificarEstudiantes::class)->name('calificar');
 
         // Blog / Noticias
         Route::prefix('blog')->name('blog.')->group(function () {

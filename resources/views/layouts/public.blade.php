@@ -40,7 +40,6 @@
                     <a href="{{ route('dashboard') }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg">Mi Cuenta</a>
                 @else
                     <a href="{{ route('login') }}" class="text-gray-700 hover:text-purple-600">Ingresar</a>
-                    <a href="{{ route('register') }}" class="bg-blue-700 text-white px-4 py-2 rounded-lg">Registrarse</a>
                 @endauth
             </div>
         </div>
