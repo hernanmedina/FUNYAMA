@@ -1,4 +1,5 @@
 <?php
+
 // app/Http/Livewire/Admin/EstudiantesEliminados.php
 
 namespace App\Livewire\Estudiante;
@@ -6,20 +7,22 @@ namespace App\Livewire\Estudiante;
 use App\Models\Estudiante;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Str;
 
 class EstudiantesEliminados extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $perPage = 10;
+
     public $selected = [];
+
     public $selectAll = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'perPage' => ['except' => 10]
+        'perPage' => ['except' => 10],
     ];
 
     public function updatingSearch()
@@ -40,7 +43,7 @@ class EstudiantesEliminados extends Component
             ->with('user');
 
         if ($this->search) {
-            $s = '%' . $this->search . '%';
+            $s = '%'.$this->search.'%';
             $query->where(function ($q) use ($s) {
                 $q->where('users.name', 'like', $s)
                     ->orWhere('users.apellido', 'like', $s)
@@ -57,17 +60,22 @@ class EstudiantesEliminados extends Component
     public function restaurar($codigo)
     {
         $estudiante = Estudiante::onlyTrashed()->where('codigo', $codigo)->firstOrFail();
+
+        $this->authorize('restore', $estudiante);
+
         $estudiante->restore();
         $this->resetPage();
 
         $this->dispatch('show-toast', [
             'type' => 'success',
-            'message' => 'Estudiante restaurado correctamente.'
+            'message' => 'Estudiante restaurado correctamente.',
         ]);
     }
 
     public function restaurarSeleccionados()
     {
+        $this->authorize('restore', Estudiante::class);
+
         if (count($this->selected) > 0) {
             Estudiante::onlyTrashed()
                 ->whereIn('codigo', $this->selected)
@@ -79,7 +87,7 @@ class EstudiantesEliminados extends Component
 
             $this->dispatch('show-toast', [
                 'type' => 'success',
-                'message' => 'Estudiantes seleccionados restaurados correctamente.'
+                'message' => 'Estudiantes seleccionados restaurados correctamente.',
             ]);
         }
     }
@@ -87,6 +95,8 @@ class EstudiantesEliminados extends Component
     public function eliminarPermanentemente($codigo)
     {
         $estudiante = Estudiante::onlyTrashed()->where('codigo', $codigo)->firstOrFail();
+
+        $this->authorize('forceDelete', $estudiante);
 
         // Si tienes relaciones, eliminarlas aquí primero
         // $estudiante->cursos()->detach();
@@ -96,12 +106,14 @@ class EstudiantesEliminados extends Component
 
         $this->dispatch('show-toast', [
             'type' => 'success',
-            'message' => 'Estudiante eliminado permanentemente.'
+            'message' => 'Estudiante eliminado permanentemente.',
         ]);
     }
 
     public function eliminarSeleccionadosPermanentemente()
     {
+        $this->authorize('forceDelete', Estudiante::class);
+
         if (count($this->selected) > 0) {
             $estudiantes = Estudiante::onlyTrashed()
                 ->whereIn('codigo', $this->selected)
@@ -119,7 +131,7 @@ class EstudiantesEliminados extends Component
 
             $this->dispatch('show-toast', [
                 'type' => 'success',
-                'message' => 'Estudiantes seleccionados eliminados permanentemente.'
+                'message' => 'Estudiantes seleccionados eliminados permanentemente.',
             ]);
         }
     }
@@ -136,7 +148,7 @@ class EstudiantesEliminados extends Component
     public function render()
     {
         return view('livewire.estudiante.estudiantes-eliminados', [
-            'estudiantes' => $this->estudiantesEliminados
+            'estudiantes' => $this->estudiantesEliminados,
         ])->layout('layouts.app');
     }
 }

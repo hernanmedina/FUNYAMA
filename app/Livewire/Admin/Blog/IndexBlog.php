@@ -26,6 +26,8 @@ class IndexBlog extends Component
 
     public function togglePublicado(Articulo $articulo): void
     {
+        $this->authorize('update', $articulo);
+
         $articulo->update([
             'publicado' => ! $articulo->publicado,
             'fecha_publicacion' => ! $articulo->publicado ? now() : $articulo->fecha_publicacion,
@@ -37,6 +39,8 @@ class IndexBlog extends Component
 
     public function toggleDestacado(Articulo $articulo): void
     {
+        $this->authorize('update', $articulo);
+
         $articulo->update(['destacado' => ! $articulo->destacado]);
 
         $this->dispatch('show-toast', type: 'success', message: 'Estado actualizado.');
@@ -44,6 +48,8 @@ class IndexBlog extends Component
 
     public function eliminar(Articulo $articulo): void
     {
+        $this->authorize('delete', $articulo);
+
         $articulo->delete();
 
         $this->dispatch('show-toast', type: 'success', message: 'Articulo eliminado.');

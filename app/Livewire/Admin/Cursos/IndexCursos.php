@@ -58,6 +58,8 @@ class IndexCursos extends Component
     {
         $curso = Curso::where('codigo', $cursoCodigo)->firstOrFail();
 
+        $this->authorize('delete', $curso);
+
         // Verificar si hay estudiantes inscritos antes de eliminar
         if ($curso->estudiantes()->count() > 0) {
             $this->dispatch('show-toast',
@@ -78,6 +80,8 @@ class IndexCursos extends Component
 
     public function bulkDelete()
     {
+        $this->authorize('delete', Curso::class);
+
         // Verificar que selected no sea null
         if (! $this->selected || count($this->selected) === 0) {
             $this->dispatch('show-toast',
@@ -114,6 +118,9 @@ class IndexCursos extends Component
     public function togglePublicacion($cursoId)
     {
         $curso = Curso::findOrFail($cursoId);
+
+        $this->authorize('update', $curso);
+
         $curso->update(['publicado' => ! $curso->publicado]);
 
         $action = $curso->publicado ? 'publicado' : 'ocultado';

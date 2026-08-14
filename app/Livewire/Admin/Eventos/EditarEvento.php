@@ -3,32 +3,51 @@
 namespace App\Livewire\Admin\Eventos;
 
 use App\Models\Evento;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Str;
 
 class EditarEvento extends Component
 {
     use WithFileUploads;
 
     public $evento;
+
     public $titulo = '';
+
     public $descripcion = '';
+
     public $contenido = '';
+
     public $fecha = '';
+
     public $hora_inicio = '';
+
     public $hora_fin = '';
+
     public $ubicacion = '';
+
     public $direccion = '';
+
     public $ciudad = '';
+
     public $imagen;
+
     public $imagen_actual = '';
+
     public $cupo_maximo = '';
+
     public $inscritos_actual = '';
+
     public $costo = '';
+
     public $tipo_evento = 'presencial';
+
     public $enlace_virtual = '';
+
     public $publicado = false;
+
     public $destacado = false;
 
     protected $rules = [
@@ -50,13 +69,15 @@ class EditarEvento extends Component
 
     public function mount(Evento $evento)
     {
+        $this->authorize('update', $evento);
+
         $this->evento = $evento;
         $this->titulo = $evento->titulo;
         $this->descripcion = $evento->descripcion;
         $this->contenido = $evento->contenido;
         $this->fecha = $evento->fecha->format('Y-m-d');
-        $this->hora_inicio = $evento->hora_inicio ? \Carbon\Carbon::parse($evento->hora_inicio)->format('H:i') : '';
-        $this->hora_fin = $evento->hora_fin ? \Carbon\Carbon::parse($evento->hora_fin)->format('H:i') : '';
+        $this->hora_inicio = $evento->hora_inicio ? Carbon::parse($evento->hora_inicio)->format('H:i') : '';
+        $this->hora_fin = $evento->hora_fin ? Carbon::parse($evento->hora_fin)->format('H:i') : '';
         $this->ubicacion = $evento->ubicacion;
         $this->direccion = $evento->direccion;
         $this->ciudad = $evento->ciudad;
@@ -72,6 +93,8 @@ class EditarEvento extends Component
 
     public function actualizarEvento()
     {
+        $this->authorize('update', $this->evento);
+
         $this->validate();
 
         $data = [
@@ -111,4 +134,3 @@ class EditarEvento extends Component
         return view('livewire.admin.eventos.editar-evento');
     }
 }
-

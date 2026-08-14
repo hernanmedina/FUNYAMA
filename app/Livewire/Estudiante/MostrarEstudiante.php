@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Estudiante;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
 use App\Models\Estudiante;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.app')]
 class MostrarEstudiante extends Component
@@ -13,6 +13,8 @@ class MostrarEstudiante extends Component
 
     public function mount(Estudiante $estudiante)
     {
+        $this->authorize('view', $estudiante);
+
         $this->estudiante = $estudiante;
     }
 

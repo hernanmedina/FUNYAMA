@@ -85,6 +85,8 @@ class EditarCurso extends Component
 
     public function mount(Curso $curso)
     {
+        $this->authorize('update', $curso);
+
         $this->curso = $curso;
         $this->fill($curso->only([
             'nombre', 'descripcion', 'cronograma', 'requisitos', 'objetivos',
@@ -103,6 +105,8 @@ class EditarCurso extends Component
 
     public function actualizarCurso()
     {
+        $this->authorize('update', $this->curso);
+
         $this->validate();
 
         // Calcular nuevo cupo disponible

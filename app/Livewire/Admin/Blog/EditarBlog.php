@@ -65,6 +65,8 @@ class EditarBlog extends Component
 
     public function mount(Articulo $articulo): void
     {
+        $this->authorize('update', $articulo);
+
         $this->articulo = $articulo;
 
         $this->titulo = $articulo->titulo;
@@ -108,6 +110,8 @@ class EditarBlog extends Component
 
     public function actualizar()
     {
+        $this->authorize('update', $this->articulo);
+
         $this->validate();
 
         $imagenPath = $this->imagen_portada_temp;

@@ -9,9 +9,11 @@ use Livewire\WithPagination;
 class IndexEventos extends Component
 {
     use WithPagination;
-    
+
     public $search = '';
+
     public $filtroEstado = '';
+
     public $eventoAEliminar = null;
 
     protected $queryString = ['search', 'filtroEstado'];
@@ -29,16 +31,22 @@ class IndexEventos extends Component
     public function eliminarEvento($idEvento)
     {
         $evento = Evento::findOrFail($idEvento);
+
+        $this->authorize('delete', $evento);
+
         $evento->delete();
-        
+
         session()->flash('message', 'Evento eliminado correctamente.');
     }
 
     public function togglePublicado($idEvento)
     {
         $evento = Evento::findOrFail($idEvento);
-        $evento->update(['publicado' => !$evento->publicado]);
-        
+
+        $this->authorize('update', $evento);
+
+        $evento->update(['publicado' => ! $evento->publicado]);
+
         $mensaje = $evento->publicado ? 'Evento publicado.' : 'Evento ocultado.';
         session()->flash('message', $mensaje);
     }
@@ -46,8 +54,11 @@ class IndexEventos extends Component
     public function toggleDestacado($idEvento)
     {
         $evento = Evento::findOrFail($idEvento);
-        $evento->update(['destacado' => !$evento->destacado]);
-        
+
+        $this->authorize('update', $evento);
+
+        $evento->update(['destacado' => ! $evento->destacado]);
+
         $mensaje = $evento->destacado ? 'Evento destacado.' : 'Evento sin destacar.';
         session()->flash('message', $mensaje);
     }
@@ -57,9 +68,9 @@ class IndexEventos extends Component
         $query = Evento::query();
 
         if ($this->search) {
-            $query->where('titulo', 'like', '%' . $this->search . '%')
-                  ->orWhere('descripcion', 'like', '%' . $this->search . '%')
-                  ->orWhere('ubicacion', 'like', '%' . $this->search . '%');
+            $query->where('titulo', 'like', '%'.$this->search.'%')
+                ->orWhere('descripcion', 'like', '%'.$this->search.'%')
+                ->orWhere('ubicacion', 'like', '%'.$this->search.'%');
         }
 
         if ($this->filtroEstado === 'publicado') {

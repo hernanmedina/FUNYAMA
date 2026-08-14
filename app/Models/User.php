@@ -125,7 +125,7 @@ class User extends Authenticatable
         } elseif ($this->isEstudiante()) {
             return 'Estudiante';
         } else {
-            return 'Usuario';
+            return 'Instructor';
         }
     }
 }

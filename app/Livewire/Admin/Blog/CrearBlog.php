@@ -86,6 +86,8 @@ class CrearBlog extends Component
 
     public function store()
     {
+        $this->authorize('create', Articulo::class);
+
         $this->validate();
 
         $admin = Administrador::where('user_id', Auth::id())->first();

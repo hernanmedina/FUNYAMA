@@ -2,35 +2,44 @@
 
 namespace App\Livewire\Admin;
 
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use App\Models\Certificado;
 use App\Models\Curso;
 use App\Models\Estudiante;
-use App\Models\User;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class GestionarCertificados extends Component
 {
     use WithFileUploads;
 
     public $estudiantes;
+
     public $cursos;
+
     public $certificados;
+
     public $searchEstudiante = '';
+
     public $searchCurso = '';
+
     public $cursosEstudiante;
 
     // Modal de carga
     public bool $mostrarModalCarga = false;
+
     public ?string $estudianteSeleccionado = null;
+
     public ?string $cursoSeleccionado = null;
+
     public $archivoPDF = null;
+
     public ?string $certificadoEditandoId = null;
 
     // Filtros
     public $filtroEstudiante = '';
+
     public $filtroCurso = '';
 
     protected function rules()
@@ -141,6 +150,8 @@ class GestionarCertificados extends Component
 
     public function subirCertificado()
     {
+        $this->authorize('create', Certificado::class);
+
         $this->validate();
 
         try {
@@ -149,11 +160,12 @@ class GestionarCertificados extends Component
                 ->where('curso_id', $this->cursoSeleccionado)
                 ->first();
 
-            if ($certificadoExistente && !$this->certificadoEditandoId) {
+            if ($certificadoExistente && ! $this->certificadoEditandoId) {
                 $this->dispatch('show-toast',
                     type: 'error',
                     message: 'Este estudiante ya tiene un certificado para este curso. Puedes editarlo desde la lista.'
                 );
+
                 return;
             }
 
@@ -161,10 +173,10 @@ class GestionarCertificados extends Component
             $estudiante = Estudiante::with('user')->find($this->estudianteSeleccionado);
             $curso = Curso::find($this->cursoSeleccionado);
 
-            $nombreArchivo = 'certificado_' . $estudiante->codigo . '_' . $curso->codigo . '_' . time() . '.pdf';
+            $nombreArchivo = 'certificado_'.$estudiante->codigo.'_'.$curso->codigo.'_'.time().'.pdf';
             $ruta = $this->archivoPDF->storeAs('certificados', $nombreArchivo, 'public');
 
-            if (!$ruta) {
+            if (! $ruta) {
                 throw new \Exception('Error al guardar el archivo PDF.');
             }
 
@@ -209,10 +221,10 @@ class GestionarCertificados extends Component
             $this->cargarCertificados();
 
         } catch (\Exception $e) {
-            Log::error('Error al subir certificado: ' . $e->getMessage());
+            Log::error('Error al subir certificado: '.$e->getMessage());
             $this->dispatch('show-toast',
                 type: 'error',
-                message: 'Error al subir el certificado: ' . $e->getMessage()
+                message: 'Error al subir el certificado: '.$e->getMessage()
             );
         }
     }
@@ -220,6 +232,9 @@ class GestionarCertificados extends Component
     public function editarCertificado($certificadoId)
     {
         $certificado = Certificado::findOrFail($certificadoId);
+
+        $this->authorize('update', $certificado);
+
         $this->certificadoEditandoId = $certificadoId;
         $this->estudianteSeleccionado = $certificado->estudiante_id;
         $this->cargarCursosEstudiante();
@@ -231,6 +246,8 @@ class GestionarCertificados extends Component
     public function eliminarCertificado($certificadoId)
     {
         $certificado = Certificado::findOrFail($certificadoId);
+
+        $this->authorize('delete', $certificado);
 
         // Eliminar archivo físico
         if ($certificado->archivo_path && Storage::disk('public')->exists($certificado->archivo_path)) {

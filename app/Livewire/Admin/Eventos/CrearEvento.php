@@ -3,29 +3,44 @@
 namespace App\Livewire\Admin\Eventos;
 
 use App\Models\Evento;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Str;
 
 class CrearEvento extends Component
 {
     use WithFileUploads;
 
     public $titulo = '';
+
     public $descripcion = '';
+
     public $contenido = '';
+
     public $fecha = '';
+
     public $hora_inicio = '';
+
     public $hora_fin = '';
+
     public $ubicacion = '';
+
     public $direccion = '';
+
     public $ciudad = '';
+
     public $imagen;
+
     public $cupo_maximo = '';
+
     public $costo = '';
+
     public $tipo_evento = 'presencial';
+
     public $enlace_virtual = '';
+
     public $publicado = false;
+
     public $destacado = false;
 
     protected $rules = [
@@ -47,12 +62,15 @@ class CrearEvento extends Component
 
     public function crearEvento()
     {
+        $this->authorize('create', Evento::class);
+
         $this->validate();
 
         $admin = auth()->user()->administrador;
 
         if (! $admin) {
             session()->flash('error', 'No se encontró una cuenta de administrador asociada a este usuario.');
+
             return;
         }
 

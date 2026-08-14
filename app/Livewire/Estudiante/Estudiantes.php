@@ -1,29 +1,34 @@
 <?php
+
 // app/Http/Livewire/Estudiantes/Estudiantes.php
 
 namespace App\Livewire\Estudiante;
 
+use App\Models\Estudiante;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Estudiante;
-use Illuminate\Support\Str;
 
 class Estudiantes extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $perPage = 10;
+
     public $selected = [];
+
     public $selectAll = false;
+
     public $sortField = 'name';
+
     public $sortDirection = 'asc';
 
     protected $queryString = [
         'search' => ['except' => ''],
         'perPage' => ['except' => 10],
         'sortField' => ['except' => 'nombre'],
-        'sortDirection' => ['except' => 'asc']
+        'sortDirection' => ['except' => 'asc'],
     ];
 
     public function updatingSearch()
@@ -54,7 +59,7 @@ class Estudiantes extends Component
             ->with('user');
 
         if ($this->search) {
-            $s = '%' . $this->search . '%';
+            $s = '%'.$this->search.'%';
             $query->where(function ($q) use ($s) {
                 $q->where('users.name', 'like', $s)
                     ->orWhere('users.apellido', 'like', $s)
@@ -67,9 +72,9 @@ class Estudiantes extends Component
         // Map sort field to proper table
         $userFields = ['name', 'apellido', 'email', 'telefono'];
         if (in_array($this->sortField, $userFields, true)) {
-            $orderBy = 'users.' . $this->sortField;
+            $orderBy = 'users.'.$this->sortField;
         } else {
-            $orderBy = 'estudiantes.' . $this->sortField;
+            $orderBy = 'estudiantes.'.$this->sortField;
         }
 
         return $query->orderBy($orderBy, $this->sortDirection)
@@ -79,8 +84,11 @@ class Estudiantes extends Component
     public function toggleEstado($codigoEstudiante)
     {
         $estudiante = Estudiante::where('codigo', $codigoEstudiante)->firstOrFail();
+
+        $this->authorize('update', $estudiante);
+
         // El modelo usa el campo 'activo' (boolean)
-        $estudiante->activo = !$estudiante->activo;
+        $estudiante->activo = ! $estudiante->activo;
         $estudiante->save();
 
         session()->flash('message', 'Estado del estudiante actualizado correctamente.');
@@ -89,6 +97,9 @@ class Estudiantes extends Component
     public function deleteEstudiante($codigoEstudiante)
     {
         $estudiante = Estudiante::where('codigo', $codigoEstudiante)->firstOrFail();
+
+        $this->authorize('delete', $estudiante);
+
         $estudiante->delete(); // Soft delete
 
         session()->flash('message', 'Estudiante eliminado correctamente.');
@@ -96,6 +107,8 @@ class Estudiantes extends Component
 
     public function bulkDelete()
     {
+        $this->authorize('delete', Estudiante::class);
+
         if (count($this->selected) > 0) {
             Estudiante::whereIn('codigo', $this->selected)->delete();
 
@@ -118,7 +131,7 @@ class Estudiantes extends Component
     public function render()
     {
         return view('livewire.estudiante.estudiantes', [
-            'estudiantes' => $this->estudiantes
+            'estudiantes' => $this->estudiantes,
         ])->layout('layouts.app');
     }
 }

@@ -153,6 +153,8 @@ class CalificarEstudiantes extends Component
 
     public function guardarCalificacion(): void
     {
+        $this->authorize('update', Curso::class);
+
         $this->validate([
             'cursoCalificarId' => ['required', 'string', 'exists:cursos,codigo'],
             'estudianteCalificarId' => ['required', 'string', 'exists:estudiantes,codigo'],

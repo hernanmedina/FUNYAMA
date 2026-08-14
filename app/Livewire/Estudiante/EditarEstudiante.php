@@ -2,11 +2,10 @@
 
 namespace App\Livewire\Estudiante;
 
-use Livewire\Component;
 use App\Models\Estudiante;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.app')] // Cambiar a layouts.app
 class EditarEstudiante extends Component
@@ -14,16 +13,25 @@ class EditarEstudiante extends Component
     public $estudianteCodigo;
 
     public $name;
+
     public $apellido;
+
     public $email;
+
     public $documento_ID;
+
     public $telefono;
 
     public $codigo;
+
     public $fecha_nacimiento;
+
     public $genero;
+
     public $nivel_educativo;
+
     public $intereses;
+
     public $activo;
 
     protected $rules = [
@@ -43,6 +51,9 @@ class EditarEstudiante extends Component
     public function mount($estudiante)
     {
         $e = Estudiante::with('user')->findOrFail($estudiante);
+
+        $this->authorize('update', $e);
+
         $this->estudianteCodigo = $e->codigo;
 
         $this->name = $e->user->name;
@@ -62,11 +73,14 @@ class EditarEstudiante extends Component
     public function update()
     {
         $e = Estudiante::findOrFail($this->estudianteCodigo);
+
+        $this->authorize('update', $e);
+
         $user = $e->user;
 
         $rules = $this->rules;
-        $rules['documento_ID'] = 'required|string|max:20|unique:users,documento_ID,' . $user->id;
-        $rules['email'] = 'required|email|unique:users,email,' . $user->id;
+        $rules['documento_ID'] = 'required|string|max:20|unique:users,documento_ID,'.$user->id;
+        $rules['email'] = 'required|email|unique:users,email,'.$user->id;
 
         $this->validate($rules);
 
@@ -88,6 +102,7 @@ class EditarEstudiante extends Component
         $e->save();
 
         session()->flash('message', 'Estudiante actualizado correctamente.');
+
         return redirect()->route('admin.estudiantes.index');
     }
 

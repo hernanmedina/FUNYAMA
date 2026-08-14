@@ -2,20 +2,29 @@
 
 namespace App\Livewire\Admin\Solicitudes;
 
-use App\Models\Curso;
-use App\Models\Estudiante;
+use App\Actions\AprobarInscripcionAction;
+use App\Actions\GenerarCodigoEstudianteAction;
+use App\Actions\RechazarInscripcionAction;
 use App\Models\Solicitud;
-use App\Models\User;
-use App\Notifications\CredencialesEstudiante;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class SolicitudesInscripcion extends Component
 {
     use WithPagination;
+
+    private AprobarInscripcionAction $aprobarInscripcion;
+
+    private RechazarInscripcionAction $rechazarInscripcion;
+
+    private GenerarCodigoEstudianteAction $generarCodigo;
+
+    public function boot()
+    {
+        $this->aprobarInscripcion = app(AprobarInscripcionAction::class);
+        $this->rechazarInscripcion = app(RechazarInscripcionAction::class);
+        $this->generarCodigo = app(GenerarCodigoEstudianteAction::class);
+    }
 
     public $search = '';
 
@@ -71,7 +80,7 @@ class SolicitudesInscripcion extends Component
         $this->solicitudId = $solicitudId;
         $this->solicitudSeleccionada = Solicitud::findOrFail($solicitudId);
         $this->respuesta = '';
-        $this->codigo_generado = $this->generarCodigoEstudiante();
+        $this->codigo_generado = $this->generarCodigo->execute();
         $this->mostrarModalRevision = true;
     }
 
@@ -89,120 +98,29 @@ class SolicitudesInscripcion extends Component
      */
     public function aprobarSolicitud()
     {
+        $this->authorize('update', Solicitud::class);
+
         $this->validate([
             'respuesta' => 'nullable|string|max:1000',
             'codigo_generado' => 'required|string|max:100|unique:estudiantes,codigo',
         ]);
 
         $solicitud = Solicitud::findOrFail($this->solicitudId);
-        $datos = $solicitud->datos_adicionales;
 
-        // Verificar que el curso exista y tenga cupos
-        $curso = Curso::where('codigo', $datos['codigo_curso'])->first();
-        if (! $curso) {
-            $this->addError('general', 'El curso asociado a esta solicitud ya no existe.');
+        $resultado = $this->aprobarInscripcion->execute(
+            $solicitud,
+            $this->codigo_generado,
+            $this->respuesta
+        );
 
-            return;
-        }
-
-        if ($curso->cupo_disponible <= 0) {
-            $this->addError('general', 'El curso "'.$curso->nombre.'" ya no tiene cupos disponibles.');
+        if (! $resultado['success']) {
+            $this->addError('general', $resultado['message']);
 
             return;
         }
 
-        DB::beginTransaction();
-        try {
-            // 1. Usar el documento_ID como contraseña
-            $password = (string) ($datos['documento_ID'] ?? Str::random(10));
-
-            // 2. Verificar si ya existe un usuario con ese email
-            $user = User::where('email', $solicitud->email_contacto)->first();
-
-            if (! $user) {
-                // Crear el usuario
-                $user = User::create([
-                    'name' => $datos['nombre'] ?? $solicitud->email_contacto,
-                    'apellido' => $datos['apellido'] ?? '',
-                    'email' => $solicitud->email_contacto,
-                    'documento_ID' => $datos['documento_ID'] ?? 'S/N',
-                    'password' => Hash::make($password),
-                    'telefono' => $solicitud->telefono ?? '',
-                    'direccion' => $datos['direccion'] ?? '',
-                    'role' => 'estu',
-                ]);
-            } else {
-                // Si ya existe, solo actualizamos algunos datos y mantenemos su password
-                // Pero generamos una nueva contraseña para enviarle
-                $user->update([
-                    'name' => $datos['nombre'] ?? $user->name,
-                    'apellido' => $datos['apellido'] ?? $user->apellido,
-                    'telefono' => $solicitud->telefono ?? $user->telefono,
-                ]);
-            }
-
-            // 3. Verificar si ya existe un estudiante asociado a ese usuario
-            $estudiante = Estudiante::where('user_id', $user->id)->first();
-
-            if (! $estudiante) {
-                // Crear el estudiante
-                $estudiante = Estudiante::create([
-                    'codigo' => $this->codigo_generado,
-                    'user_id' => $user->id,
-                    'fecha_nacimiento' => ! empty($datos['fecha_nacimiento']) ? $datos['fecha_nacimiento'] : null,
-                    'genero' => ! empty($datos['genero']) ? $datos['genero'] : null,
-                    'nivel_educativo' => ! empty($datos['nivel_educativo']) ? $datos['nivel_educativo'] : null,
-                    'intereses' => 'Inscrito vía solicitud - Curso: '.($datos['nombre_curso'] ?? ''),
-                    'fecha_registro' => now(),
-                    'activo' => true,
-                ]);
-            }
-
-            // 4. Inscribir al estudiante en el curso (si no está ya inscrito)
-            $yaInscrito = $estudiante->cursos()->where('curso_id', $curso->codigo)->exists();
-
-            if (! $yaInscrito) {
-                $estudiante->cursos()->attach($curso->codigo, [
-                    'estado' => 'inscrito',
-                    'pago_realizado' => 0,
-                    'estado_pago' => 'pendiente',
-                    'fecha_inscripcion' => now(),
-                    'progreso' => 0,
-                ]);
-
-                // Actualizar cupo disponible
-                $curso->decrement('cupo_disponible');
-            }
-
-            // 5. Marcar solicitud como resuelta
-            $admin = auth()->user()->administrador;
-            $solicitud->marcarComoResuelta(
-                $this->respuesta ?: 'Solicitud aprobada. Se ha creado tu cuenta y se te ha inscrito en el curso.',
-                $admin?->idAdmin
-            );
-
-            DB::commit();
-
-            // 6. Enviar correo con credenciales
-            try {
-                $user->notify(new CredencialesEstudiante(
-                    $user->name,
-                    $user->email,
-                    $password,
-                    $estudiante->codigo
-                ));
-            } catch (\Exception $e) {
-                // Si falla el envío de correo, no detenemos el proceso
-                \Log::error('Error al enviar credenciales: '.$e->getMessage());
-            }
-
-            $this->dispatch('show-toast', type: 'success', message: 'Solicitud aprobada. Estudiante creado e inscrito exitosamente. Se han enviado las credenciales por correo.');
-            $this->cerrarModal();
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->addError('general', 'Error al procesar la solicitud: '.$e->getMessage());
-        }
+        $this->dispatch('show-toast', type: 'success', message: $resultado['message']);
+        $this->cerrarModal();
     }
 
     /**
@@ -210,16 +128,15 @@ class SolicitudesInscripcion extends Component
      */
     public function rechazarSolicitud()
     {
+        $this->authorize('update', Solicitud::class);
+
         $this->validate([
             'respuesta' => 'required|string|min:10|max:1000',
         ]);
 
         $solicitud = Solicitud::findOrFail($this->solicitudId);
-        $admin = auth()->user()->administrador;
 
-        $solicitud->marcarComoResuelta($this->respuesta, $admin?->idAdmin);
-        // Usamos estado 'cancelada' para rechazos
-        $solicitud->update(['estado' => 'cancelada']);
+        $this->rechazarInscripcion->execute($solicitud, $this->respuesta);
 
         $this->dispatch('show-toast', type: 'info', message: 'Solicitud rechazada correctamente.');
         $this->cerrarModal();
@@ -231,29 +148,12 @@ class SolicitudesInscripcion extends Component
     public function marcarEnProceso($solicitudId)
     {
         $solicitud = Solicitud::findOrFail($solicitudId);
+
+        $this->authorize('update', $solicitud);
+
         $solicitud->update(['estado' => 'en_proceso']);
 
         $this->dispatch('show-toast', type: 'info', message: 'Solicitud marcada como "En proceso".');
-    }
-
-    /**
-     * Generar un código único de estudiante.
-     */
-    private function generarCodigoEstudiante()
-    {
-        $year = now()->year;
-        $month = now()->format('m');
-        $random = strtoupper(Str::random(4));
-
-        $codigo = "EST-{$year}{$month}-{$random}";
-
-        // Verificar que no exista
-        while (Estudiante::where('codigo', $codigo)->exists()) {
-            $random = strtoupper(Str::random(4));
-            $codigo = "EST-{$year}{$month}-{$random}";
-        }
-
-        return $codigo;
     }
 
     public function render()

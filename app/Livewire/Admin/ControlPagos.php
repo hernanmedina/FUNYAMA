@@ -28,6 +28,8 @@ class ControlPagos extends Component
 
     public function actualizarEstadoPago(string $cursoId, string $estudianteId, string $estadoPago): void
     {
+        $this->authorize('update', Curso::class);
+
         $estadoPago = in_array($estadoPago, ['pendiente', 'parcial', 'completo'], true)
             ? $estadoPago
             : 'pendiente';
@@ -61,6 +63,8 @@ class ControlPagos extends Component
 
     public function marcarCursoCompletado(string $cursoId, string $estudianteId): void
     {
+        $this->authorize('update', Curso::class);
+
         $inscripcion = DB::table('curso_estudiante')
             ->where('curso_id', $cursoId)
             ->where('estudiante_id', $estudianteId)

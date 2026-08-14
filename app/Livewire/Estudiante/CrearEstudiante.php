@@ -2,28 +2,38 @@
 
 namespace App\Livewire\Estudiante;
 
-use Livewire\Component;
-use App\Models\User;
 use App\Models\Estudiante;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('layouts.app')] // Agregar el layout
 class CrearEstudiante extends Component
 {
     public $name;
+
     public $apellido;
+
     public $email;
+
     public $documento_ID;
+
     public $password;
+
     public $telefono;
 
     public $codigo;
+
     public $fecha_nacimiento;
+
     public $genero;
+
     public $nivel_educativo;
+
     public $intereses;
+
     public $activo = true;
 
     protected $rules = [
@@ -44,6 +54,8 @@ class CrearEstudiante extends Component
 
     public function store()
     {
+        $this->authorize('create', Estudiante::class);
+
         $this->validate();
 
         DB::beginTransaction();
@@ -72,10 +84,11 @@ class CrearEstudiante extends Component
             DB::commit();
 
             session()->flash('message', 'Estudiante creado correctamente.');
+
             return redirect()->route('admin.estudiantes.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->addError('general', 'Error al crear estudiante: ' . $e->getMessage());
+            $this->addError('general', 'Error al crear estudiante: '.$e->getMessage());
         }
     }
 
