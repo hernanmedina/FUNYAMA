@@ -1,4 +1,4 @@
-``` mermaid
+```mermaid
 
 flowchart TD
     %% ====== CLIENTES ======
@@ -9,34 +9,35 @@ flowchart TD
     %% ====== PRESENTACIÓN ======
     subgraph Presentacion ["Capa de Presentación"]
         livewire_ui["Componentes Livewire<br>(UI dinámica)"]
-        blade_views["Vistas Blade<br>(Layouts y templates)"]
+        blade_views["Vistas Blade + Tailwind<br>(layouts y templates)"]
     end
 
     %% ====== APLICACIÓN ======
-    subgraph Aplicacion ["Capa de Aplicación (Laravel)"]
+    subgraph Aplicacion ["Capa de Aplicación (Laravel 12)"]
         routes["Rutas (web/api)"]
-        controllers["Controladores"]
         middleware["Middleware de roles"]
-        services["Servicios / Lógica de negocio"]
-        commands["Comandos Artisan<br>(Certificados)"]
-        auth["Autenticación (Fortify/Jetstream)"]
+        policies["Policies (autorización)"]
+        actions["Actions (lógica de negocio)"]
+        services["Services (estadísticas, exportación)"]
+        exports["Exports (Excel / CSV)"]
+        auth["Autenticación (Fortify / Jetstream)"]
     end
 
     %% ====== DOMINIO ======
     subgraph Dominio ["Capa de Dominio"]
-        models["Modelos Eloquent<br>(User, Curso, etc.)"]
+        models["Modelos Eloquent<br>(User, Curso, Estudiante, ...)"]
     end
 
     %% ====== DATOS ======
     subgraph Datos ["Capa de Datos"]
-        db["MariaDB"]
+        db["MySQL"]
         migrations["Migraciones"]
     end
 
     %% ====== INFRAESTRUCTURA ======
     subgraph Infraestructura ["Infraestructura"]
-        docker["Docker / Docker Compose"]
-        jenkins["Jenkins (CI/CD)"]
+        docker["Docker (entorno local)"]
+        azure["Azure App Service (CI/CD)"]
     end
 
     %% ====== RELACIONES ======
@@ -47,24 +48,23 @@ flowchart TD
     blade_views --> routes
 
     routes --> middleware
-    routes --> controllers
-
-    controllers --> services
-    controllers --> models
-
     middleware --> auth
-    auth --> models
+    auth --> policies
 
+    routes --> actions
+    routes --> services
+    actions --> models
     services --> models
-    commands --> models
+    services --> exports
+
+    policies --> models
+    exports --> models
 
     models --> db
     migrations --> db
 
     docker --> db
-    docker --> routes
-
-    jenkins --> docker
+    azure --> docker
 
     %% ====== ESTILOS PASTEL ======
     classDef clientesStyle fill:#F1F8E9,stroke:#AED581,stroke-width:2px,color:#33691E
@@ -73,11 +73,11 @@ flowchart TD
     classDef dominioStyle fill:#FCE4EC,stroke:#F48FB1,stroke-width:2px,color:#880E4F
     classDef datosStyle fill:#FFF3E0,stroke:#FFB74D,stroke-width:2px,color:#E65100
     classDef infraStyle fill:#EDE7F6,stroke:#9575CD,stroke-width:2px,color:#311B92
-    classDef nodeStyle fill:#FAFAFA,stroke:#B0BEC5,stroke-width:1.5px,color:#37474F
 
     class browser clientesStyle
     class livewire_ui,blade_views presentacionStyle
-    class routes,controllers,middleware,services,commands,auth aplicacionStyle
+    class routes,middleware,policies,actions,services,exports,auth aplicacionStyle
     class models dominioStyle
     class db,migrations datosStyle
-    class docker,jenkins infraStyle
+    class docker,azure infraStyle
+```
