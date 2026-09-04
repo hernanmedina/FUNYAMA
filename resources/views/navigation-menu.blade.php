@@ -16,6 +16,15 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
+                    @if(auth()->user()?->isEstudiante())
+                        <x-nav-link href="{{ route('estudiante.mis-cursos') }}" :active="request()->routeIs('estudiante.mis-cursos')">
+                            {{ __('Mis Cursos') }}
+                        </x-nav-link>
+                        <x-nav-link href="{{ route('estudiante.mis-eventos') }}" :active="request()->routeIs('estudiante.mis-eventos')">
+                            {{ __('Mis Eventos') }}
+                        </x-nav-link>
+                    @endif
+
 {{--                    <x-nav-link :active="request()->routeIs('Articulos')">--}}
 {{--                        Articulos--}}
 {{--                    </x-nav-link>--}}
@@ -150,6 +159,15 @@
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @if(auth()->user()?->isEstudiante())
+                <x-responsive-nav-link href="{{ route('estudiante.mis-cursos') }}" :active="request()->routeIs('estudiante.mis-cursos')">
+                    {{ __('Mis Cursos') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('estudiante.mis-eventos') }}" :active="request()->routeIs('estudiante.mis-eventos')">
+                    {{ __('Mis Eventos') }}
+                </x-responsive-nav-link>
+            @endif
 
 {{--            <x-responsive-nav-link href="" :active="request()->routeIs('articulos')">--}}
 {{--                Articulos--}}

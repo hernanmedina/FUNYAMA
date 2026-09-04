@@ -228,7 +228,17 @@
 
                     <!-- Footer del Modal -->
                     <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end gap-3">
-                        <button wire:click="cerrarModal()" 
+                        @if($eventoSeleccionado->cupo_maximo === null || $eventoSeleccionado->inscritos_actual < $eventoSeleccionado->cupo_maximo)
+                            <button wire:click="abrirInscripcion({{ $eventoSeleccionado->idEvento }})"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                Inscribirme
+                            </button>
+                        @else
+                            <span class="px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium">
+                                Cupos agotados
+                            </span>
+                        @endif
+                        <button wire:click="cerrarModal()"
                                 class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors">
                             Cerrar
                         </button>
@@ -236,5 +246,163 @@
                 </div>
             </div>
         @endif
+
+        <!-- Modal de Inscripción al Evento -->
+        @if($mostrarModalInscripcion && $eventoInscripcion)
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                    <!-- Header del Modal -->
+                    <div class="sticky top-0 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Inscripción al Evento</h2>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Evento: <span class="font-semibold">{{ $eventoInscripcion->titulo }}</span>
+                            </p>
+                        </div>
+                        <button wire:click="cerrarModalInscripcion()"
+                                class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Contenido del Modal -->
+                    <div class="p-6 space-y-6">
+                        <!-- Información del Evento -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-900 mb-3">Información del Evento</h3>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <p class="text-gray-600">Fecha:</p>
+                                    <p class="font-medium text-gray-900">
+                                        {{ $eventoInscripcion->fecha->format('d \\d\\e F \\d\\e Y') }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">Hora:</p>
+                                    <p class="font-medium text-gray-900">
+                                        {{ $eventoInscripcion->hora_inicio }} - {{ $eventoInscripcion->hora_fin }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">Costo:</p>
+                                    <p class="font-medium text-gray-900">
+                                        @if($eventoInscripcion->costo > 0)
+                                            ${{ number_format($eventoInscripcion->costo, 2) }}
+                                        @else
+                                            Gratuito
+                                        @endif
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">Cupos disponibles:</p>
+                                    <p class="font-medium text-gray-900">
+                                        @if($eventoInscripcion->cupo_maximo)
+                                            {{ $eventoInscripcion->cupo_maximo - $eventoInscripcion->inscritos_actual }}
+                                        @else
+                                            Ilimitados
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos del inscrito -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Tus Datos</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Nombre <span class="text-red-500">*</span>
+                                    </label>
+                                    <input wire:model="nombre" type="text"
+                                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('nombre') border-red-500 @else border-gray-300 @enderror"
+                                           placeholder="Tu nombre">
+                                    @error('nombre') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+                                    <input wire:model="apellido" type="text"
+                                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('apellido') border-red-500 @else border-gray-300 @enderror"
+                                           placeholder="Tu apellido">
+                                    @error('apellido') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Email <span class="text-red-500">*</span>
+                                    </label>
+                                    <input wire:model="email" type="email"
+                                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email') border-red-500 @else border-gray-300 @enderror"
+                                           placeholder="tucorreo@ejemplo.com">
+                                    @error('email') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                                    <input wire:model="telefono" type="text"
+                                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('telefono') border-red-500 @else border-gray-300 @enderror"
+                                           placeholder="Tu teléfono">
+                                    @error('telefono') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Documento de identidad</label>
+                                    <input wire:model="documento" type="text"
+                                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('documento') border-red-500 @else border-gray-300 @enderror"
+                                           placeholder="Tu documento de identidad">
+                                    @error('documento') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        @guest
+                            <p class="text-xs text-gray-500 bg-gray-50 rounded-lg p-3">
+                                Si ya tienes una cuenta, <a href="{{ route('login') }}" class="text-blue-600 hover:underline">inicia sesión</a>
+                                para que tu inscripción quede vinculada a tu perfil.
+                            </p>
+                        @endguest
+                    </div>
+
+                    <!-- Footer del Modal -->
+                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end gap-3">
+                        <button wire:click="cerrarModalInscripcion()"
+                                class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors">
+                            Cancelar
+                        </button>
+                        <button wire:click="confirmarInscripcion()"
+                                wire:loading.attr="disabled"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <span wire:loading.remove wire:target="confirmarInscripcion">Confirmar inscripción</span>
+                            <span wire:loading wire:target="confirmarInscripcion">Procesando...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
+
+<!-- Script para toast notifications -->
+<script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('show-toast', (event) => {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${
+                event.type === 'success' ? 'bg-green-600' :
+                event.type === 'warning' ? 'bg-yellow-500' : 'bg-red-600'
+            }`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span>${event.message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        });
+    });
+</script>

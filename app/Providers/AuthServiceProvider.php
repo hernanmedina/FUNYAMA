@@ -7,12 +7,14 @@ use App\Models\Certificado;
 use App\Models\Curso;
 use App\Models\Estudiante;
 use App\Models\Evento;
+use App\Models\InscripcionEvento;
 use App\Models\Solicitud;
 use App\Policies\ArticuloPolicy;
 use App\Policies\CertificadoPolicy;
 use App\Policies\CursoPolicy;
 use App\Policies\EstudiantePolicy;
 use App\Policies\EventoPolicy;
+use App\Policies\InscripcionEventoPolicy;
 use App\Policies\SolicitudPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -27,6 +29,7 @@ class AuthServiceProvider extends ServiceProvider
         Curso::class => CursoPolicy::class,
         Estudiante::class => EstudiantePolicy::class,
         Evento::class => EventoPolicy::class,
+        InscripcionEvento::class => InscripcionEventoPolicy::class,
         Articulo::class => ArticuloPolicy::class,
         Certificado::class => CertificadoPolicy::class,
         Solicitud::class => SolicitudPolicy::class,

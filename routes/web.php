@@ -14,6 +14,7 @@ use App\Livewire\Admin\DashboardAdmin;
 use App\Livewire\Admin\Eventos\CrearEvento;
 use App\Livewire\Admin\Eventos\EditarEvento;
 use App\Livewire\Admin\Eventos\IndexEventos;
+use App\Livewire\Admin\Eventos\InscripcionesEvento;
 use App\Livewire\Admin\GestionarCertificados;
 use App\Livewire\Admin\OpinionesEstudiantes;
 use App\Livewire\Admin\Solicitudes\SolicitudesInscripcion;
@@ -28,6 +29,7 @@ use App\Livewire\Estudiante\Estudiantes;
 use App\Livewire\Estudiante\EstudiantesEliminados;
 use App\Livewire\Estudiante\MisCertificados;
 use App\Livewire\Estudiante\MisCursos;
+use App\Livewire\Estudiante\MisEventos;
 use App\Livewire\Estudiante\MostrarEstudiante;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
@@ -87,6 +89,7 @@ Route::middleware([
         Route::get('/dashboard', DashboardEstudiante::class)->name('dashboard');
         Route::get('/mis-certificados', MisCertificados::class)->name('certificados');
         Route::get('/mis-cursos', MisCursos::class)->name('mis-cursos');
+        Route::get('/mis-eventos', MisEventos::class)->name('mis-eventos');
     });
 
     // ----------- ADMIN DASHBOARD -----------
@@ -115,6 +118,7 @@ Route::middleware([
             Route::get('/', IndexEventos::class)->name('index');
             Route::get('/crear', CrearEvento::class)->name('create');
             Route::get('/{evento}/editar', EditarEvento::class)->name('edit');
+            Route::get('/{evento}/inscripciones', InscripcionesEvento::class)->name('inscripciones');
         });
         // Gestión de solicitudes de inscripción
         Route::prefix('solicitudes')->name('solicitudes.')->group(function () {

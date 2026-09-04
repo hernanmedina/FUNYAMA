@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Eventos;
 
 use App\Models\Evento;
+use App\Models\InscripcionEvento;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -83,8 +84,39 @@ class IndexEventos extends Component
 
         $eventos = $query->orderBy('fecha', 'desc')->paginate(10);
 
+        // Métricas globales de la categoría de eventos.
+        $totalEventos = Evento::count();
+
+        // Personas inscritas: inscripciones confirmadas en eventos no eliminados.
+        $totalInscritos = InscripcionEvento::query()
+            ->join('eventos', 'eventos.idEvento', '=', 'inscripcion_eventos.idEvento')
+            ->where('inscripcion_eventos.estado', 'confirmada')
+            ->whereNull('eventos.deleted_at')
+            ->count();
+
+        // Pagos pendientes: inscripciones confirmadas aún sin pagar.
+        $pagosPendientes = InscripcionEvento::query()
+            ->join('eventos', 'eventos.idEvento', '=', 'inscripcion_eventos.idEvento')
+            ->where('inscripcion_eventos.estado', 'confirmada')
+            ->where('inscripcion_eventos.pago_realizado', false)
+            ->whereNull('eventos.deleted_at')
+            ->count();
+
+        // Total de ingresos recaudados por la categoría de eventos:
+        // suma del costo de los eventos con inscripciones confirmadas y pagadas.
+        $totalIngresos = (float) InscripcionEvento::query()
+            ->join('eventos', 'eventos.idEvento', '=', 'inscripcion_eventos.idEvento')
+            ->where('inscripcion_eventos.estado', 'confirmada')
+            ->where('inscripcion_eventos.pago_realizado', true)
+            ->whereNull('eventos.deleted_at')
+            ->sum('eventos.costo');
+
         return view('livewire.admin.eventos.index-eventos', [
             'eventos' => $eventos,
+            'totalEventos' => $totalEventos,
+            'totalInscritos' => $totalInscritos,
+            'pagosPendientes' => $pagosPendientes,
+            'totalIngresos' => $totalIngresos,
         ]);
     }
 }

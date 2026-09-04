@@ -56,4 +56,9 @@ class Estudiante extends Model
     {
         return $this->hasMany(Certificado::class, 'estudiante_id', 'codigo');
     }
+
+    public function inscripcionesEventos()
+    {
+        return $this->hasMany(InscripcionEvento::class, 'user_id', 'user_id');
+    }
 }

@@ -87,6 +87,11 @@ class User extends Authenticatable
         return $this->hasMany(Solicitud::class, 'user_id');
     }
 
+    public function inscripcionesEventos()
+    {
+        return $this->hasMany(InscripcionEvento::class, 'user_id');
+    }
+
     // Helper methods
     public function isAdmin()
     {

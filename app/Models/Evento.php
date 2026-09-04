@@ -11,6 +11,7 @@ class Evento extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'eventos';
+
     protected $primaryKey = 'idEvento';
 
     protected $fillable = [
@@ -32,7 +33,7 @@ class Evento extends Model
         'enlace_virtual',
         'publicado',
         'destacado',
-        'creado_por_admin'
+        'creado_por_admin',
     ];
 
     protected $casts = [
@@ -41,12 +42,17 @@ class Evento extends Model
         'publicado' => 'boolean',
         'destacado' => 'boolean',
         'cupo_maximo' => 'integer',
-        'inscritos_actual' => 'integer'
+        'inscritos_actual' => 'integer',
     ];
 
     public function administrador()
     {
         return $this->belongsTo(Administrador::class, 'creado_por_admin', 'idAdmin');
+    }
+
+    public function inscripciones()
+    {
+        return $this->hasMany(InscripcionEvento::class, 'idEvento', 'idEvento');
     }
 
     // Scopes
@@ -71,4 +77,3 @@ class Evento extends Model
         return $this->costo == 0;
     }
 }
-
