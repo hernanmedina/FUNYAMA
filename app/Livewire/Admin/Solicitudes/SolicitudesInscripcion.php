@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Solicitudes;
 use App\Actions\AprobarInscripcionAction;
 use App\Actions\GenerarCodigoEstudianteAction;
 use App\Actions\RechazarInscripcionAction;
+use App\Models\InscripcionEvento;
 use App\Models\Solicitud;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -60,7 +61,7 @@ class SolicitudesInscripcion extends Component
 
     public function getSolicitudesProperty()
     {
-        return Solicitud::where('tipo', 'inscripcion')
+        $solicitudes = Solicitud::where('tipo', 'inscripcion')
             ->when($this->filtroEstado !== 'todas', function ($query) {
                 $query->where('estado', $this->filtroEstado);
             })
@@ -72,7 +73,71 @@ class SolicitudesInscripcion extends Component
                 });
             })
             ->orderBy('created_at', 'desc')
-            ->paginate($this->perPage);
+            ->get()
+            ->map(fn (Solicitud $solicitud) => $this->mapearSolicitudCurso($solicitud));
+
+        $inscripcionesEventos = InscripcionEvento::with('evento')
+            ->when($this->filtroEstado !== 'todas', function ($query) {
+                $query->where('estado', $this->filtroEstado === 'resuelta' ? 'confirmada' : $this->filtroEstado);
+            })
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('nombre', 'like', '%'.$this->search.'%')
+                        ->orWhere('apellido', 'like', '%'.$this->search.'%')
+                        ->orWhere('email', 'like', '%'.$this->search.'%')
+                        ->orWhereHas('evento', function ($eventoQuery) {
+                            $eventoQuery->where('titulo', 'like', '%'.$this->search.'%');
+                        });
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn (InscripcionEvento $inscripcion) => $this->mapearInscripcionEvento($inscripcion));
+
+        return $solicitudes
+            ->concat($inscripcionesEventos)
+            ->sortByDesc('created_at')
+            ->values();
+    }
+
+    /**
+     * Normaliza una solicitud de curso al formato unificado de la tabla.
+     *
+     * @return array<string, mixed>
+     */
+    private function mapearSolicitudCurso(Solicitud $solicitud): array
+    {
+        return [
+            'id' => $solicitud->idSolicitud,
+            'tipo' => 'curso',
+            'nombre' => $solicitud->datos_adicionales['nombre'] ?? '',
+            'apellido' => $solicitud->datos_adicionales['apellido'] ?? '',
+            'email' => $solicitud->email_contacto,
+            'detalle' => $solicitud->datos_adicionales['nombre_curso'] ?? 'N/A',
+            'estado' => $solicitud->estado,
+            'created_at' => $solicitud->created_at,
+            'modelo' => $solicitud,
+        ];
+    }
+
+    /**
+     * Normaliza una inscripción a evento al formato unificado de la tabla.
+     *
+     * @return array<string, mixed>
+     */
+    private function mapearInscripcionEvento(InscripcionEvento $inscripcion): array
+    {
+        return [
+            'id' => $inscripcion->idInscripcion,
+            'tipo' => 'evento',
+            'nombre' => $inscripcion->nombre,
+            'apellido' => $inscripcion->apellido,
+            'email' => $inscripcion->email,
+            'detalle' => $inscripcion->evento?->titulo ?? 'Evento eliminado',
+            'estado' => $inscripcion->estado === 'confirmada' ? 'resuelta' : $inscripcion->estado,
+            'created_at' => $inscripcion->created_at,
+            'modelo' => $inscripcion,
+        ];
     }
 
     public function abrirModalRevision($solicitudId)

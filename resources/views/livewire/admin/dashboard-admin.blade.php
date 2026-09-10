@@ -34,16 +34,16 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-6 mb-8">
             <!-- Total Cursos -->
             <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                <div class="flex flex-col">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600 self-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
                     </div>
-                    <div class="ml-4">
+                    <div class="mt-4 min-w-0">
                         <p class="text-sm font-medium text-gray-600">Total Cursos</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $estadisticas['total_cursos'] ?? 0 }}</p>
-                        <p class="text-xs text-green-600 mt-1">
+                        <p class="text-2xl font-bold text-gray-900 break-words">{{ $estadisticas['total_cursos'] ?? 0 }}</p>
+                        <p class="text-xs text-green-600 mt-1 break-words">
                             +{{ $estadisticas['nuevos_cursos'] ?? 0 }} nuevos
                         </p>
                     </div>
@@ -52,16 +52,16 @@
 
             <!-- Total Estudiantes -->
             <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                <div class="flex flex-col">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600 self-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                     </div>
-                    <div class="ml-4">
+                    <div class="mt-4 min-w-0">
                         <p class="text-sm font-medium text-gray-600">Total Estudiantes</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $estadisticas['total_estudiantes'] ?? 0 }}</p>
-                        <p class="text-xs text-green-600 mt-1">
+                        <p class="text-2xl font-bold text-gray-900 break-words">{{ $estadisticas['total_estudiantes'] ?? 0 }}</p>
+                        <p class="text-xs text-green-600 mt-1 break-words">
                             +{{ $estadisticas['nuevos_estudiantes'] ?? 0 }} nuevos
                         </p>
                     </div>
@@ -70,32 +70,32 @@
 
             <!-- Total Eventos Publicados -->
             <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-violet-100 text-violet-600">
+                <div class="flex flex-col">
+                    <div class="p-3 rounded-full bg-violet-100 text-violet-600 self-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                     </div>
-                    <div class="ml-4">
+                    <div class="mt-4 min-w-0">
                         <p class="text-sm font-medium text-gray-600">Total Eventos Publicados</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $estadisticas['total_eventos_publicados'] ?? 0 }}</p>
-                        <p class="text-xs text-violet-600 mt-1">Eventos activos</p>
+                        <p class="text-2xl font-bold text-gray-900 break-words">{{ $estadisticas['total_eventos_publicados'] ?? 0 }}</p>
+                        <p class="text-xs text-violet-600 mt-1 break-words">Eventos activos</p>
                     </div>
                 </div>
             </div>
 
             <!-- Ingresos por cursos pagados -->
             <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                <div class="flex flex-col">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 self-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                         </svg>
                     </div>
-                    <div class="ml-4">
+                    <div class="mt-4 min-w-0">
                         <p class="text-sm font-medium text-gray-600">Ingresos por cursos pagados</p>
-                        <p class="text-2xl font-bold text-gray-900">${{ number_format($estadisticas['ingresos_totales'] ?? 0, 2) }}</p>
-                        <p class="text-xs text-green-600 mt-1">
+                        <p class="text-2xl font-bold text-gray-900 break-words">${{ number_format($estadisticas['ingresos_totales'] ?? 0, 2) }}</p>
+                        <p class="text-xs text-green-600 mt-1 break-words">
                             +${{ number_format($estadisticas['ingresos_recientes'] ?? 0, 2) }} recientes
                         </p>
                     </div>
@@ -104,32 +104,32 @@
 
             <!-- Matrículas gratuitas -->
             <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-emerald-100 text-emerald-600">
+                <div class="flex flex-col">
+                    <div class="p-3 rounded-full bg-emerald-100 text-emerald-600 self-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 3"/>
                         </svg>
                     </div>
-                    <div class="ml-4">
+                    <div class="mt-4 min-w-0">
                         <p class="text-sm font-medium text-gray-600">Matrículas gratuitas</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $estadisticas['matriculas_gratuitas'] ?? 0 }}</p>
-                        <p class="text-xs text-emerald-600 mt-1">Cursos sin cobro</p>
+                        <p class="text-2xl font-bold text-gray-900 break-words">{{ $estadisticas['matriculas_gratuitas'] ?? 0 }}</p>
+                        <p class="text-xs text-emerald-600 mt-1 break-words">Cursos sin cobro</p>
                     </div>
                 </div>
             </div>
 
             <!-- Solicitudes Pendientes -->
             <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-red-100 text-red-600">
+                <div class="flex flex-col">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600 self-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
                     </div>
-                    <div class="ml-4">
+                    <div class="mt-4 min-w-0">
                         <p class="text-sm font-medium text-gray-600">Solicitudes Pendientes</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $estadisticas['solicitudes_pendientes'] ?? 0 }}</p>
-                        <p class="text-xs text-green-600 mt-1">
+                        <p class="text-2xl font-bold text-gray-900 break-words">{{ $estadisticas['solicitudes_pendientes'] ?? 0 }}</p>
+                        <p class="text-xs text-green-600 mt-1 break-words">
                             {{ $estadisticas['solicitudes_resueltas'] ?? 0 }} resueltas
                         </p>
                     </div>
@@ -243,6 +243,15 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                             </svg>
                             <span class="text-sm font-medium">Opiniones</span>
+                        </a>
+
+                        <!-- Personalizar Sitio -->
+                        <a href="{{ route('admin.personalizar') }}"
+                           class="bg-cyan-600 hover:bg-cyan-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
+                            <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            <span class="text-sm font-medium">Personalizar Sitio</span>
                         </a>
                     </div>
                 </div>

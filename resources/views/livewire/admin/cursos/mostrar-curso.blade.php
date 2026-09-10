@@ -47,12 +47,21 @@
 
                 @if(!auth()->check() || !auth()->user()->isAdmin())
                     @if(auth()->check() && auth()->user()->isEstudiante() && $estaInscrito)
-                        <span class="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Ya estás inscrito
-                        </span>
+                        @if($estadoCurso === 'completado')
+                            <span class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Finalizado
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Ya estás inscrito
+                            </span>
+                        @endif
                     @else
                         <button wire:click="abrirModalSolicitud"
                                 class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center">
@@ -178,9 +187,19 @@
                                 {{-- <a href="{{ $curso->enlace_classroom }}" target="_blank" rel="noopener noreferrer" class="ml-2 text-blue-600 hover:underline">Abrir enlace</a> --}}
                             </div>
                             <div class="pt-2">
-                                <a href="{{ $curso->enlace_classroom }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                                    Ir a Classroom
-                                </a>
+                                @if(auth()->user()->isEstudiante() && $estadoCurso === 'completado')
+                                    <span class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed"
+                                          title="El curso está finalizado, el acceso a Classroom fue deshabilitado">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                        </svg>
+                                        Classroom deshabilitado
+                                    </span>
+                                @else
+                                    <a href="{{ $curso->enlace_classroom }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                                        Ir a Classroom
+                                    </a>
+                                @endif
                             </div>
                         @endif
                         <div>

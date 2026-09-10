@@ -7,6 +7,13 @@
                 <p class="text-gray-600 mt-2">Bienvenido/a, {{ Auth::user()->name }} {{ Auth::user()->apellido }}</p>
             </div>
             <div class="flex items-center space-x-4">
+                <a href="/"
+                   class="inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-700 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3V12h4v9h3a1 1 0 001-1V10"/>
+                    </svg>
+                    Página de inicio
+                </a>
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                     Estudiante
                 </span>

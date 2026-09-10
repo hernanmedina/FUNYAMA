@@ -21,6 +21,7 @@ use App\Livewire\Admin\Eventos\MostrarEvento;
 use App\Livewire\Admin\Eventos\PagosPendientesEventos;
 use App\Livewire\Admin\GestionarCertificados;
 use App\Livewire\Admin\OpinionesEstudiantes;
+use App\Livewire\Admin\PersonalizarSitio;
 use App\Livewire\Admin\Solicitudes\SolicitudesInscripcion;
 use App\Livewire\Blog;
 use App\Livewire\BlogDetalle;
@@ -36,6 +37,8 @@ use App\Livewire\Estudiante\MisCursos;
 use App\Livewire\Estudiante\MisEventos;
 use App\Livewire\Estudiante\MostrarEstudiante;
 use App\Livewire\EventoDetalle;
+use App\Livewire\Opiniones;
+use App\Models\Configuracion;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 
@@ -48,8 +51,10 @@ Livewire::setUpdateRoute(function ($handle) {
 
 // Página principal
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('welcome', [
+        'configuracion' => Configuracion::mapa(),
+    ]);
+})->name('home');
 
 // Cursos listado público con Livewire
 Route::get('/cursos', Cursos::class)->name('cursos.index');
@@ -62,6 +67,9 @@ Route::get('/eventos/{evento}', EventoDetalle::class)->name('eventos.show');
 // Blog y Noticias público
 Route::get('/blog', Blog::class)->name('blog.index');
 Route::get('/blog/{articulo}', BlogDetalle::class)->name('blog.detalle');
+
+// Opiniones de estudiantes público
+Route::get('/opiniones', Opiniones::class)->name('opiniones.index');
 
 // Rutas protegidas
 Route::middleware([
@@ -140,6 +148,9 @@ Route::middleware([
 
         // Opiniones de estudiantes
         Route::get('/opiniones', OpinionesEstudiantes::class)->name('opiniones');
+
+        // Personalización del sitio
+        Route::get('/personalizar', PersonalizarSitio::class)->name('personalizar');
 
         // Control de pagos
         Route::get('/pagos', ControlPagos::class)->name('pagos');

@@ -28,18 +28,18 @@ class ControlPagos extends Component
 
     public function actualizarEstadoPago(string $cursoId, string $estudianteId, string $estadoPago): void
     {
-        $this->authorize('update', Curso::class);
-
-        $estadoPago = in_array($estadoPago, ['pendiente', 'parcial', 'completo'], true)
-            ? $estadoPago
-            : 'pendiente';
-
         $curso = Curso::find($cursoId);
         if (! $curso) {
             $this->dispatch('show-toast', type: 'error', message: 'No se encontró el curso asociado a la matrícula.');
 
             return;
         }
+
+        $this->authorize('update', $curso);
+
+        $estadoPago = in_array($estadoPago, ['pendiente', 'parcial', 'completo'], true)
+            ? $estadoPago
+            : 'pendiente';
 
         $payload = [
             'estado_pago' => $estadoPago,
@@ -63,7 +63,14 @@ class ControlPagos extends Component
 
     public function marcarCursoCompletado(string $cursoId, string $estudianteId): void
     {
-        $this->authorize('update', Curso::class);
+        $curso = Curso::find($cursoId);
+        if (! $curso) {
+            $this->dispatch('show-toast', type: 'error', message: 'No se encontró el curso asociado a la matrícula.');
+
+            return;
+        }
+
+        $this->authorize('update', $curso);
 
         $inscripcion = DB::table('curso_estudiante')
             ->where('curso_id', $cursoId)

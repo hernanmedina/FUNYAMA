@@ -36,6 +36,7 @@
             <div class="flex items-center space-x-4">
                 <a href="{{ url('/') }}" class="text-gray-700 hover:text-purple-600">Inicio</a>
 {{--                <a href="{{ route('cursos.index') }}" class="text-gray-700 hover:text-purple-600">Cursos</a>--}}
+                <a href="{{ route('opiniones.index') }}" class="text-gray-700 hover:text-purple-600">Opiniones</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg">Mi Cuenta</a>
                 @else

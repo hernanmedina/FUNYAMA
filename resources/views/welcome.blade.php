@@ -54,6 +54,7 @@
                 <a href="#cursos" class="text-gray-700 hover:text-blue-600 font-medium">Cursos</a>
                 <a href="#eventos" class="text-gray-700 hover:text-blue-600 font-medium">Eventos</a>
                 <a href="{{ route('blog.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Blog</a>
+                <a href="{{ route('opiniones.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Opiniones</a>
                 <a href="#nosotros" class="text-gray-700 hover:text-blue-600 font-medium">Nosotros</a>
                 <a href="#contacto" class="text-gray-700 hover:text-blue-600 font-medium">Contacto</a>
             </div>
@@ -118,19 +119,19 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div class="p-6">
-                <div class="stat-number text-4xl font-bold mb-2">235+</div>
+                <div class="stat-number text-4xl font-bold mb-2">{{ $configuracion['stat_estudiantes'] ?? '235+' }}</div>
                 <p class="text-gray-600 font-medium">Estudiantes Beneficiados</p>
             </div>
             <div class="p-6">
-                <div class="stat-number text-4xl font-bold mb-2">20+</div>
+                <div class="stat-number text-4xl font-bold mb-2">{{ $configuracion['stat_cursos'] ?? '20+' }}</div>
                 <p class="text-gray-600 font-medium">Cursos Disponibles</p>
             </div>
             <div class="p-6">
-                <div class="stat-number text-4xl font-bold mb-2">15+</div>
+                <div class="stat-number text-4xl font-bold mb-2">{{ $configuracion['stat_experiencia'] ?? '15+' }}</div>
                 <p class="text-gray-600 font-medium">Años de Experiencia</p>
             </div>
             <div class="p-6">
-                <div class="stat-number text-4xl font-bold mb-2">98%</div>
+                <div class="stat-number text-4xl font-bold mb-2">{{ $configuracion['stat_satisfaccion'] ?? '98%' }}</div>
                 <p class="text-gray-600 font-medium">Satisfacción </p>
             </div>
         </div>
@@ -182,10 +183,10 @@
             <div class="items-center ">
                 <div class="bg-gradient-to-br from-blue-500 to-pink-500 rounded-2xl p-8 text-white">
                     <div class="text-center">
-                        <div class="text-6xl font-bold mb-4">15+</div>
-                        <div class="text-xl font-semibold">Años Transformando Vidas</div>
+                        <div class="text-6xl font-bold mb-4">{{ $configuracion['about_anios'] ?? '15+' }}</div>
+                        <div class="text-xl font-semibold">{{ $configuracion['about_titulo'] ?? 'Años Transformando Vidas' }}</div>
                         <p class="mt-4 text-purple-100">
-                            Más de una década comprometidos con la excelencia educativa y el desarrollo comunitario.
+                            {{ $configuracion['about_descripcion'] ?? 'Más de una década comprometidos con la excelencia educativa y el desarrollo comunitario.' }}
                         </p>
                     </div>
                 </div>
@@ -199,7 +200,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                     </div>
-                    <span class="text-white-700 font-medium">Educación accesible para todos</span>
+                    <span class="text-white-700 font-medium">{{ $configuracion['beneficio_1'] ?? 'Educación accesible para todos' }}</span>
                 </div>
                 <div class="flex items-center">
                     <div class="bg-green-100 p-2 rounded-full mr-4 mb-4">
@@ -207,7 +208,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                     </div>
-                    <span class="text-white-700 font-medium">Instructores altamente calificados</span>
+                    <span class="text-white-700 font-medium">{{ $configuracion['beneficio_2'] ?? 'Instructores altamente calificados' }}</span>
                 </div>
                 <div class="flex items-center">
                     <div class="bg-green-100 p-2 rounded-full mr-4 mb-4">
@@ -215,7 +216,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                     </div>
-                    <span class="text-white-700 font-medium">Comunidad de apoyo y crecimiento</span>
+                    <span class="text-white-700 font-medium">{{ $configuracion['beneficio_3'] ?? 'Comunidad de apoyo y crecimiento' }}</span>
                 </div>
             </div>
 
@@ -278,42 +279,55 @@
             </div>
             <div>
                 <h3 class="text-lg font-semibold mb-4">Contacto</h3>
-                <div class="flex space-x-4">
+                @php
+                    $contactoEmail = $configuracion['contacto_email'] ?? 'fundacionyamacapacitaciones@gmail.com';
+                    $whatsapp1 = $configuracion['contacto_whatsapp_1'] ?? '323 373 1395';
+                    $whatsapp2 = $configuracion['contacto_whatsapp_2'] ?? '321 882 1641';
+                    $whatsapp1Link = preg_replace('/\D/', '', $whatsapp1);
+                    $whatsapp2Link = preg_replace('/\D/', '', $whatsapp2);
+                    if (strlen($whatsapp1Link) === 10) {
+                        $whatsapp1Link = '57'.$whatsapp1Link;
+                    }
+                    if (strlen($whatsapp2Link) === 10) {
+                        $whatsapp2Link = '57'.$whatsapp2Link;
+                    }
+                @endphp
+                <div class="space-y-3">
                     <!-- Correo -->
-                <a href="mailto:fundacionyamacapacitaciones@gmail.com"
-                class="text-gray-400 hover:text-white transition">
-                    <span class="sr-only">Correo electrónico</span>
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                </a>
+                    <a href="mailto:{{ $contactoEmail }}"
+                       class="flex items-center text-gray-400 hover:text-white transition">
+                        <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="ml-3 text-sm break-all">{{ $contactoEmail }}</span>
+                    </a>
 
-                <!-- WhatsApp 1 -->
-                <a href="https://wa.me/573233731395"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-gray-400 hover:text-white transition">
-                    <span class="sr-only">WhatsApp 323 373 1395</span>
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20.52 3.48A11.78 11.78 0 0012.04 0C5.53 0 .23 5.3.23 11.81c0 2.08.54 4.11 1.57 5.9L.13 24l6.43-1.69a11.8 11.8 0 005.48 1.39h.01c6.51 0 11.81-5.3 11.81-11.81 0-3.15-1.23-6.11-3.34-8.41zM12.05 21.7h-.01a9.88 9.88 0 01-5.04-1.38l-.36-.21-3.82 1 1.02-3.72-.24-.38a9.84 9.84 0 01-1.51-5.2C2.09 6.36 6.55 1.9 12.05 1.9a9.84 9.84 0 019.84 9.84c0 5.49-4.46 9.96-9.84 9.96z"/>
-                        <path d="M17.1 14.35c-.28-.14-1.65-.81-1.91-.9-.26-.1-.45-.14-.64.14-.19.28-.73.9-.89 1.09-.16.19-.33.21-.61.07-.28-.14-1.18-.43-2.25-1.39-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.33.42-.49.14-.16.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.49.07-.75.35-.26.28-.98.96-.98 2.34 0 1.38 1 2.71 1.14 2.89.14.19 1.97 3.01 4.78 4.22.67.29 1.19.46 1.6.59.67.21 1.28.18 1.76.11.54-.08 1.65-.67 1.88-1.32.23-.65.23-1.21.16-1.32-.07-.12-.26-.19-.54-.33z"/>
-                    </svg>
-                </a>
+                    <!-- WhatsApp 1 -->
+                    <a href="https://wa.me/{{ $whatsapp1Link }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="flex items-center text-gray-400 hover:text-white transition">
+                        <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.52 3.48A11.78 11.78 0 0012.04 0C5.53 0 .23 5.3.23 11.81c0 2.08.54 4.11 1.57 5.9L.13 24l6.43-1.69a11.8 11.8 0 005.48 1.39h.01c6.51 0 11.81-5.3 11.81-11.81 0-3.15-1.23-6.11-3.34-8.41zM12.05 21.7h-.01a9.88 9.88 0 01-5.04-1.38l-.36-.21-3.82 1 1.02-3.72-.24-.38a9.84 9.84 0 01-1.51-5.2C2.09 6.36 6.55 1.9 12.05 1.9a9.84 9.84 0 019.84 9.84c0 5.49-4.46 9.96-9.84 9.96z"/>
+                            <path d="M17.1 14.35c-.28-.14-1.65-.81-1.91-.9-.26-.1-.45-.14-.64.14-.19.28-.73.9-.89 1.09-.16.19-.33.21-.61.07-.28-.14-1.18-.43-2.25-1.39-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.33.42-.49.14-.16.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.49.07-.75.35-.26.28-.98.96-.98 2.34 0 1.38 1 2.71 1.14 2.89.14.19 1.97 3.01 4.78 4.22.67.29 1.19.46 1.6.59.67.21 1.28.18 1.76.11.54-.08 1.65-.67 1.88-1.32.23-.65.23-1.21.16-1.32-.07-.12-.26-.19-.54-.33z"/>
+                        </svg>
+                        <span class="ml-3 text-sm">{{ $whatsapp1 }}</span>
+                    </a>
 
-                <!-- WhatsApp 2 -->
-                <a href="https://wa.me/573218821641"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-gray-400 hover:text-white transition">
-                    <span class="sr-only">WhatsApp 321 882 1641</span>
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20.52 3.48A11.78 11.78 0 0012.04 0C5.53 0 .23 5.3.23 11.81c0 2.08.54 4.11 1.57 5.9L.13 24l6.43-1.69a11.8 11.8 0 005.48 1.39h.01c6.51 0 11.81-5.3 11.81-11.81 0-3.15-1.23-6.11-3.34-8.41zM12.05 21.7h-.01a9.88 9.88 0 01-5.04-1.38l-.36-.21-3.82 1 1.02-3.72-.24-.38a9.84 9.84 0 01-1.51-5.2C2.09 6.36 6.55 1.9 12.05 1.9a9.84 9.84 0 019.84 9.84c0 5.49-4.46 9.96-9.84 9.96z"/>
-                        <path d="M17.1 14.35c-.28-.14-1.65-.81-1.91-.9-.26-.1-.45-.14-.64.14-.19.28-.73.9-.89 1.09-.16.19-.33.21-.61.07-.28-.14-1.18-.43-2.25-1.39-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.33.42-.49.14-.16.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.49.07-.75.35-.26.28-.98.96-.98 2.34 0 1.38 1 2.71 1.14 2.89.14.19 1.97 3.01 4.78 4.22.67.29 1.19.46 1.6.59.67.21 1.28.18 1.76.11.54-.08 1.65-.67 1.88-1.32.23-.65.23-1.21.16-1.32-.07-.12-.26-.19-.54-.33z"/>
-                    </svg>
-                </a>
+                    <!-- WhatsApp 2 -->
+                    <a href="https://wa.me/{{ $whatsapp2Link }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="flex items-center text-gray-400 hover:text-white transition">
+                        <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.52 3.48A11.78 11.78 0 0012.04 0C5.53 0 .23 5.3.23 11.81c0 2.08.54 4.11 1.57 5.9L.13 24l6.43-1.69a11.8 11.8 0 005.48 1.39h.01c6.51 0 11.81-5.3 11.81-11.81 0-3.15-1.23-6.11-3.34-8.41zM12.05 21.7h-.01a9.88 9.88 0 01-5.04-1.38l-.36-.21-3.82 1 1.02-3.72-.24-.38a9.84 9.84 0 01-1.51-5.2C2.09 6.36 6.55 1.9 12.05 1.9a9.84 9.84 0 019.84 9.84c0 5.49-4.46 9.96-9.84 9.96z"/>
+                            <path d="M17.1 14.35c-.28-.14-1.65-.81-1.91-.9-.26-.1-.45-.14-.64.14-.19.28-.73.9-.89 1.09-.16.19-.33.21-.61.07-.28-.14-1.18-.43-2.25-1.39-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.33.42-.49.14-.16.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.49.07-.75.35-.26.28-.98.96-.98 2.34 0 1.38 1 2.71 1.14 2.89.14.19 1.97 3.01 4.78 4.22.67.29 1.19.46 1.6.59.67.21 1.28.18 1.76.11.54-.08 1.65-.67 1.88-1.32.23-.65.23-1.21.16-1.32-.07-.12-.26-.19-.54-.33z"/>
+                        </svg>
+                        <span class="ml-3 text-sm">{{ $whatsapp2 }}</span>
+                    </a>
                 </div>
             </div>
             <div>

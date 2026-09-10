@@ -1,5 +1,8 @@
 
-<img src="{{ asset('images/logo.png') }}" alt="Fundación Yama Logo" {{ $attributes }}>
+@php
+    $logoConfigurado = \App\Models\Configuracion::obtener('logo_sitio');
+@endphp
+<img src="{{ $logoConfigurado ? \Illuminate\Support\Facades\Storage::disk('public')->url($logoConfigurado) : asset('images/logo.png') }}" alt="Fundación Yama Logo" {{ $attributes }}>
 
 
 {{-- <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" {{ $attributes }}>

@@ -1,4 +1,7 @@
-<img src="{{ asset('images/icono.png') }}"
+@php
+    $logoConfigurado = \App\Models\Configuracion::obtener('logo_sitio');
+@endphp
+<img src="{{ $logoConfigurado ? \Illuminate\Support\Facades\Storage::disk('public')->url($logoConfigurado) : asset('images/icono.png') }}"
      alt="Logo Fundación Educativa"
      class="h-10 w-10 object-contain">
 
