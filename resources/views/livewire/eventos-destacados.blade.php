@@ -119,7 +119,7 @@
                                 @endif
 
                                 <!-- CTA Button -->
-                                <a href="{{ route('eventos.index') }}" 
+                                <a href="{{ route('eventos.show', $evento) }}" 
                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center">
                                     Ver Detalles
                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

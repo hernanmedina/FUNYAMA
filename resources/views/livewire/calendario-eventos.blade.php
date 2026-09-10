@@ -11,8 +11,8 @@
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <div class="space-y-4">
                         @forelse($eventos as $evento)
-                            <div wire:click="seleccionarEvento({{ $evento->idEvento }})" 
-                                 class="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:bg-blue-50">
+                            <a href="{{ route('eventos.show', $evento) }}"
+                               class="block p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:bg-blue-50">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-3 mb-2">
@@ -64,7 +64,7 @@
                                         </div>
                                     @endif
                                 </div>
-                            </div>
+                            </a>
                         @empty
                             <div class="text-center py-12">
                                 <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,8 +83,8 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Próximos Eventos</h3>
                     <div class="space-y-3">
                         @forelse($eventos->take(5) as $evento)
-                            <div class="p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
-                                 wire:click="seleccionarEvento({{ $evento->idEvento }})">
+                            <a href="{{ route('eventos.show', $evento) }}"
+                               class="block p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
                                 <p class="font-medium text-sm text-gray-900">{{ Str::limit($evento->titulo, 25) }}</p>
                                 <p class="text-xs text-gray-600 mt-1">
                                     {{ $evento->fecha->format('d M Y') }}
@@ -94,7 +94,7 @@
                                 @else
                                     <p class="text-xs font-semibold text-green-600 mt-1">Gratuito</p>
                                 @endif
-                            </div>
+                            </a>
                         @empty
                             <p class="text-sm text-gray-500">No hay eventos próximos</p>
                         @endforelse

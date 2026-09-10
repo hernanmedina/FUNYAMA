@@ -14,7 +14,11 @@ use App\Livewire\Admin\DashboardAdmin;
 use App\Livewire\Admin\Eventos\CrearEvento;
 use App\Livewire\Admin\Eventos\EditarEvento;
 use App\Livewire\Admin\Eventos\IndexEventos;
+use App\Livewire\Admin\Eventos\IngresosEventos;
 use App\Livewire\Admin\Eventos\InscripcionesEvento;
+use App\Livewire\Admin\Eventos\InscritosEventos;
+use App\Livewire\Admin\Eventos\MostrarEvento;
+use App\Livewire\Admin\Eventos\PagosPendientesEventos;
 use App\Livewire\Admin\GestionarCertificados;
 use App\Livewire\Admin\OpinionesEstudiantes;
 use App\Livewire\Admin\Solicitudes\SolicitudesInscripcion;
@@ -31,6 +35,7 @@ use App\Livewire\Estudiante\MisCertificados;
 use App\Livewire\Estudiante\MisCursos;
 use App\Livewire\Estudiante\MisEventos;
 use App\Livewire\Estudiante\MostrarEstudiante;
+use App\Livewire\EventoDetalle;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 
@@ -52,6 +57,7 @@ Route::get('/cursos/{curso}', MostrarCurso::class)->name('cursos.show');
 
 // Calendario de eventos público
 Route::get('/eventos', CalendarioEventos::class)->name('eventos.index');
+Route::get('/eventos/{evento}', EventoDetalle::class)->name('eventos.show');
 
 // Blog y Noticias público
 Route::get('/blog', Blog::class)->name('blog.index');
@@ -117,6 +123,10 @@ Route::middleware([
         Route::prefix('eventos')->name('eventos.')->group(function () {
             Route::get('/', IndexEventos::class)->name('index');
             Route::get('/crear', CrearEvento::class)->name('create');
+            Route::get('/pagos-pendientes', PagosPendientesEventos::class)->name('pagos-pendientes');
+            Route::get('/inscritos', InscritosEventos::class)->name('inscritos');
+            Route::get('/ingresos', IngresosEventos::class)->name('ingresos');
+            Route::get('/{evento}', MostrarEvento::class)->name('show');
             Route::get('/{evento}/editar', EditarEvento::class)->name('edit');
             Route::get('/{evento}/inscripciones', InscripcionesEvento::class)->name('inscripciones');
         });
