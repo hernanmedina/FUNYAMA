@@ -347,6 +347,7 @@
                                             <option value="por_curso">Por cada curso</option>
                                         @elseif($tipoReporte === 'estudiantes')
                                             <option value="total">Total</option>
+                                            <option value="datos_personales">Datos personales (todos los cursos)</option>
                                             <option value="por_curso">Por curso</option>
                                             <option value="cursos_terminados">Cursos terminados</option>
                                             <option value="cursos_matriculados">Cursos matriculados</option>

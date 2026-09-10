@@ -163,14 +163,14 @@ class SolicitudesInscripcion extends Component
      */
     public function aprobarSolicitud()
     {
-        $this->authorize('update', Solicitud::class);
-
         $this->validate([
             'respuesta' => 'nullable|string|max:1000',
             'codigo_generado' => 'required|string|max:100|unique:estudiantes,codigo',
         ]);
 
         $solicitud = Solicitud::findOrFail($this->solicitudId);
+
+        $this->authorize('update', $solicitud);
 
         $resultado = $this->aprobarInscripcion->execute(
             $solicitud,
@@ -193,13 +193,13 @@ class SolicitudesInscripcion extends Component
      */
     public function rechazarSolicitud()
     {
-        $this->authorize('update', Solicitud::class);
-
         $this->validate([
             'respuesta' => 'required|string|min:10|max:1000',
         ]);
 
         $solicitud = Solicitud::findOrFail($this->solicitudId);
+
+        $this->authorize('update', $solicitud);
 
         $this->rechazarInscripcion->execute($solicitud, $this->respuesta);
 

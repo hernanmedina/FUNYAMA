@@ -61,7 +61,7 @@ class EditarCurso extends Component
         'nombre' => 'required|string|max:255',
         'descripcion' => 'required|string|min:50',
         'cronograma' => 'required|string|min:20',
-        'requisitos' => 'required|string|min:20',
+        'requisitos' => 'nullable|string|min:10',
         'objetivos' => 'nullable|string|min:20',
         'materiales_incluidos' => 'nullable|string|min:20',
         'cupo_total' => 'required|integer|min:1',
@@ -96,6 +96,13 @@ class EditarCurso extends Component
         ]));
 
         $this->imagen_portada_temp = $curso->imagen_portada;
+
+        // Formatear la fecha para el input type="date" (yyyy-MM-dd)
+        $this->fecha_inicio = $curso->fecha_inicio?->format('Y-m-d');
+
+        // Asegurar booleanos para que la validación no falle con 0/1
+        $this->publicado = (bool) $curso->publicado;
+        $this->destacado = (bool) $curso->destacado;
     }
 
     public function updatedNombre($value)
@@ -135,7 +142,7 @@ class EditarCurso extends Component
                 'slug' => Str::slug($this->nombre),
                 'descripcion' => $this->descripcion,
                 'cronograma' => $this->cronograma,
-                'requisitos' => $this->requisitos,
+                'requisitos' => $this->requisitos ?? '',
                 'objetivos' => $this->objetivos,
                 'materiales_incluidos' => $this->materiales_incluidos,
                 'cupo_total' => $this->cupo_total,
@@ -154,19 +161,13 @@ class EditarCurso extends Component
                 'instructor_id' => $this->instructor_id ?: null,
             ]);
 
-            $this->dispatch('show-toast',
-                type: 'success',
-                message: 'Curso actualizado exitosamente.'
-            );
+            session()->flash('success', '¡Curso actualizado exitosamente!');
 
             // Redirigir después de la actualización
             return $this->redirectRoute('admin.cursos.index');
 
         } catch (\Exception $e) {
-            $this->dispatch('show-toast',
-                type: 'error',
-                message: 'Error al actualizar el curso: '.$e->getMessage()
-            );
+            session()->flash('error', 'Error al actualizar el curso: '.$e->getMessage());
         }
     }
 

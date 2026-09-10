@@ -32,6 +32,15 @@ class IndexCursos extends Component
     {
         // Asegurarnos de que selected esté inicializado
         $this->selected = [];
+
+        // Mostrar notificación si venimos de crear/editar un curso
+        if (session()->has('success')) {
+            $this->dispatch('show-toast', type: 'success', message: session('success'));
+        }
+
+        if (session()->has('error')) {
+            $this->dispatch('show-toast', type: 'error', message: session('error'));
+        }
     }
 
     public function sortBy($field)
@@ -80,8 +89,6 @@ class IndexCursos extends Component
 
     public function bulkDelete()
     {
-        $this->authorize('delete', Curso::class);
-
         // Verificar que selected no sea null
         if (! $this->selected || count($this->selected) === 0) {
             $this->dispatch('show-toast',
@@ -90,6 +97,12 @@ class IndexCursos extends Component
             );
 
             return;
+        }
+
+        $cursos = Curso::whereIn('codigo', $this->selected)->get();
+
+        foreach ($cursos as $curso) {
+            $this->authorize('delete', $curso);
         }
 
         // Verificar que ningún curso seleccionado tenga estudiantes

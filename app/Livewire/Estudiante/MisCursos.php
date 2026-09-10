@@ -34,6 +34,10 @@ class MisCursos extends Component
 
     public string $tab = 'activos';
 
+    public bool $showModalNequi = false;
+
+    public string $cursoPagoNombre = '';
+
     public function updatedSearch()
     {
         $this->resetPage();
@@ -146,6 +150,18 @@ class MisCursos extends Component
         $this->cursoSeleccionadoNombre = '';
         $this->ratingEstudiante = null;
         $this->opinionEstudiante = '';
+    }
+
+    public function abrirModalNequi(string $nombreCurso): void
+    {
+        $this->cursoPagoNombre = $nombreCurso;
+        $this->showModalNequi = true;
+    }
+
+    public function cerrarModalNequi(): void
+    {
+        $this->showModalNequi = false;
+        $this->cursoPagoNombre = '';
     }
 
     public function guardarOpinion(): void

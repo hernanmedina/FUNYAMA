@@ -86,9 +86,7 @@ class EditarBlog extends Component
 
     public function updatedTitulo(string $value): void
     {
-        if (empty($this->slug) || $this->slug === Str::slug($this->articulo->titulo)) {
-            $this->slug = Str::slug($value);
-        }
+        $this->slug = Str::slug($value);
     }
 
     public function agregarEtiqueta(): void
@@ -142,7 +140,7 @@ class EditarBlog extends Component
             'fecha_publicacion' => $this->publicado && ! $publicadoAntes ? now() : $this->articulo->fecha_publicacion,
         ]);
 
-        $this->dispatch('show-toast', type: 'success', message: 'Artículo actualizado exitosamente.');
+        session()->flash('success', 'Artículo actualizado exitosamente.');
 
         return redirect()->route('admin.blog.index');
     }

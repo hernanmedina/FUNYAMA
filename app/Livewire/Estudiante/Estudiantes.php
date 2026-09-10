@@ -107,9 +107,13 @@ class Estudiantes extends Component
 
     public function bulkDelete()
     {
-        $this->authorize('delete', Estudiante::class);
-
         if (count($this->selected) > 0) {
+            $estudiantes = Estudiante::whereIn('codigo', $this->selected)->get();
+
+            foreach ($estudiantes as $estudiante) {
+                $this->authorize('delete', $estudiante);
+            }
+
             Estudiante::whereIn('codigo', $this->selected)->delete();
 
             $this->selected = [];

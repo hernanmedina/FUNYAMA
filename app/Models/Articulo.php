@@ -91,6 +91,37 @@ class Articulo extends Model
         return $this->publicado && $this->fecha_publicacion <= now();
     }
 
+    /**
+     * Devuelve el contenido listo para renderizar en la vista de detalle.
+     *
+     * Si el contenido contiene etiquetas HTML, se sanitiza con HTMLPurifier
+     * para permitir formato enriquecido de forma segura. Si es texto plano,
+     * se convierten los saltos de línea en párrafos.
+     */
+    public function getContenidoHtmlAttribute(): string
+    {
+        $contenido = (string) $this->contenido;
+
+        if ($contenido === '') {
+            return '';
+        }
+
+        if ($contenido !== strip_tags($contenido)) {
+            $config = \HTMLPurifier_Config::createDefault();
+            $config->set('Cache.SerializerPath', storage_path('app/htmlpurifier'));
+            $config->set('HTML.Allowed', 'p,br,strong,b,em,i,u,ul,ol,li,h2,h3,h4,blockquote,a[href],img[src|alt],code,pre,hr,table,thead,tbody,tr,th,td');
+            $config->set('URI.AllowedSchemes', ['http' => true, 'https' => true, 'mailto' => true]);
+
+            return (new \HTMLPurifier($config))->purify($contenido);
+        }
+
+        $parrafos = preg_split('/\n\s*\n/', trim($contenido));
+
+        return collect($parrafos)
+            ->map(fn ($parrafo) => '<p>'.nl2br(e(trim($parrafo))).'</p>')
+            ->implode("\n");
+    }
+
     public function incrementarVistas()
     {
         $this->increment('vistas');

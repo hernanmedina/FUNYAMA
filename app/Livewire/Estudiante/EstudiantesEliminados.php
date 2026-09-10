@@ -74,9 +74,15 @@ class EstudiantesEliminados extends Component
 
     public function restaurarSeleccionados()
     {
-        $this->authorize('restore', Estudiante::class);
-
         if (count($this->selected) > 0) {
+            $estudiantes = Estudiante::onlyTrashed()
+                ->whereIn('codigo', $this->selected)
+                ->get();
+
+            foreach ($estudiantes as $estudiante) {
+                $this->authorize('restore', $estudiante);
+            }
+
             Estudiante::onlyTrashed()
                 ->whereIn('codigo', $this->selected)
                 ->restore();
@@ -112,14 +118,13 @@ class EstudiantesEliminados extends Component
 
     public function eliminarSeleccionadosPermanentemente()
     {
-        $this->authorize('forceDelete', Estudiante::class);
-
         if (count($this->selected) > 0) {
             $estudiantes = Estudiante::onlyTrashed()
                 ->whereIn('codigo', $this->selected)
                 ->get();
 
             foreach ($estudiantes as $estudiante) {
+                $this->authorize('forceDelete', $estudiante);
                 // Eliminar relaciones si es necesario
                 // $estudiante->cursos()->detach();
                 $estudiante->forceDelete();

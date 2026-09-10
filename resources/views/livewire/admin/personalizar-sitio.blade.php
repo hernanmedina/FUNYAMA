@@ -130,6 +130,57 @@
                 </div>
             </div>
 
+            <!-- Pago por Nequi -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800">Pago por Nequi (código QR)</h2>
+                    <p class="text-sm text-gray-500 mt-1">Configura el código QR y los datos de la cuenta Nequi que verán los estudiantes para realizar sus pagos.</p>
+                </div>
+                <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Nequi</label>
+                        <input type="text" wire:model="nequi_numero" placeholder="300 123 4567"
+                               class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                        @error('nequi_numero') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Titular de la cuenta</label>
+                        <input type="text" wire:model="nequi_titular" placeholder="Fundación Yama"
+                               class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                        @error('nequi_titular') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Instrucciones para el pago</label>
+                        <textarea wire:model="nequi_instrucciones" rows="3"
+                                  class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        @error('nequi_instrucciones') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="md:col-span-3 flex flex-col md:flex-row md:items-center gap-6">
+                        <div class="flex-shrink-0">
+                            @if ($nequi_qr)
+                                <img src="{{ $nequi_qr->temporaryUrl() }}" alt="Vista previa del código QR"
+                                     class="h-40 w-40 object-contain border border-gray-200 rounded-lg bg-white p-2">
+                            @elseif ($nequi_qr_actual)
+                                <img src="{{ Storage::disk('public')->url($nequi_qr_actual) }}" alt="Código QR actual"
+                                     class="h-40 w-40 object-contain border border-gray-200 rounded-lg bg-white p-2">
+                            @else
+                                <div class="h-40 w-40 flex items-center justify-center border border-dashed border-gray-300 rounded-lg text-gray-400 text-xs text-center p-2">
+                                    Sin código QR
+                                </div>
+                            @endif
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Imagen del código QR</label>
+                            <input type="file" wire:model="nequi_qr" accept="image/*"
+                                   class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+                            <p class="text-xs text-gray-500 mt-2">Sube la imagen del QR generado en tu app Nequi. Formatos: JPG, PNG, WEBP. Máximo 3 MB.</p>
+                            @error('nequi_qr') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
+                            <div wire:loading wire:target="nequi_qr" class="text-sm text-blue-600 mt-2">Subiendo imagen...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Logo -->
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200">

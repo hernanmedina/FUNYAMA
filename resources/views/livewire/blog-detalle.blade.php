@@ -30,8 +30,8 @@
                     </div>
                 </div>
 
-                <div class="prose max-w-none text-gray-700 leading-relaxed text-lg">
-                    {!! nl2br(e($articulo->contenido)) !!}
+                <div class="prose prose-lg max-w-none text-gray-700 prose-headings:text-gray-900 prose-a:text-blue-600 prose-img:rounded-lg">
+                    {!! $articulo->contenido_html !!}
                 </div>
 
                 @if(count($articulo->etiquetas ?? []) > 0)

@@ -36,46 +36,7 @@
 </head>
 <body class="font-sans antialiased">
 <!-- Header/Navigation -->
-<nav class="bg-white shadow-lg sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-            <!-- Logo -->
-            {{-- En el header --}}
-            <div class="flex items-center">
-                <div class="mr-3">
-                    <x-application-logo class="h-10 w-10 object-contain" />
-                </div>
-                <span class="text-xl font-bold text-gray-800">Fundación YAMA</span>
-            </div>
-
-            <!-- Navigation Links -->
-            <div class="hidden md:flex space-x-8">
-                <a href="#inicio" class="text-gray-700 hover:text-blue-600 font-medium">Inicio</a>
-                <a href="#cursos" class="text-gray-700 hover:text-blue-600 font-medium">Cursos</a>
-                <a href="#eventos" class="text-gray-700 hover:text-blue-600 font-medium">Eventos</a>
-                <a href="{{ route('blog.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Blog</a>
-                <a href="{{ route('opiniones.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Opiniones</a>
-                <a href="#nosotros" class="text-gray-700 hover:text-blue-600 font-medium">Nosotros</a>
-                <a href="#contacto" class="text-gray-700 hover:text-blue-600 font-medium">Contacto</a>
-            </div>
-
-            <!-- Auth Links -->
-            <div class="flex items-center gap-4 ml-4">
-                @auth
-                    <a href="{{ route('dashboard') }}"
-                       class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium transition duration-200">
-                        Mi Cuenta
-                    </a>
-                @else
-                    <a href="{{ route('login') }}"
-                       class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium transition duration-200">
-                        Iniciar Sesión
-                    </a>
-                @endauth
-            </div>
-        </div>
-    </div>
-</nav>
+@include('partials.navbar')
 
 
 <!-- Logo -->
@@ -223,6 +184,54 @@
         </div>
     </div>
 </section>
+
+@php
+    $nequiQr = $configuracion['nequi_qr'] ?? null;
+    $nequiNumero = $configuracion['nequi_numero'] ?? null;
+    $nequiTitular = $configuracion['nequi_titular'] ?? null;
+    $nequiInstrucciones = $configuracion['nequi_instrucciones'] ?? null;
+@endphp
+
+@if($nequiQr || $nequiNumero)
+<!-- Pago con Nequi Section -->
+<section id="pagos" class="bg-slate-50 py-20">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Paga fácil con Nequi</h2>
+            <p class="text-lg text-gray-600">Escanea el código QR o envía tu pago al número de Nequi de la fundación.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+                @if($nequiQr)
+                    <div class="flex items-center justify-center p-8 bg-gradient-to-br from-purple-500 to-purple-700">
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($nequiQr) }}"
+                             alt="Código QR de Nequi"
+                             class="h-64 w-64 object-contain bg-white rounded-xl p-3 shadow-lg">
+                    </div>
+                @endif
+                <div class="p-8 flex flex-col justify-center">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Datos para tu pago</h3>
+                    @if($nequiNumero)
+                        <div class="mb-4">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Número Nequi</p>
+                            <p class="text-2xl font-bold text-purple-700">{{ $nequiNumero }}</p>
+                        </div>
+                    @endif
+                    @if($nequiTitular)
+                        <div class="mb-4">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Titular</p>
+                            <p class="text-lg font-semibold text-gray-800">{{ $nequiTitular }}</p>
+                        </div>
+                    @endif
+                    @if($nequiInstrucciones)
+                        <p class="text-gray-600 leading-relaxed">{{ $nequiInstrucciones }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endif
 
 <!-- CTA Section -->
 <section class="hero-gradient py-16">

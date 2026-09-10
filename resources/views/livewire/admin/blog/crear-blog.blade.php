@@ -18,15 +18,12 @@
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Titulo *</label>
-                            <input type="text" wire:model="titulo" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" placeholder="Titulo del articulo">
+                            <input type="text" wire:model.live.debounce.400ms="titulo" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" placeholder="Titulo del articulo">
                             @error('titulo') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Slug *</label>
-                            <input type="text" wire:model="slug" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" placeholder="slug-del-articulo">
-                            @error('slug') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                        </div>
+                        <input type="hidden" wire:model="slug">
+                        @error('slug') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Resumen *</label>

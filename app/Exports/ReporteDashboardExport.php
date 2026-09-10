@@ -49,6 +49,7 @@ class ReporteDashboardExport implements FromQuery, WithHeadings, WithMapping
                 default => ['Código', 'Curso', 'Estudiantes', 'Cupo total', 'Inscritos', 'Precio final'],
             },
             'estudiantes' => match ($this->subtipoReporte) {
+                'datos_personales' => ['Código', 'Nombre completo', 'Cédula / Documento', 'Fecha de nacimiento', 'Género', 'Correo', 'Teléfono', 'Dirección', 'Nivel educativo', 'Intereses', 'Cursos inscritos', 'Activo', 'Fecha de registro'],
                 'por_curso' => ['Curso', 'Estudiante', 'Email', 'Estado de pago', 'Fecha de inscripción'],
                 'cursos_terminados' => ['Estudiante', 'Email', 'Curso', 'Progreso', 'Estado'],
                 'cursos_matriculados' => ['Estudiante', 'Email', 'Curso', 'Estado', 'Estado de pago'],
@@ -127,6 +128,8 @@ class ReporteDashboardExport implements FromQuery, WithHeadings, WithMapping
     private function estudiantesQuery()
     {
         switch ($this->subtipoReporte) {
+            case 'datos_personales':
+                return Estudiante::query()->with(['user', 'cursos']);
             case 'por_curso':
                 return DB::table('curso_estudiante as ce')
                     ->join('cursos as c', 'c.codigo', '=', 'ce.curso_id')
@@ -159,6 +162,22 @@ class ReporteDashboardExport implements FromQuery, WithHeadings, WithMapping
     private function mapEstudiante($row): array
     {
         switch ($this->subtipoReporte) {
+            case 'datos_personales':
+                return [
+                    $row->codigo,
+                    $row->user?->nombre_completo,
+                    $row->user?->documento_ID,
+                    $row->fecha_nacimiento?->format('d/m/Y'),
+                    $row->genero ? ucfirst($row->genero) : '',
+                    $row->user?->email,
+                    $row->user?->telefono,
+                    $row->user?->direccion,
+                    $row->nivel_educativo,
+                    $row->intereses,
+                    $row->cursos->pluck('nombre')->implode(', '),
+                    $row->activo ? 'Sí' : 'No',
+                    $row->fecha_registro?->format('d/m/Y'),
+                ];
             case 'por_curso':
                 return [$row->curso_nombre, $row->user_name, $row->email, $row->estado_pago, $row->fecha_inscripcion];
             case 'cursos_terminados':

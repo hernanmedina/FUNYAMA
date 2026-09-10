@@ -19,33 +19,8 @@
     @livewireStyles
 </head>
 <body class="font-sans antialiased">
-<!-- Simple Header para páginas públicas -->
-<nav class="bg-white shadow">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex items-center">
-                <a href="{{ url('/') }}" class="flex items-center">
-                    <div class="mr-3">
-                        <img src="{{ asset('images/icono.png') }}"
-                             alt="Logo Fundación"
-                             class="h-8 w-8 object-contain">
-                    </div>
-                    <span class="text-xl font-bold text-gray-800">Fundación YAMA</span>
-                </a>
-            </div>
-            <div class="flex items-center space-x-4">
-                <a href="{{ url('/') }}" class="text-gray-700 hover:text-purple-600">Inicio</a>
-{{--                <a href="{{ route('cursos.index') }}" class="text-gray-700 hover:text-purple-600">Cursos</a>--}}
-                <a href="{{ route('opiniones.index') }}" class="text-gray-700 hover:text-purple-600">Opiniones</a>
-                @auth
-                    <a href="{{ route('dashboard') }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg">Mi Cuenta</a>
-                @else
-                    <a href="{{ route('login') }}" class="text-gray-700 hover:text-purple-600">Ingresar</a>
-                @endauth
-            </div>
-        </div>
-    </div>
-</nav>
+<!-- Header para páginas públicas -->
+@include('partials.navbar')
 
 <!-- Page Content -->
 <main>

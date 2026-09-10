@@ -74,9 +74,15 @@ class CursosEliminados extends Component
 
     public function restaurarSeleccionados()
     {
-        $this->authorize('restore', Curso::class);
-
         if (count($this->selected) > 0) {
+            $cursos = Curso::onlyTrashed()
+                ->whereIn('codigo', $this->selected)
+                ->get();
+
+            foreach ($cursos as $curso) {
+                $this->authorize('restore', $curso);
+            }
+
             Curso::onlyTrashed()
                 ->whereIn('codigo', $this->selected)
                 ->restore();
@@ -94,14 +100,13 @@ class CursosEliminados extends Component
 
     public function eliminarSeleccionadosPermanentemente()
     {
-        $this->authorize('forceDelete', Curso::class);
-
         if (count($this->selected) > 0) {
             $cursos = Curso::onlyTrashed()
                 ->whereIn('codigo', $this->selected)
                 ->get();
 
             foreach ($cursos as $curso) {
+                $this->authorize('forceDelete', $curso);
                 $curso->forceDelete();
             }
 

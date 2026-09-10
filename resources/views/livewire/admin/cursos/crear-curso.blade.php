@@ -33,7 +33,7 @@
                                 <input type="text"
                                        wire:model="nombre"
                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                       placeholder="Ej: Introducción a la Programación Web">
+                                       placeholder="Ingrese aquí el nombre del curso">
                                 @error('nombre') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
 
@@ -60,16 +60,28 @@
                             <!-- Código del Curso -->
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Código del Curso *</label>
-                                <input type="text"
-                                        wire:model="codigo"
-                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="Ej: CUR-2025-001">
+                                <div class="flex gap-2">
+                                    <input type="text"
+                                            wire:model="codigo"
+                                            readonly
+                                            class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-600 cursor-not-allowed focus:outline-none">
+                                    <button type="button"
+                                            wire:click="regenerarCodigo"
+                                            title="Generar un nuevo código"
+                                            class="flex-shrink-0 px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">El código se genera automáticamente con el formato CUR-{{ now()->year }}-XXX.</p>
                                 @error('codigo') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Requisitos -->
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Requisitos *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Requisitos</label>
                                 <textarea wire:model="requisitos"
                                           rows="3"
                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"

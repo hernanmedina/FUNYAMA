@@ -15,8 +15,7 @@ class ReporteExportService
 {
     public function __construct(
         private readonly Utf8Sanitizer $sanitizer,
-    ) {
-    }
+    ) {}
 
     /**
      * Exporta un reporte en el formato solicitado (excel o csv).
@@ -122,6 +121,21 @@ class ReporteExportService
                 ],
             },
             'estudiantes' => match ($subtipoReporte) {
+                'datos_personales' => [
+                    'codigo' => 'Código',
+                    'nombre_completo' => 'Nombre completo',
+                    'documento' => 'Cédula / Documento',
+                    'fecha_nacimiento' => 'Fecha de nacimiento',
+                    'genero' => 'Género',
+                    'email' => 'Correo',
+                    'telefono' => 'Teléfono',
+                    'direccion' => 'Dirección',
+                    'nivel_educativo' => 'Nivel educativo',
+                    'intereses' => 'Intereses',
+                    'cursos' => 'Cursos inscritos',
+                    'activo' => 'Activo',
+                    'fecha_registro' => 'Fecha de registro',
+                ],
                 'por_curso' => [
                     'curso' => 'Curso',
                     'nombre' => 'Estudiante',
@@ -227,6 +241,25 @@ class ReporteExportService
     private function obtenerDatosEstudiantesExportables(string $subtipoReporte, ?string $cursoFiltro): array
     {
         return $this->sanitizer->sanitizarArrayUtf8(match ($subtipoReporte) {
+            'datos_personales' => Estudiante::query()
+                ->with(['user', 'cursos'])
+                ->get()
+                ->map(fn ($estudiante) => [
+                    'codigo' => $estudiante->codigo,
+                    'nombre_completo' => $estudiante->user?->nombre_completo,
+                    'documento' => $estudiante->user?->documento_ID,
+                    'fecha_nacimiento' => $estudiante->fecha_nacimiento?->format('d/m/Y'),
+                    'genero' => $estudiante->genero ? ucfirst($estudiante->genero) : '',
+                    'email' => $estudiante->user?->email,
+                    'telefono' => $estudiante->user?->telefono,
+                    'direccion' => $estudiante->user?->direccion,
+                    'nivel_educativo' => $estudiante->nivel_educativo,
+                    'intereses' => $estudiante->intereses,
+                    'cursos' => $estudiante->cursos->pluck('nombre')->implode(', '),
+                    'activo' => $estudiante->activo ? 'Sí' : 'No',
+                    'fecha_registro' => $estudiante->fecha_registro?->format('d/m/Y'),
+                ])
+                ->toArray(),
             'por_curso' => DB::table('curso_estudiante as ce')
                 ->join('cursos as c', 'c.codigo', '=', 'ce.curso_id')
                 ->join('estudiantes as e', 'e.codigo', '=', 'ce.estudiante_id')

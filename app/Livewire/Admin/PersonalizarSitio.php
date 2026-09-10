@@ -42,6 +42,17 @@ class PersonalizarSitio extends Component
 
     public ?string $logo_actual = null;
 
+    // Pago por Nequi
+    public string $nequi_numero = '';
+
+    public string $nequi_titular = '';
+
+    public string $nequi_instrucciones = '';
+
+    public $nequi_qr;
+
+    public ?string $nequi_qr_actual = null;
+
     public function mount(): void
     {
         $this->stat_estudiantes = (string) Configuracion::obtener('stat_estudiantes', '235+');
@@ -67,6 +78,14 @@ class PersonalizarSitio extends Component
         $this->contacto_whatsapp_2 = (string) Configuracion::obtener('contacto_whatsapp_2', '321 882 1641');
 
         $this->logo_actual = Configuracion::obtener('logo_sitio');
+
+        $this->nequi_numero = (string) Configuracion::obtener('nequi_numero', '');
+        $this->nequi_titular = (string) Configuracion::obtener('nequi_titular', '');
+        $this->nequi_instrucciones = (string) Configuracion::obtener(
+            'nequi_instrucciones',
+            'Escanea el código QR desde tu aplicación Nequi o envía el pago al número indicado. Luego comparte el comprobante con la fundación.'
+        );
+        $this->nequi_qr_actual = Configuracion::obtener('nequi_qr');
     }
 
     protected function rules(): array
@@ -85,6 +104,10 @@ class PersonalizarSitio extends Component
             'contacto_whatsapp_1' => 'required|string|max:50',
             'contacto_whatsapp_2' => 'required|string|max:50',
             'logo' => 'nullable|image|max:3072',
+            'nequi_numero' => 'nullable|string|max:50',
+            'nequi_titular' => 'nullable|string|max:255',
+            'nequi_instrucciones' => 'nullable|string|max:500',
+            'nequi_qr' => 'nullable|image|max:3072',
         ];
     }
 
@@ -105,6 +128,8 @@ class PersonalizarSitio extends Component
             'contacto_whatsapp_2.required' => 'El segundo número de WhatsApp es obligatorio.',
             'logo.image' => 'El logo debe ser una imagen válida.',
             'logo.max' => 'El logo no debe superar los 3 MB.',
+            'nequi_qr.image' => 'El código QR de Nequi debe ser una imagen válida.',
+            'nequi_qr.max' => 'El código QR de Nequi no debe superar los 3 MB.',
         ];
     }
 
@@ -138,6 +163,21 @@ class PersonalizarSitio extends Component
             Configuracion::establecer('logo_sitio', $ruta, 'imagen', 'general');
             $this->logo_actual = $ruta;
             $this->logo = null;
+        }
+
+        Configuracion::establecer('nequi_numero', $this->nequi_numero, 'texto', 'pagos');
+        Configuracion::establecer('nequi_titular', $this->nequi_titular, 'texto', 'pagos');
+        Configuracion::establecer('nequi_instrucciones', $this->nequi_instrucciones, 'texto', 'pagos');
+
+        if ($this->nequi_qr) {
+            if ($this->nequi_qr_actual && Storage::disk('public')->exists($this->nequi_qr_actual)) {
+                Storage::disk('public')->delete($this->nequi_qr_actual);
+            }
+
+            $rutaQr = $this->nequi_qr->store('pagos', 'public');
+            Configuracion::establecer('nequi_qr', $rutaQr, 'imagen', 'pagos');
+            $this->nequi_qr_actual = $rutaQr;
+            $this->nequi_qr = null;
         }
 
         session()->flash('mensaje', 'La personalización del sitio se guardó correctamente.');

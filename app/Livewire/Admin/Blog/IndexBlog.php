@@ -14,6 +14,17 @@ class IndexBlog extends Component
 
     public string $categoriaFilter = '';
 
+    public function mount(): void
+    {
+        if (session()->has('success')) {
+            $this->dispatch('show-toast', type: 'success', message: session('success'));
+        }
+
+        if (session()->has('error')) {
+            $this->dispatch('show-toast', type: 'error', message: session('error'));
+        }
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -70,7 +81,13 @@ class IndexBlog extends Component
             $query->where('categoria', $this->categoriaFilter);
         }
 
-        $categorias = Articulo::distinct()->pluck('categoria')->filter()->values();
+        $categorias = [
+            'general' => 'General',
+            'noticias' => 'Noticias',
+            'eventos' => 'Eventos',
+            'educacion' => 'Educación',
+            'comunidad' => 'Comunidad',
+        ];
 
         return view('livewire.admin.blog.index-blog', [
             'articulos' => $query->paginate(15),

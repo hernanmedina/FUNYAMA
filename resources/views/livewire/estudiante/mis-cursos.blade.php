@@ -191,6 +191,16 @@
                                             <p class="text-xs text-amber-600 text-center">
                                                 ⚠️ El administrador debe confirmar el pago para finalizar este curso
                                             </p>
+                                            @if(\App\Models\Configuracion::obtener('nequi_qr') || \App\Models\Configuracion::obtener('nequi_numero'))
+                                                <button type="button"
+                                                        wire:click="abrirModalNequi('{{ addslashes($curso->nombre) }}')"
+                                                        class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                                    </svg>
+                                                    Pagar con Nequi
+                                                </button>
+                                            @endif
                                         </div>
                                     @endif
                                     @if($curso->enlace_classroom)
@@ -211,7 +221,7 @@
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                                 </svg>
-                                                Ir a Classroom
+                                                Ir al link
                                             </a>
                                         @endif
                                     @else
@@ -322,6 +332,72 @@
                                 wire:click="cerrarModalOpinion"
                                 class="mt-3 w-full inline-flex justify-center rounded-lg border border-slate-300 px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm">
                             Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal de Pago con Nequi --}}
+    @if($showModalNequi)
+        @php
+            $nequiNumero = \App\Models\Configuracion::obtener('nequi_numero');
+            $nequiTitular = \App\Models\Configuracion::obtener('nequi_titular');
+            $nequiInstrucciones = \App\Models\Configuracion::obtener('nequi_instrucciones');
+            $nequiQr = \App\Models\Configuracion::obtener('nequi_qr');
+        @endphp
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-nequi-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                {{-- Overlay --}}
+                <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity" wire:click="cerrarModalNequi"></div>
+
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                {{-- Modal Content --}}
+                <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-semibold text-slate-900" id="modal-nequi-title">
+                                    Pago con Nequi
+                                </h3>
+                                <p class="mt-2 text-sm text-slate-600">
+                                    Curso: <strong>{{ $cursoPagoNombre }}</strong>
+                                </p>
+
+                                @if($nequiQr)
+                                    <div class="mt-4 flex justify-center">
+                                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($nequiQr) }}"
+                                             alt="Código QR de Nequi"
+                                             class="h-56 w-56 object-contain border border-slate-200 rounded-lg bg-white p-2">
+                                    </div>
+                                @endif
+
+                                @if($nequiNumero)
+                                    <div class="mt-4 rounded-lg bg-purple-50 border border-purple-200 px-4 py-3 text-center">
+                                        <p class="text-xs font-medium text-purple-700 uppercase tracking-wide">Número Nequi</p>
+                                        <p class="text-xl font-bold text-purple-900">{{ $nequiNumero }}</p>
+                                        @if($nequiTitular)
+                                            <p class="text-sm text-purple-700 mt-1">{{ $nequiTitular }}</p>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                @if($nequiInstrucciones)
+                                    <p class="mt-4 text-sm text-slate-600">
+                                        {{ $nequiInstrucciones }}
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                        <button type="button"
+                                wire:click="cerrarModalNequi"
+                                class="w-full inline-flex justify-center rounded-lg border border-transparent px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:w-auto sm:text-sm">
+                            Entendido
                         </button>
                     </div>
                 </div>

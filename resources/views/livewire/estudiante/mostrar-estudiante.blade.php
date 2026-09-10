@@ -35,6 +35,10 @@
                             <p class="text-gray-900 mt-1">{{ $estudiante->user->name }} {{ $estudiante->user->apellido ?? '' }}</p>
                         </div>
                         <div>
+                            <label class="block text-sm font-medium text-gray-700">Cédula</label>
+                            <p class="text-gray-900 mt-1">{{ $estudiante->user->documento_ID ?? 'No especificada' }}</p>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-700">Código</label>
                             <p class="text-gray-900 mt-1">{{ $estudiante->codigo }}</p>
                         </div>

@@ -63,7 +63,7 @@ class CrearCurso extends Component
         'slug' => 'required|string|max:255',
         'descripcion' => 'required|string|min:20',
         'cronograma' => 'required|string|min:10',
-        'requisitos' => 'required|string|min:10',
+        'requisitos' => 'nullable|string|min:10',
         'objetivos' => 'nullable|string|min:10',
         'materiales_incluidos' => 'nullable|string|min:20',
         'cupo_total' => 'required|integer|min:1',
@@ -85,6 +85,38 @@ class CrearCurso extends Component
         'precio_descuento.lt' => 'El precio de descuento debe ser menor al precio regular.',
         'fecha_inicio.after_or_equal' => 'La fecha de inicio debe ser hoy o una fecha futura.',
     ];
+
+    public function mount(): void
+    {
+        $this->codigo = $this->generarCodigo();
+    }
+
+    /**
+     * Genera el siguiente código de curso con el patrón CUR-{año}-{secuencial}.
+     */
+    public function generarCodigo(): string
+    {
+        $anio = now()->year;
+        $prefijo = 'CUR-'.$anio.'-';
+
+        $ultimoCodigo = Curso::withTrashed()
+            ->where('codigo', 'like', $prefijo.'%')
+            ->orderByDesc('codigo')
+            ->value('codigo');
+
+        $siguiente = 1;
+
+        if ($ultimoCodigo) {
+            $siguiente = (int) substr($ultimoCodigo, strlen($prefijo)) + 1;
+        }
+
+        return $prefijo.str_pad((string) $siguiente, 3, '0', STR_PAD_LEFT);
+    }
+
+    public function regenerarCodigo(): void
+    {
+        $this->codigo = $this->generarCodigo();
+    }
 
     public function updatedNombre($value)
     {
@@ -128,7 +160,7 @@ class CrearCurso extends Component
                 'slug' => $this->slug,
                 'descripcion' => $this->descripcion,
                 'cronograma' => $this->cronograma,
-                'requisitos' => $this->requisitos,
+                'requisitos' => $this->requisitos ?? '',
                 'objetivos' => $this->objetivos,
                 'materiales_incluidos' => $this->materiales_incluidos,
                 'cupo_total' => $this->cupo_total,
@@ -154,7 +186,7 @@ class CrearCurso extends Component
             $this->reset();
 
             // Mostrar mensaje de éxito y redirigir
-            session()->flash('success', 'Curso creado exitosamente!');
+            session()->flash('success', '¡Curso creado exitosamente!');
 
             return redirect()->route('admin.cursos.index');
 

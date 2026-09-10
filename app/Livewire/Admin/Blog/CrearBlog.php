@@ -62,9 +62,7 @@ class CrearBlog extends Component
 
     public function updatedTitulo(string $value): void
     {
-        if (empty($this->slug) || $this->slug === Str::slug($this->getOriginalTitulo())) {
-            $this->slug = Str::slug($value);
-        }
+        $this->slug = Str::slug($value);
     }
 
     public function agregarEtiqueta(): void
@@ -126,11 +124,6 @@ class CrearBlog extends Component
         session()->flash('success', '¡Artículo creado exitosamente!');
 
         return redirect()->route('admin.blog.index');
-    }
-
-    private function getOriginalTitulo(): string
-    {
-        return '';
     }
 
     public function render()

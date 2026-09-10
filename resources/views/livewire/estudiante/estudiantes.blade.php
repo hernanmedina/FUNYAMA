@@ -99,6 +99,9 @@
                                 </div>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Cédula
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Código Curso
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
@@ -120,11 +123,13 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($estudiantes as $estudiante)
-                            <tr class="hover:bg-gray-50">
+                            <tr class="hover:bg-gray-50 cursor-pointer"
+                                onclick="window.location='{{ route('admin.estudiantes.show', $estudiante->codigo) }}'">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <input type="checkbox"
                                            wire:model.live="selected"
                                            value="{{ $estudiante->codigo }}"
+                                           onclick="event.stopPropagation()"
                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -147,11 +152,15 @@
                                     <div class="text-sm text-gray-500">{{ $estudiante->user->telefono ?? 'Sin teléfono' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $estudiante->user->documento_ID ?? 'No especificada' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $estudiante->codigo ?? 'No especificado' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center space-x-2">
                                         <button wire:click="toggleEstado('{{ $estudiante->codigo }}')"
+                                                onclick="event.stopPropagation()"
                                                 class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                                                            {{ $estudiante->activo ? 'bg-green-600' : 'bg-gray-200' }}">
                                             <span class="sr-only">Toggle estado</span>
@@ -167,6 +176,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
                                         <a href="{{ route('admin.estudiantes.show', $estudiante->codigo) }}"
+                                           onclick="event.stopPropagation()"
                                            class="text-blue-600 hover:text-blue-900"
                                            title="Ver detalles">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,6 +185,7 @@
                                             </svg>
                                         </a>
                                                     <a href="{{ route('admin.estudiantes.edit', $estudiante->codigo) }}"
+                                           onclick="event.stopPropagation()"
                                            class="text-green-600 hover:text-green-900"
                                            title="Editar">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,6 +194,7 @@
                                         </a>
                                         <button wire:click="deleteEstudiante('{{ $estudiante->codigo }}')"
                                                 wire:confirm="¿Estás seguro de eliminar este estudiante?"
+                                                onclick="event.stopPropagation()"
                                                 class="text-red-600 hover:text-red-900"
                                                 title="Eliminar">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
