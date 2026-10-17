@@ -9,7 +9,24 @@ COPY . .
 RUN npm run build
 
 # ── Etapa 2: Instalar dependencias de PHP (Composer) ─────────────
-FROM composer:2 AS vendor
+FROM php:8.4-cli-alpine AS vendor
+
+RUN apk add --no-cache \
+        postgresql-dev \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        libzip-dev \
+        oniguruma-dev \
+        icu-dev \
+        $PHPIZE_DEPS \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" \
+        pdo_pgsql gd zip intl bcmath opcache exif pcntl \
+    && apk del $PHPIZE_DEPS
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader \
