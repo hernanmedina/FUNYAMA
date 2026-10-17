@@ -30,9 +30,12 @@ return new class extends Migration
             $table->text('temario')->nullable();
             $table->boolean('publicado')->default(false);
             $table->boolean('destacado')->default(false);
+            $table->boolean('comunidad_habilitada')->default(true);
+            $table->boolean('comunidad_tras_finalizar')->default(false);
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_fin')->nullable();
             $table->unsignedBigInteger('creado_por_admin')->nullable();
+            $table->foreignId('instructor_id')->nullable()->constrained('users')->nullOnDelete();
             $table->softDeletes();
             $table->timestamps();
 

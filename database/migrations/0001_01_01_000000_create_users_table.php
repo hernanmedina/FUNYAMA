@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('apellido')->nullable();
-            $table->enum('role', ['admin', 'estu', 'user'])->default('user');
+            $table->enum('role', ['admin', 'estu', 'instructor'])->default('instructor');
             $table->string('email')->unique();
             $table->string('documento_ID')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();

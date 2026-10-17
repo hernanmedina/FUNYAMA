@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('telefono')->nullable();
             $table->string('documento')->nullable();
             $table->string('estado')->default('confirmada');
+            $table->boolean('pago_realizado')->default(false);
             $table->softDeletes();
             $table->timestamps();
 

@@ -15,6 +15,8 @@ return new class extends Migration
             $table->enum('estado', ['inscrito', 'en_progreso', 'completado', 'cancelado'])->default('inscrito');
             $table->decimal('calificacion', 3, 1)->nullable();
             $table->text('comentario_calificacion')->nullable();
+            $table->unsignedTinyInteger('rating_estudiante')->nullable();
+            $table->text('opinion_estudiante')->nullable();
             $table->decimal('pago_realizado', 8, 2)->default(0);
             $table->enum('estado_pago', ['pendiente', 'parcial', 'completo'])->default('pendiente');
             $table->timestamp('fecha_inscripcion')->useCurrent();
