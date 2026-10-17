@@ -1,0 +1,80 @@
+services:
+  - type: web
+    name: funyama
+    runtime: docker
+    region: oregon
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    disk:
+      name: funyama-storage
+      mountPath: /var/www/html/storage
+      sizeGB: 1
+    envVars:
+      - key: APP_NAME
+        value: Funyama
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        value: https://funyama.onrender.com
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: aws-0-us-east-1.pooler.supabase.com
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_DATABASE
+        value: postgres
+      - key: DB_USERNAME
+        value: postgres.shkyabdheazpnfdiioah
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: FILESYSTEM_DISK
+        value: public
+      - key: LOG_CHANNEL
+        value: stderr
+
+  - type: worker
+    name: funyama-worker
+    runtime: docker
+    region: oregon
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    startCommand: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: aws-0-us-east-1.pooler.supabase.com
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_DATABASE
+        value: postgres
+      - key: DB_USERNAME
+        value: postgres.shkyabdheazpnfdiioah
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: LOG_CHANNEL
+        value: stderr
