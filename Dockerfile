@@ -30,7 +30,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader \
-    --no-interaction --no-progress --no-scripts --prefer-dist
+    --no-interaction --no-progress --no-scripts --prefer-dist \
+    --ignore-platform-req=ext-gd
 
 # ── Etapa 3: Imagen final (PHP-FPM + Nginx + Supervisor) ─────────
 FROM php:8.4-fpm-alpine
