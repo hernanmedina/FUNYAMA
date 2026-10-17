@@ -36,42 +36,9 @@ services:
       - key: CACHE_STORE
         value: database
       - key: QUEUE_CONNECTION
-        value: database
+        value: sync
       - key: FILESYSTEM_DISK
         value: public
       - key: LOG_CHANNEL
         value: stderr
 
-  - type: worker
-    name: funyama-worker
-    runtime: docker
-    region: oregon
-    plan: free
-    dockerfilePath: ./Dockerfile
-    envVars:
-      - key: PROCESS_TYPE
-        value: worker
-      - key: APP_ENV
-        value: production
-      - key: APP_KEY
-        sync: false
-      - key: DB_CONNECTION
-        value: pgsql
-      - key: DB_HOST
-        value: aws-0-us-east-1.pooler.supabase.com
-      - key: DB_PORT
-        value: "5432"
-      - key: DB_DATABASE
-        value: postgres
-      - key: DB_USERNAME
-        value: postgres.shkyabdheazpnfdiioah
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_SSLMODE
-        value: require
-      - key: CACHE_STORE
-        value: database
-      - key: QUEUE_CONNECTION
-        value: database
-      - key: LOG_CHANNEL
-        value: stderr
