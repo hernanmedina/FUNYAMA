@@ -52,8 +52,9 @@ services:
     region: oregon
     plan: starter
     dockerfilePath: ./Dockerfile
-    startCommand: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
     envVars:
+      - key: PROCESS_TYPE
+        value: worker
       - key: APP_ENV
         value: production
       - key: APP_KEY

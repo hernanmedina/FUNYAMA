@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+# Si es el servicio worker, ejecutar el consumidor de colas
+if [ "$PROCESS_TYPE" = "worker" ]; then
+    exec php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+fi
+
 # Crear directorios necesarios (sobre el disco persistente)
 mkdir -p storage/app/public \
          storage/framework/cache \
