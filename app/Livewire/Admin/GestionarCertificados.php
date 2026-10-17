@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\Certificado;
 use App\Models\Curso;
 use App\Models\Estudiante;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -19,6 +20,8 @@ class GestionarCertificados extends Component
     public $cursos;
 
     public $certificados;
+
+    public $pendientesCertificado;
 
     public $searchEstudiante = '';
 
@@ -65,6 +68,7 @@ class GestionarCertificados extends Component
     public function mount()
     {
         $this->cursosEstudiante = collect();
+        $this->pendientesCertificado = collect();
         $this->cargarDatos();
     }
 
@@ -96,6 +100,50 @@ class GestionarCertificados extends Component
         }
 
         $this->certificados = $query->get();
+
+        $this->cargarPendientesCertificado();
+    }
+
+    /**
+     * Estudiantes con el curso finalizado y el pago completo que aún no
+     * tienen certificado emitido.
+     */
+    public function cargarPendientesCertificado()
+    {
+        $query = DB::table('curso_estudiante as ce')
+            ->join('cursos as c', 'c.codigo', '=', 'ce.curso_id')
+            ->join('estudiantes as e', 'e.codigo', '=', 'ce.estudiante_id')
+            ->join('users as u', 'u.id', '=', 'e.user_id')
+            ->leftJoin('certificados as cert', function ($join) {
+                $join->on('cert.curso_id', '=', 'ce.curso_id')
+                    ->on('cert.estudiante_id', '=', 'ce.estudiante_id');
+            })
+            ->whereNull('c.deleted_at')
+            ->whereNull('e.deleted_at')
+            ->whereNull('cert.id')
+            ->where('ce.estado', 'completado')
+            ->where('ce.estado_pago', 'completo');
+
+        if ($this->filtroEstudiante) {
+            $query->where('ce.estudiante_id', $this->filtroEstudiante);
+        }
+
+        if ($this->filtroCurso) {
+            $query->where('ce.curso_id', $this->filtroCurso);
+        }
+
+        $this->pendientesCertificado = $query
+            ->select([
+                'ce.curso_id',
+                'ce.estudiante_id',
+                'ce.fecha_completado',
+                'c.nombre as curso_nombre',
+                'u.name',
+                'u.apellido',
+                'u.email',
+            ])
+            ->orderByDesc('ce.fecha_completado')
+            ->get();
     }
 
     public function updatedFiltroEstudiante()
@@ -137,6 +185,19 @@ class GestionarCertificados extends Component
             $this->estudianteSeleccionado = $this->filtroEstudiante;
         }
         $this->cargarCursosEstudiante();
+        $this->mostrarModalCarga = true;
+    }
+
+    /**
+     * Abre el modal de carga con el estudiante y curso ya preseleccionados
+     * desde la lista de pendientes de certificado.
+     */
+    public function abrirModalCargaPara(string $estudianteId, string $cursoId)
+    {
+        $this->reset(['estudianteSeleccionado', 'cursoSeleccionado', 'archivoPDF', 'certificadoEditandoId']);
+        $this->estudianteSeleccionado = $estudianteId;
+        $this->cargarCursosEstudiante();
+        $this->cursoSeleccionado = $cursoId;
         $this->mostrarModalCarga = true;
     }
 

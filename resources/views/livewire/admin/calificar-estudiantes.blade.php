@@ -160,12 +160,12 @@
                 </div>
             </div>
 
-            <!-- Lista de Estudiantes Calificados -->
+            <!-- Lista de Estudiantes -->
             <div class="lg:col-span-2 bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     <div>
-                        <h2 class="text-xl font-semibold text-gray-800">Estudiantes Calificados</h2>
-                        <p class="text-sm text-gray-500">Consulta las notas asignadas a los estudiantes.</p>
+                        <h2 class="text-xl font-semibold text-gray-800">Estudiantes y calificaciones</h2>
+                        <p class="text-sm text-gray-500">Consulta las notas asignadas y los estudiantes pendientes por calificar.</p>
                     </div>
                     <div class="flex gap-2">
                         <button type="button"
@@ -270,12 +270,21 @@
                             @forelse($calificaciones as $cal)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="ml-0">
-                                                <div class="text-sm font-medium text-gray-900">{{ $cal->name }} {{ $cal->apellido }}</div>
+                                        @if($cal->calificacion === null)
+                                            <a href="{{ route('admin.calificar', ['curso' => $cal->curso_id, 'estudiante' => $cal->estudiante_id]) }}"
+                                               class="block rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                               title="Calificar estudiante">
+                                                <div class="text-sm font-medium text-indigo-700 hover:text-indigo-900">{{ $cal->name }} {{ $cal->apellido }}</div>
                                                 <div class="text-xs text-gray-500">{{ $cal->estudiante_codigo }}</div>
+                                            </a>
+                                        @else
+                                            <div class="flex items-center">
+                                                <div class="ml-0">
+                                                    <div class="text-sm font-medium text-gray-900">{{ $cal->name }} {{ $cal->apellido }}</div>
+                                                    <div class="text-xs text-gray-500">{{ $cal->estudiante_codigo }}</div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $cal->curso_nombre }}</div>
@@ -292,11 +301,15 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $nota = (float) $cal->calificacion;
-                                            $color = $nota >= 9 ? 'text-green-600' : ($nota >= 7 ? 'text-blue-600' : ($nota >= 5 ? 'text-yellow-600' : 'text-red-600'));
-                                        @endphp
-                                        <span class="text-sm font-bold {{ $color }}">{{ number_format($nota, 1) }}</span>
+                                        @if($cal->calificacion === null)
+                                            <span class="text-sm font-semibold text-amber-600">Pendiente</span>
+                                        @else
+                                            @php
+                                                $nota = (float) $cal->calificacion;
+                                                $color = $nota >= 9 ? 'text-green-600' : ($nota >= 7 ? 'text-blue-600' : ($nota >= 5 ? 'text-yellow-600' : 'text-red-600'));
+                                            @endphp
+                                            <span class="text-sm font-bold {{ $color }}">{{ number_format($nota, 1) }}</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4">
                                         <p class="text-sm text-gray-600 max-w-xs truncate" title="{{ $cal->comentario_calificacion }}">
@@ -310,7 +323,7 @@
                                         <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                         </svg>
-                                        <p class="text-gray-500 font-medium">No hay estudiantes calificados</p>
+                                        <p class="text-gray-500 font-medium">No hay estudiantes para mostrar</p>
                                         <p class="text-gray-400 text-sm mt-1">Asigna calificaciones usando el formulario de la izquierda.</p>
                                     </td>
                                 </tr>

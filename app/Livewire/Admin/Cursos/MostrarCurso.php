@@ -281,6 +281,32 @@ class MostrarCurso extends Component
         );
     }
 
+    public function toggleComunidad()
+    {
+        $this->authorize('update', $this->curso);
+
+        $this->curso->update(['comunidad_habilitada' => ! $this->curso->comunidad_habilitada]);
+
+        $action = $this->curso->comunidad_habilitada ? 'habilitada' : 'deshabilitada';
+        $this->dispatch('show-toast',
+            type: 'success',
+            message: "Comunidad del curso {$action} correctamente."
+        );
+    }
+
+    public function toggleComunidadTrasFinalizar()
+    {
+        $this->authorize('update', $this->curso);
+
+        $this->curso->update(['comunidad_tras_finalizar' => ! $this->curso->comunidad_tras_finalizar]);
+
+        $action = $this->curso->comunidad_tras_finalizar ? 'habilitada' : 'deshabilitada';
+        $this->dispatch('show-toast',
+            type: 'success',
+            message: "La comunidad tras finalizar quedó {$action}."
+        );
+    }
+
     public function render()
     {
         $temarioItems = $this->curso->temario_items;

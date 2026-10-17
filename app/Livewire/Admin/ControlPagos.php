@@ -15,6 +15,8 @@ class ControlPagos extends Component
 
     public ?string $estadoPagoFilter = null;
 
+    public ?string $estadoCursoFilter = null;
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -23,6 +25,12 @@ class ControlPagos extends Component
     public function setEstadoPagoFilter(?string $estado): void
     {
         $this->estadoPagoFilter = $this->estadoPagoFilter === $estado ? null : $estado;
+        $this->resetPage();
+    }
+
+    public function setEstadoCursoFilter(?string $estado): void
+    {
+        $this->estadoCursoFilter = $this->estadoCursoFilter === $estado ? null : $estado;
         $this->resetPage();
     }
 
@@ -120,6 +128,12 @@ class ControlPagos extends Component
 
         if ($this->estadoPagoFilter) {
             $query->where('ce.estado_pago', $this->estadoPagoFilter);
+        }
+
+        if ($this->estadoCursoFilter === 'finalizado') {
+            $query->where('ce.estado', 'completado');
+        } elseif ($this->estadoCursoFilter === 'en_curso') {
+            $query->where('ce.estado', '!=', 'completado');
         }
 
         $matriculas = $query

@@ -58,7 +58,7 @@ class PagosPendientesEventos extends Component
             ->where('estado', 'confirmada')
             ->where('pago_realizado', false)
             ->whereHas('evento', function ($q) {
-                $q->whereNull('deleted_at');
+                $q->whereNull('deleted_at')->where('costo', '>', 0);
             });
 
         if ($this->search) {
@@ -81,13 +81,15 @@ class PagosPendientesEventos extends Component
             ->join('eventos', 'eventos.idEvento', '=', 'inscripcion_eventos.idEvento')
             ->where('inscripcion_eventos.estado', 'confirmada')
             ->where('inscripcion_eventos.pago_realizado', false)
+            ->where('eventos.costo', '>', 0)
             ->whereNull('eventos.deleted_at')
             ->sum('eventos.costo');
 
         // Eventos con al menos un pago pendiente (para el filtro).
-        $eventosConPendientes = Evento::whereHas('inscripciones', function ($q) {
-            $q->where('estado', 'confirmada')->where('pago_realizado', false);
-        })
+        $eventosConPendientes = Evento::where('costo', '>', 0)
+            ->whereHas('inscripciones', function ($q) {
+                $q->where('estado', 'confirmada')->where('pago_realizado', false);
+            })
             ->orderBy('titulo')
             ->get(['idEvento', 'titulo']);
 

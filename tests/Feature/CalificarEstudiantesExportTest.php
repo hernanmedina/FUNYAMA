@@ -23,7 +23,7 @@ class CalificarEstudiantesExportTest extends TestCase
         ]);
     }
 
-    private function crearEstudianteCalificado(string $codigoCurso, string $codigoEstudiante, float $nota, string $estado = 'completado'): void
+    private function crearEstudianteCalificado(string $codigoCurso, string $codigoEstudiante, ?float $nota, string $estado = 'completado', string $estadoPago = 'pendiente'): void
     {
         $curso = Curso::create([
             'codigo' => $codigoCurso,
@@ -65,7 +65,7 @@ class CalificarEstudiantesExportTest extends TestCase
             'calificacion' => $nota,
             'comentario_calificacion' => 'Buen desempeño',
             'pago_realizado' => 0,
-            'estado_pago' => 'pendiente',
+            'estado_pago' => $estadoPago,
             'fecha_inscripcion' => now(),
             'progreso' => 100,
             'fecha_completado' => now(),
@@ -119,5 +119,36 @@ class CalificarEstudiantesExportTest extends TestCase
             ->set('rangoNota', 'excelente')
             ->call('exportarExcel')
             ->assertStatus(200);
+    }
+
+    public function test_admin_sees_ungraded_students_with_completed_course_and_payment(): void
+    {
+        $admin = $this->crearAdmin();
+        $this->crearEstudianteCalificado('CUR-PEND-001', 'EST-PEND-001', null, 'completado', 'completo');
+        $this->crearEstudianteCalificado('CUR-PEND-002', 'EST-PEND-002', null, 'completado', 'pendiente');
+
+        $this->actingAs($admin);
+
+        Livewire::test(CalificarEstudiantes::class)
+            ->assertSee('EST-PEND-001')
+            ->assertSee('Pendiente')
+            ->assertDontSee('EST-PEND-002');
+    }
+
+    public function test_pending_student_link_loads_course_and_student_in_grading_form(): void
+    {
+        $admin = $this->crearAdmin();
+        $this->crearEstudianteCalificado('CUR-PEND-003', 'EST-PEND-003', null, 'completado', 'completo');
+
+        $this->actingAs($admin);
+
+        Livewire::withQueryParams([
+            'curso' => 'CUR-PEND-003',
+            'estudiante' => 'EST-PEND-003',
+        ])
+            ->test(CalificarEstudiantes::class)
+            ->assertSet('cursoCalificarId', 'CUR-PEND-003')
+            ->assertSet('estudianteCalificarId', 'EST-PEND-003')
+            ->assertSet('notaCalificacion', null);
     }
 }

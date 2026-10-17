@@ -12,9 +12,11 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                    @unless(auth()->user()?->isInstructor())
+                        <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
+                    @endunless
 
                     @if(auth()->user()?->isEstudiante())
                         <x-nav-link href="{{ route('estudiante.mis-cursos') }}" :active="request()->routeIs('estudiante.mis-cursos')">
@@ -22,6 +24,15 @@
                         </x-nav-link>
                         <x-nav-link href="{{ route('estudiante.mis-eventos') }}" :active="request()->routeIs('estudiante.mis-eventos')">
                             {{ __('Mis Eventos') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(auth()->user()?->isInstructor())
+                        <x-nav-link href="{{ route('docente.dashboard') }}" :active="request()->routeIs('docente.dashboard')">
+                            {{ __('Panel Docente') }}
+                        </x-nav-link>
+                        <x-nav-link href="{{ route('docente.cursos.index') }}" :active="request()->routeIs('docente.cursos.*')">
+                            {{ __('Mis Cursos') }}
                         </x-nav-link>
                     @endif
 
@@ -156,9 +167,11 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
 
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            @unless(auth()->user()?->isInstructor())
+                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+            @endunless
 
             @if(auth()->user()?->isEstudiante())
                 <x-responsive-nav-link href="{{ route('estudiante.mis-cursos') }}" :active="request()->routeIs('estudiante.mis-cursos')">
@@ -166,6 +179,15 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link href="{{ route('estudiante.mis-eventos') }}" :active="request()->routeIs('estudiante.mis-eventos')">
                     {{ __('Mis Eventos') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(auth()->user()?->isInstructor())
+                <x-responsive-nav-link href="{{ route('docente.dashboard') }}" :active="request()->routeIs('docente.dashboard')">
+                    {{ __('Panel Docente') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('docente.cursos.index') }}" :active="request()->routeIs('docente.cursos.*')">
+                    {{ __('Mis Cursos') }}
                 </x-responsive-nav-link>
             @endif
 

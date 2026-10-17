@@ -64,28 +64,30 @@
                     <p class="text-2xl font-bold text-gray-900">{{ $totalInscritos }}</p>
                 </div>
             </div>
-            <div class="bg-white rounded-lg shadow p-4 flex items-center">
-                <div class="p-3 rounded-full bg-amber-100 text-amber-600 mr-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
-                    </svg>
+            @unless($evento->es_gratuito)
+                <div class="bg-white rounded-lg shadow p-4 flex items-center">
+                    <div class="p-3 rounded-full bg-amber-100 text-amber-600 mr-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Ingresos recaudados</p>
+                        <p class="text-2xl font-bold text-gray-900">${{ number_format($ingresos, 2) }}</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Ingresos recaudados</p>
-                    <p class="text-2xl font-bold text-gray-900">${{ number_format($ingresos, 2) }}</p>
+                <div class="bg-white rounded-lg shadow p-4 flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600 mr-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pagos pendientes</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $pagosPendientes }}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4 flex items-center">
-                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Pagos pendientes</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $pagosPendientes }}</p>
-                </div>
-            </div>
+            @endunless
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -143,7 +145,9 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Nombre</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Email</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Estado</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Pago</th>
+                                    @unless($evento->es_gratuito)
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Pago</th>
+                                    @endunless
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -160,12 +164,14 @@
                                                 {{ ucfirst($inscripcion->estado) }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4">
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
-                                                {{ $inscripcion->pago_realizado ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800' }}">
-                                                {{ $inscripcion->pago_realizado ? 'Pagado' : 'Pendiente' }}
-                                            </span>
-                                        </td>
+                                        @unless($evento->es_gratuito)
+                                            <td class="px-6 py-4">
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                                    {{ $inscripcion->pago_realizado ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800' }}">
+                                                    {{ $inscripcion->pago_realizado ? 'Pagado' : 'Pendiente' }}
+                                                </span>
+                                            </td>
+                                        @endunless
                                     </tr>
                                 @empty
                                     <tr>

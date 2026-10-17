@@ -94,11 +94,12 @@ class IndexEventos extends Component
             ->whereNull('eventos.deleted_at')
             ->count();
 
-        // Pagos pendientes: inscripciones confirmadas aún sin pagar.
+        // Pagos pendientes: inscripciones confirmadas aún sin pagar en eventos con costo.
         $pagosPendientes = InscripcionEvento::query()
             ->join('eventos', 'eventos.idEvento', '=', 'inscripcion_eventos.idEvento')
             ->where('inscripcion_eventos.estado', 'confirmada')
             ->where('inscripcion_eventos.pago_realizado', false)
+            ->where('eventos.costo', '>', 0)
             ->whereNull('eventos.deleted_at')
             ->count();
 
@@ -108,6 +109,7 @@ class IndexEventos extends Component
             ->join('eventos', 'eventos.idEvento', '=', 'inscripcion_eventos.idEvento')
             ->where('inscripcion_eventos.estado', 'confirmada')
             ->where('inscripcion_eventos.pago_realizado', true)
+            ->where('eventos.costo', '>', 0)
             ->whereNull('eventos.deleted_at')
             ->sum('eventos.costo');
 

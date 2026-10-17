@@ -128,4 +128,15 @@ class CrearCursoCodigoTest extends TestCase
             ->test(IndexCursos::class)
             ->assertDispatched('show-toast', type: 'success', message: '¡Curso creado exitosamente!');
     }
+
+    public function test_las_filas_del_indice_enlazan_al_detalle_del_curso(): void
+    {
+        $admin = $this->crearAdmin();
+        $curso = $this->crearCurso('CUR-'.now()->year.'-001');
+
+        Livewire::actingAs($admin)
+            ->test(IndexCursos::class)
+            ->assertSee(route('admin.cursos.show', $curso->codigo), false)
+            ->assertSee('cursor-pointer', false);
+    }
 }

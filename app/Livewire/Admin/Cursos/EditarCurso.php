@@ -55,6 +55,10 @@ class EditarCurso extends Component
 
     public $destacado;
 
+    public $comunidad_habilitada;
+
+    public $comunidad_tras_finalizar;
+
     public $instructor_id = null;
 
     protected $rules = [
@@ -76,6 +80,8 @@ class EditarCurso extends Component
         'temario' => 'nullable|string',
         'publicado' => 'boolean',
         'destacado' => 'boolean',
+        'comunidad_habilitada' => 'boolean',
+        'comunidad_tras_finalizar' => 'boolean',
         'instructor_id' => 'nullable|exists:users,id',
     ];
 
@@ -93,6 +99,7 @@ class EditarCurso extends Component
             'materiales_incluidos', 'cupo_total', 'duracion_horas', 'duracion_texto',
             'precio_regular', 'precio_descuento', 'nivel', 'fecha_inicio',
             'enlace_classroom', 'temario', 'publicado', 'destacado', 'instructor_id',
+            'comunidad_habilitada', 'comunidad_tras_finalizar',
         ]));
 
         $this->imagen_portada_temp = $curso->imagen_portada;
@@ -103,6 +110,8 @@ class EditarCurso extends Component
         // Asegurar booleanos para que la validación no falle con 0/1
         $this->publicado = (bool) $curso->publicado;
         $this->destacado = (bool) $curso->destacado;
+        $this->comunidad_habilitada = (bool) $curso->comunidad_habilitada;
+        $this->comunidad_tras_finalizar = (bool) $curso->comunidad_tras_finalizar;
     }
 
     public function updatedNombre($value)
@@ -158,6 +167,8 @@ class EditarCurso extends Component
                 'temario' => $this->temario,
                 'publicado' => $this->publicado,
                 'destacado' => $this->destacado,
+                'comunidad_habilitada' => $this->comunidad_habilitada,
+                'comunidad_tras_finalizar' => $this->comunidad_tras_finalizar,
                 'instructor_id' => $this->instructor_id ?: null,
             ]);
 

@@ -67,6 +67,7 @@
                             <option value="pagado">Pagados</option>
                             <option value="pendiente">Pendientes</option>
                         </select>
+                        <p class="text-xs text-gray-500 mt-1">Los eventos gratuitos no se consideran pendientes de pago.</p>
                     </div>
                 </div>
             </div>
@@ -121,7 +122,11 @@
                                     {{ $inscripcion->created_at->format('d/m/Y H:i') }}
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    @if($inscripcion->pago_realizado)
+                                    @if($inscripcion->evento && $inscripcion->evento->es_gratuito)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                            Gratuito
+                                        </span>
+                                    @elseif($inscripcion->pago_realizado)
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             Pagado
                                         </span>

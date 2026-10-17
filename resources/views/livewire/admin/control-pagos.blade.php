@@ -73,7 +73,7 @@
 
         <!-- Filtros y Busqueda -->
         <div class="bg-white rounded-lg shadow p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
                     <input
@@ -84,7 +84,7 @@
                     />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por estado</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por estado de pago</label>
                     <div class="flex items-center gap-2">
                         @foreach(['pendiente' => 'Pendiente', 'parcial' => 'Parcial', 'completo' => 'Completo'] as $valor => $etiqueta)
                             <button
@@ -97,6 +97,26 @@
                         @if($estadoPagoFilter)
                             <button
                                 wire:click="setEstadoPagoFilter(null)"
+                                class="px-2 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 transition-colors">
+                                &#10005;
+                            </button>
+                        @endif
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por estado del curso</label>
+                    <div class="flex items-center gap-2">
+                        @foreach(['finalizado' => 'Finalizado', 'en_curso' => 'En curso'] as $valor => $etiqueta)
+                            <button
+                                wire:click="setEstadoCursoFilter('{{ $valor }}')"
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                    {{ $estadoCursoFilter === $valor ? 'bg-amber-500 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                                {{ $etiqueta }}
+                            </button>
+                        @endforeach
+                        @if($estadoCursoFilter)
+                            <button
+                                wire:click="setEstadoCursoFilter(null)"
                                 class="px-2 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 transition-colors">
                                 &#10005;
                             </button>
@@ -194,10 +214,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                 </svg>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">
-                    @if($search || $estadoPagoFilter) Sin resultados @else Sin matriculas @endif
+                    @if($search || $estadoPagoFilter || $estadoCursoFilter) Sin resultados @else Sin matriculas @endif
                 </h3>
                 <p class="text-gray-600">
-                    @if($search || $estadoPagoFilter)
+                    @if($search || $estadoPagoFilter || $estadoCursoFilter)
                         No se encontraron matriculas con los filtros actuales.
                     @else
                         No hay matriculas registradas en el sistema.

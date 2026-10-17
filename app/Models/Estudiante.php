@@ -61,4 +61,19 @@ class Estudiante extends Model
     {
         return $this->hasMany(InscripcionEvento::class, 'user_id', 'user_id');
     }
+
+    public function preguntasCurso()
+    {
+        return $this->hasMany(CursoPregunta::class, 'estudiante_id', 'codigo');
+    }
+
+    public function respuestasCurso()
+    {
+        return $this->hasMany(CursoRespuesta::class, 'estudiante_id', 'codigo');
+    }
+
+    public function publicacionesNetworking()
+    {
+        return $this->hasMany(CursoNetworking::class, 'estudiante_id', 'codigo');
+    }
 }

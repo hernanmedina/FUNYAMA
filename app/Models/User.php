@@ -82,6 +82,19 @@ class User extends Authenticatable
         return $this->hasOne(Estudiante::class, 'user_id');
     }
 
+    public function docente()
+    {
+        return $this->hasOne(Docente::class, 'user_id');
+    }
+
+    /**
+     * Cursos que este usuario imparte como instructor.
+     */
+    public function cursosImpartidos()
+    {
+        return $this->hasMany(Curso::class, 'instructor_id');
+    }
+
     public function solicitudes()
     {
         return $this->hasMany(Solicitud::class, 'user_id');
@@ -111,6 +124,14 @@ class User extends Authenticatable
     public function isAdminOrInstructor(): bool
     {
         return $this->isAdmin() || $this->isInstructor();
+    }
+
+    /**
+     * Determina si el usuario es un administrador con privilegios de super admin.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->isAdmin() && (bool) $this->administrador?->super_admin;
     }
 
     public function getNombreCompletoAttribute()

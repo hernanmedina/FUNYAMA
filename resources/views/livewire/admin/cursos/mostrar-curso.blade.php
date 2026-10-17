@@ -26,6 +26,30 @@
                             Editar
                         </a>
 
+                        <a href="{{ route('admin.cursos.recursos', $curso->codigo) }}"
+                           class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center whitespace-nowrap">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 12V4m0 8l-3-3m3 3l3-3"/>
+                            </svg>
+                            Material descargable
+                        </a>
+
+                        <button wire:click="toggleComunidad"
+                                class="bg-{{ $curso->comunidad_habilitada ? 'teal' : 'gray' }}-600 hover:bg-{{ $curso->comunidad_habilitada ? 'teal' : 'gray' }}-700 text-white px-4 py-2 rounded-lg flex items-center whitespace-nowrap">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            {{ $curso->comunidad_habilitada ? 'Comunidad activa' : 'Comunidad inactiva' }}
+                        </button>
+
+                        <button wire:click="toggleComunidadTrasFinalizar"
+                                class="bg-{{ $curso->comunidad_tras_finalizar ? 'teal' : 'gray' }}-600 hover:bg-{{ $curso->comunidad_tras_finalizar ? 'teal' : 'gray' }}-700 text-white px-4 py-2 rounded-lg flex items-center whitespace-nowrap">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ $curso->comunidad_tras_finalizar ? 'Comunidad tras finalizar: activa' : 'Comunidad tras finalizar: inactiva' }}
+                        </button>
+
                         <button wire:click="eliminarCurso"
                                 wire:confirm="¿Estás seguro de eliminar este curso?"
                                 class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center whitespace-nowrap">
@@ -47,6 +71,15 @@
 
                 @if(!auth()->check() || !auth()->user()->isAdmin())
                     @if(auth()->check() && auth()->user()->isEstudiante() && $estaInscrito)
+                        @if($curso->comunidadDisponiblePara($estadoCurso))
+                            <a href="{{ route('estudiante.cursos.comunidad', $curso->codigo) }}"
+                               class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center whitespace-nowrap">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                                Comunidad del Curso
+                            </a>
+                        @endif
                         @if($estadoCurso === 'completado')
                             <span class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

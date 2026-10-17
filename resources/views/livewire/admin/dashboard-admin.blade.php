@@ -236,6 +236,15 @@
                             <span class="text-sm font-medium">Calificar</span>
                         </a>
 
+                        <!-- Control de Asistencias -->
+                        <a href="{{ route('admin.asistencias') }}"
+                           class="bg-amber-600 hover:bg-amber-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
+                            <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                            </svg>
+                            <span class="text-sm font-medium">Asistencias</span>
+                        </a>
+
                         <!-- Opiniones de Estudiantes -->
                         <a href="{{ route('admin.opiniones') }}"
                            class="bg-rose-600 hover:bg-rose-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
@@ -252,6 +261,15 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
                             <span class="text-sm font-medium">Personalizar Sitio</span>
+                        </a>
+
+                        <!-- Gestionar Usuarios -->
+                        <a href="{{ route('admin.usuarios.index') }}"
+                           class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg flex flex-col items-center justify-center text-center transition-colors h-24">
+                            <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            <span class="text-sm font-medium">Gestionar Usuarios</span>
                         </a>
                     </div>
                 </div>

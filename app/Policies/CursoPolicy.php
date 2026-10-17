@@ -12,7 +12,7 @@ class CursoPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isAdminOrInstructor();
     }
 
     /**
@@ -20,9 +20,11 @@ class CursoPolicy
      */
     public function view(User $user, Curso $curso): bool
     {
-        // For now, any admin can view any course.
-        // More specific logic could be added here later if needed.
-        return $user->isAdmin();
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->isInstructor() && $curso->instructor_id === $user->id;
     }
 
     /**
@@ -38,8 +40,11 @@ class CursoPolicy
      */
     public function update(User $user, Curso $curso): bool
     {
-        // This is the main security fix: only admin users can update a course.
-        return $user->isAdmin();
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->isInstructor() && $curso->instructor_id === $user->id;
     }
 
     /**

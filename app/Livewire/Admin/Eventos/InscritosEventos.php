@@ -65,7 +65,11 @@ class InscritosEventos extends Component
         if ($this->filtroPago === 'pagado') {
             $query->where('pago_realizado', true);
         } elseif ($this->filtroPago === 'pendiente') {
-            $query->where('pago_realizado', false);
+            // Los eventos gratuitos no tienen pagos pendientes.
+            $query->where('pago_realizado', false)
+                ->whereHas('evento', function ($q) {
+                    $q->where('costo', '>', 0);
+                });
         }
 
         $inscripciones = $query->orderByDesc('created_at')->paginate(15);

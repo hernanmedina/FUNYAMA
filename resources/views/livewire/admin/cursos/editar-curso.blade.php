@@ -306,6 +306,33 @@
                                 </label>
                             </div>
                         </div>
+
+                        <!-- Comunidad del curso -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-1">Comunidad del curso</h2>
+                            <p class="text-sm text-gray-500 mb-4">
+                                Controla el acceso de los estudiantes a las sesiones de preguntas, networking y material descargable.
+                            </p>
+
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox"
+                                           wire:model.live="comunidad_habilitada"
+                                           class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-2 text-sm text-gray-700">Habilitar la comunidad para este curso</span>
+                                </label>
+
+                                <label class="flex items-center {{ $comunidad_habilitada ? '' : 'opacity-50' }}">
+                                    <input type="checkbox"
+                                           wire:model="comunidad_tras_finalizar"
+                                           @disabled(! $comunidad_habilitada)
+                                           class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:cursor-not-allowed">
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        Mantener la comunidad habilitada cuando el estudiante finalice el curso
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

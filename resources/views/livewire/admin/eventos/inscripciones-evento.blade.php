@@ -35,39 +35,41 @@
                     <p class="text-2xl font-bold text-gray-900">{{ $inscripciones->total() }}</p>
                 </div>
             </div>
-            <div class="bg-white rounded-lg shadow p-4 flex items-center">
-                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
+            @unless($evento->es_gratuito)
+                <div class="bg-white rounded-lg shadow p-4 flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600 mr-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pagados</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $pagados }}</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Pagados</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $pagados }}</p>
+                <div class="bg-white rounded-lg shadow p-4 flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600 mr-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pendientes</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $pendientes }}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4 flex items-center">
-                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
+                <div class="bg-white rounded-lg shadow p-4 flex items-center">
+                    <div class="p-3 rounded-full bg-amber-100 text-amber-600 mr-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total recaudado</p>
+                        <p class="text-2xl font-bold text-gray-900">${{ number_format($totalRecaudado, 2) }}</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Pendientes</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $pendientes }}</p>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4 flex items-center">
-                <div class="p-3 rounded-full bg-amber-100 text-amber-600 mr-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Total recaudado</p>
-                    <p class="text-2xl font-bold text-gray-900">${{ number_format($totalRecaudado, 2) }}</p>
-                </div>
-            </div>
+            @endunless
         </div>
 
         @if (session()->has('message'))
@@ -101,7 +103,28 @@
                             <option value="cancelada">Canceladas</option>
                         </select>
                     </div>
+                    <div class="flex items-end gap-2">
+                        <button wire:click="exportarExcel"
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition disabled:opacity-50">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Excel
+                        </button>
+                        <button wire:click="exportarCsv"
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition disabled:opacity-50">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            CSV
+                        </button>
+                    </div>
                 </div>
+                <p class="text-xs text-gray-500 mt-3">
+                    La exportación incluye las inscripciones que coincidan con los filtros aplicados.
+                </p>
             </div>
 
             <!-- Tabla de inscripciones -->
@@ -114,7 +137,9 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Documento</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Fecha inscripción</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Estado</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase">Pago</th>
+                            @unless($evento->es_gratuito)
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase">Pago</th>
+                            @endunless
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Acciones</th>
                         </tr>
                     </thead>
@@ -161,19 +186,21 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    @if($inscripcion->estado === 'confirmada')
-                                        <label class="inline-flex items-center cursor-pointer group" title="{{ $inscripcion->pago_realizado ? 'Marcar como pendiente' : 'Marcar como pagado' }}">
-                                            <input type="checkbox"
-                                                   wire:click="togglePago({{ $inscripcion->idInscripcion }})"
-                                                   @checked($inscripcion->pago_realizado)
-                                                   class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer">
-                                            <span class="ml-2 text-sm font-medium {{ $inscripcion->pago_realizado ? 'text-green-600' : 'text-red-500' }}">
-                                                {{ $inscripcion->pago_realizado ? 'Pagado' : 'Pendiente' }}
-                                            </span>
-                                        </label>
-                                    @else
-                                        <span class="text-sm text-gray-400">—</span>
-                                    @endif
+                                    @unless($evento->es_gratuito)
+                                        @if($inscripcion->estado === 'confirmada')
+                                            <label class="inline-flex items-center cursor-pointer group" title="{{ $inscripcion->pago_realizado ? 'Marcar como pendiente' : 'Marcar como pagado' }}">
+                                                <input type="checkbox"
+                                                       wire:click="togglePago({{ $inscripcion->idInscripcion }})"
+                                                       @checked($inscripcion->pago_realizado)
+                                                       class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer">
+                                                <span class="ml-2 text-sm font-medium {{ $inscripcion->pago_realizado ? 'text-green-600' : 'text-red-500' }}">
+                                                    {{ $inscripcion->pago_realizado ? 'Pagado' : 'Pendiente' }}
+                                                </span>
+                                            </label>
+                                        @else
+                                            <span class="text-sm text-gray-400">—</span>
+                                        @endif
+                                    @endunless
                                 </td>
                                 <td class="px-6 py-4 text-sm">
                                     @if($inscripcion->estado === 'confirmada')

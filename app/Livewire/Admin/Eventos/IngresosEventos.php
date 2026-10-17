@@ -40,7 +40,7 @@ class IngresosEventos extends Component
             ->where('estado', 'confirmada')
             ->where('pago_realizado', true)
             ->whereHas('evento', function ($q) {
-                $q->whereNull('deleted_at');
+                $q->whereNull('deleted_at')->where('costo', '>', 0);
             });
 
         if ($this->search) {
@@ -63,13 +63,15 @@ class IngresosEventos extends Component
             ->join('eventos', 'eventos.idEvento', '=', 'inscripcion_eventos.idEvento')
             ->where('inscripcion_eventos.estado', 'confirmada')
             ->where('inscripcion_eventos.pago_realizado', true)
+            ->where('eventos.costo', '>', 0)
             ->whereNull('eventos.deleted_at')
             ->sum('eventos.costo');
 
         // Eventos con al menos un pago registrado (para el filtro).
-        $eventosConIngresos = Evento::whereHas('inscripciones', function ($q) {
-            $q->where('estado', 'confirmada')->where('pago_realizado', true);
-        })
+        $eventosConIngresos = Evento::where('costo', '>', 0)
+            ->whereHas('inscripciones', function ($q) {
+                $q->where('estado', 'confirmada')->where('pago_realizado', true);
+            })
             ->orderBy('titulo')
             ->get(['idEvento', 'titulo']);
 

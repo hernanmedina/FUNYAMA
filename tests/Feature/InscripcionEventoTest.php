@@ -724,4 +724,390 @@ class InscripcionEventoTest extends TestCase
             ->assertSee('pagado@example.com')
             ->assertDontSee('sinpagar@example.com');
     }
+
+    // ─── Exportación de inscripciones ───────────────────────────────────
+
+    public function test_admin_puede_exportar_inscripciones_a_excel(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10]);
+        $admin = $this->crearAdmin();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'nombre' => 'Ana',
+            'apellido' => 'Gómez',
+            'email' => 'ana@example.com',
+            'telefono' => '3001112233',
+            'documento' => '10203040',
+            'estado' => 'confirmada',
+            'pago_realizado' => true,
+        ]);
+
+        $this->actingAs($admin);
+
+        $response = Livewire::test(InscripcionesEvento::class, ['evento' => $evento])
+            ->call('exportarExcel');
+
+        $response->assertFileDownloaded();
+    }
+
+    public function test_admin_puede_exportar_inscripciones_a_csv(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10]);
+        $admin = $this->crearAdmin();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'nombre' => 'Luis',
+            'apellido' => 'Martínez',
+            'email' => 'luis@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => false,
+        ]);
+
+        $this->actingAs($admin);
+
+        $response = Livewire::test(InscripcionesEvento::class, ['evento' => $evento])
+            ->call('exportarCsv');
+
+        $response->assertFileDownloaded();
+    }
+
+    public function test_exportacion_respeta_el_filtro_de_estado(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10]);
+        $admin = $this->crearAdmin();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'nombre' => 'Confirmada',
+            'apellido' => 'Uno',
+            'email' => 'confirmada@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => true,
+        ]);
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'nombre' => 'Cancelada',
+            'apellido' => 'Dos',
+            'email' => 'cancelada@example.com',
+            'estado' => 'cancelada',
+            'pago_realizado' => false,
+        ]);
+
+        $this->actingAs($admin);
+
+        $component = Livewire::test(InscripcionesEvento::class, ['evento' => $evento])
+            ->set('filtroEstado', 'cancelada');
+
+        $datos = (function () {
+            return $this->obtenerDatosExportables();
+        })->call($component->instance());
+
+        $this->assertCount(1, $datos['rows']);
+        $this->assertSame('Cancelada Dos', $datos['rows'][0]['nombre_completo']);
+        $this->assertSame('Cancelada', $datos['rows'][0]['estado']);
+    }
+
+    public function test_exportacion_respeta_el_filtro_de_busqueda(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10]);
+        $admin = $this->crearAdmin();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'nombre' => 'Buscado',
+            'apellido' => 'Especial',
+            'email' => 'buscado@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => true,
+        ]);
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'nombre' => 'Otro',
+            'apellido' => 'Registro',
+            'email' => 'otro@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => true,
+        ]);
+
+        $this->actingAs($admin);
+
+        $component = Livewire::test(InscripcionesEvento::class, ['evento' => $evento])
+            ->set('search', 'buscado@example.com');
+
+        $datos = (function () {
+            return $this->obtenerDatosExportables();
+        })->call($component->instance());
+
+        $this->assertCount(1, $datos['rows']);
+        $this->assertSame('buscado@example.com', $datos['rows'][0]['email']);
+    }
+
+    public function test_exportacion_sin_resultados_no_genera_archivo(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10]);
+        $admin = $this->crearAdmin();
+
+        $this->actingAs($admin);
+
+        Livewire::test(InscripcionesEvento::class, ['evento' => $evento])
+            ->call('exportarExcel')
+            ->assertDispatched('show-toast', type: 'warning');
+    }
+
+    public function test_estudiante_no_puede_exportar_inscripciones(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10]);
+        $user = $this->crearEstudianteUser();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'user_id' => $user->id,
+            'nombre' => $user->name,
+            'email' => $user->email,
+            'estado' => 'confirmada',
+            'pago_realizado' => false,
+        ]);
+
+        $this->actingAs($user);
+
+        Livewire::test(InscripcionesEvento::class, ['evento' => $evento])
+            ->call('exportarExcel')
+            ->assertForbidden();
+    }
+
+    public function test_evento_gratuito_no_muestra_la_columna_de_pago(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 0]);
+        $admin = $this->crearAdmin();
+
+        $this->actingAs($admin);
+
+        Livewire::test(InscripcionesEvento::class, ['evento' => $evento])
+            ->assertDontSee('Total recaudado')
+            ->assertDontSee('Pagados')
+            ->assertDontSee('Pendientes')
+            ->assertDontSee('>Pago<', false);
+    }
+
+    public function test_evento_de_pago_si_muestra_la_columna_de_pago(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 50000]);
+        $admin = $this->crearAdmin();
+
+        $this->actingAs($admin);
+
+        Livewire::test(InscripcionesEvento::class, ['evento' => $evento])
+            ->assertSee('Total recaudado')
+            ->assertSee('Pagados')
+            ->assertSee('Pendientes');
+    }
+
+    public function test_exportacion_de_evento_gratuito_no_incluye_la_columna_pago(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 0]);
+        $admin = $this->crearAdmin();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'nombre' => 'Invitado',
+            'apellido' => 'Gratis',
+            'email' => 'invitado@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => false,
+        ]);
+
+        $this->actingAs($admin);
+
+        $componente = Livewire::test(InscripcionesEvento::class, ['evento' => $evento]);
+
+        $datos = (function () {
+            return $this->obtenerDatosExportables();
+        })->call($componente->instance());
+
+        $this->assertArrayNotHasKey('pago', $datos['headings']);
+        $this->assertArrayNotHasKey('pago', $datos['rows'][0]);
+    }
+
+    public function test_exportacion_de_evento_de_pago_incluye_la_columna_pago(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 50000]);
+        $admin = $this->crearAdmin();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'nombre' => 'Invitado',
+            'apellido' => 'Pago',
+            'email' => 'invitado.pago@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => true,
+        ]);
+
+        $this->actingAs($admin);
+
+        $componente = Livewire::test(InscripcionesEvento::class, ['evento' => $evento]);
+
+        $datos = (function () {
+            return $this->obtenerDatosExportables();
+        })->call($componente->instance());
+
+        $this->assertArrayHasKey('pago', $datos['headings']);
+        $this->assertSame('Pagado', $datos['rows'][0]['pago']);
+    }
+
+    // ─── Eventos gratuitos y estadísticas de pago ───────────────────────
+
+    public function test_evento_gratuito_no_cuenta_como_pago_pendiente_en_las_metricas(): void
+    {
+        $eventoGratuito = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 0]);
+        $eventoPago = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 50000]);
+
+        $user = $this->crearEstudianteUser();
+
+        // Inscripción confirmada sin pago en un evento gratuito.
+        InscripcionEvento::create([
+            'idEvento' => $eventoGratuito->idEvento,
+            'user_id' => $user->id,
+            'nombre' => 'Gratis',
+            'email' => 'gratis@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => false,
+        ]);
+
+        // Inscripción confirmada sin pago en un evento con costo.
+        InscripcionEvento::create([
+            'idEvento' => $eventoPago->idEvento,
+            'user_id' => $user->id,
+            'nombre' => 'Pago',
+            'email' => 'pago@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => false,
+        ]);
+
+        $admin = $this->crearAdmin();
+        $this->actingAs($admin);
+
+        Livewire::test(IndexEventos::class)
+            ->assertViewHas('totalInscritos', 2)
+            ->assertViewHas('pagosPendientes', 1)
+            ->assertViewHas('totalIngresos', 0.0);
+    }
+
+    public function test_evento_gratuito_no_aparece_en_pagos_pendientes(): void
+    {
+        $eventoGratuito = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 0]);
+        $user = $this->crearEstudianteUser();
+
+        InscripcionEvento::create([
+            'idEvento' => $eventoGratuito->idEvento,
+            'user_id' => $user->id,
+            'nombre' => 'Gratis',
+            'email' => 'gratis@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => false,
+        ]);
+
+        $admin = $this->crearAdmin();
+        $this->actingAs($admin);
+
+        Livewire::test(PagosPendientesEventos::class)
+            ->assertDontSee('gratis@example.com')
+            ->assertViewHas('montoPendiente', 0.0)
+            ->assertViewHas('eventosConPendientes', fn ($eventos) => $eventos->isEmpty());
+    }
+
+    public function test_evento_gratuito_no_muestra_metricas_de_pago_en_el_detalle(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 0]);
+        $user = $this->crearEstudianteUser();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'user_id' => $user->id,
+            'nombre' => 'Gratis',
+            'email' => 'gratis@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => false,
+        ]);
+
+        $admin = $this->crearAdmin();
+        $this->actingAs($admin);
+
+        Livewire::test(MostrarEvento::class, ['evento' => $evento])
+            ->assertViewHas('pagosPendientes', 0)
+            ->assertViewHas('ingresos', 0.0)
+            ->assertDontSee('Pagos pendientes')
+            ->assertDontSee('Ingresos recaudados');
+    }
+
+    public function test_filtro_de_pagos_pendientes_excluye_eventos_gratuitos(): void
+    {
+        $eventoGratuito = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 0]);
+        $user = $this->crearEstudianteUser();
+
+        InscripcionEvento::create([
+            'idEvento' => $eventoGratuito->idEvento,
+            'user_id' => $user->id,
+            'nombre' => 'Gratis',
+            'email' => 'gratis@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => false,
+        ]);
+
+        $admin = $this->crearAdmin();
+        $this->actingAs($admin);
+
+        Livewire::test(InscritosEventos::class)
+            ->set('filtroPago', 'pendiente')
+            ->assertDontSee('gratis@example.com');
+    }
+
+    public function test_vista_de_inscritos_muestra_gratuito_en_eventos_sin_costo(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 0]);
+        $user = $this->crearEstudianteUser();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'user_id' => $user->id,
+            'nombre' => 'Gratis',
+            'email' => 'gratis@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => false,
+        ]);
+
+        $admin = $this->crearAdmin();
+        $this->actingAs($admin);
+
+        Livewire::test(InscritosEventos::class)
+            ->assertSee('gratis@example.com')
+            ->assertSee('Gratuito')
+            ->assertDontSee('bg-red-100 text-red-800');
+    }
+
+    public function test_evento_gratuito_no_aparece_en_ingresos(): void
+    {
+        $evento = $this->crearEvento(['cupo_maximo' => 10, 'costo' => 0]);
+        $user = $this->crearEstudianteUser();
+
+        InscripcionEvento::create([
+            'idEvento' => $evento->idEvento,
+            'user_id' => $user->id,
+            'nombre' => 'Gratis',
+            'email' => 'gratis@example.com',
+            'estado' => 'confirmada',
+            'pago_realizado' => true,
+        ]);
+
+        $admin = $this->crearAdmin();
+        $this->actingAs($admin);
+
+        Livewire::test(IngresosEventos::class)
+            ->assertDontSee('gratis@example.com')
+            ->assertViewHas('totalRecaudado', 0.0)
+            ->assertViewHas('eventosConIngresos', fn ($eventos) => $eventos->isEmpty());
+    }
 }

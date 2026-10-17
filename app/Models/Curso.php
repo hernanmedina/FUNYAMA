@@ -40,6 +40,8 @@ class Curso extends Model
         'temario',
         'publicado',
         'destacado',
+        'comunidad_habilitada',
+        'comunidad_tras_finalizar',
         'fecha_inicio',
         'fecha_fin',
         'creado_por_admin',
@@ -51,6 +53,8 @@ class Curso extends Model
         'precio_descuento' => 'decimal:2',
         'publicado' => 'boolean',
         'destacado' => 'boolean',
+        'comunidad_habilitada' => 'boolean',
+        'comunidad_tras_finalizar' => 'boolean',
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
         'cupo_total' => 'integer',
@@ -77,6 +81,43 @@ class Curso extends Model
     public function certificados()
     {
         return $this->hasMany(Certificado::class, 'curso_id', 'codigo');
+    }
+
+    public function preguntas()
+    {
+        return $this->hasMany(CursoPregunta::class, 'curso_id', 'codigo');
+    }
+
+    public function recursos()
+    {
+        return $this->hasMany(CursoRecurso::class, 'curso_id', 'codigo');
+    }
+
+    public function publicacionesNetworking()
+    {
+        return $this->hasMany(CursoNetworking::class, 'curso_id', 'codigo');
+    }
+
+    public function asistencias()
+    {
+        return $this->hasMany(Asistencia::class, 'curso_id', 'codigo');
+    }
+
+    /**
+     * Indica si la comunidad está disponible para un estudiante según su estado
+     * de inscripción. El administrador decide si se mantiene tras finalizar.
+     */
+    public function comunidadDisponiblePara(?string $estadoInscripcion): bool
+    {
+        if (! $this->comunidad_habilitada) {
+            return false;
+        }
+
+        if ($estadoInscripcion === 'completado') {
+            return (bool) $this->comunidad_tras_finalizar;
+        }
+
+        return true;
     }
 
     // Scopes

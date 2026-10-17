@@ -48,15 +48,20 @@ class MostrarEvento extends Component
             ->where('estado', 'confirmada')
             ->count();
 
-        $pagosPendientes = InscripcionEvento::where('idEvento', $this->evento->idEvento)
-            ->where('estado', 'confirmada')
-            ->where('pago_realizado', false)
-            ->count();
+        // Los eventos gratuitos no manejan estado de pago.
+        $pagosPendientes = $this->evento->es_gratuito
+            ? 0
+            : InscripcionEvento::where('idEvento', $this->evento->idEvento)
+                ->where('estado', 'confirmada')
+                ->where('pago_realizado', false)
+                ->count();
 
-        $ingresos = (float) InscripcionEvento::where('idEvento', $this->evento->idEvento)
-            ->where('estado', 'confirmada')
-            ->where('pago_realizado', true)
-            ->count() * (float) $this->evento->costo;
+        $ingresos = $this->evento->es_gratuito
+            ? 0.0
+            : (float) InscripcionEvento::where('idEvento', $this->evento->idEvento)
+                ->where('estado', 'confirmada')
+                ->where('pago_realizado', true)
+                ->count() * (float) $this->evento->costo;
 
         return view('livewire.admin.eventos.mostrar-evento', [
             'inscripciones' => $inscripciones,

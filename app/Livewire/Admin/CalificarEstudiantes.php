@@ -43,6 +43,21 @@ class CalificarEstudiantes extends Component
     {
         $this->cargarCursosConEstudiantes();
         $this->cargarCursosParaFiltro();
+
+        $curso = request()->query('curso');
+        $estudiante = request()->query('estudiante');
+
+        if (! is_string($curso) || $curso === '') {
+            return;
+        }
+
+        $this->cursoCalificarId = $curso;
+        $this->updatedCursoCalificarId($curso);
+
+        if (is_string($estudiante) && collect($this->estudiantesParaCalificar)->contains('estudiante_id', $estudiante)) {
+            $this->estudianteCalificarId = $estudiante;
+            $this->updatedEstudianteCalificarId($estudiante);
+        }
     }
 
     public function updatedSearch(): void
@@ -87,7 +102,12 @@ class CalificarEstudiantes extends Component
     {
         $this->cursosParaFiltro = Curso::query()
             ->whereHas('estudiantes', function ($q) {
-                $q->whereNotNull('curso_estudiante.calificacion');
+                $q->whereNotNull('curso_estudiante.calificacion')
+                    ->orWhere(function ($q) {
+                        $q->whereNull('curso_estudiante.calificacion')
+                            ->where('curso_estudiante.estado', 'completado')
+                            ->where('curso_estudiante.estado_pago', 'completo');
+                    });
             })
             ->orderBy('nombre')
             ->get(['codigo', 'nombre'])
@@ -237,7 +257,14 @@ class CalificarEstudiantes extends Component
             ->join('cursos as c', 'c.codigo', '=', 'ce.curso_id')
             ->join('estudiantes as e', 'e.codigo', '=', 'ce.estudiante_id')
             ->join('users as u', 'u.id', '=', 'e.user_id')
-            ->whereNotNull('ce.calificacion')
+            ->where(function ($q) {
+                $q->whereNotNull('ce.calificacion')
+                    ->orWhere(function ($q) {
+                        $q->whereNull('ce.calificacion')
+                            ->where('ce.estado', 'completado')
+                            ->where('ce.estado_pago', 'completo');
+                    });
+            })
             ->whereNull('c.deleted_at')
             ->whereNull('e.deleted_at');
 
@@ -288,7 +315,7 @@ class CalificarEstudiantes extends Component
                 'nombre_completo' => $row->name.' '.$row->apellido,
                 'curso' => $row->curso_nombre,
                 'estado' => $row->estado === 'completado' ? 'Completado' : 'En progreso',
-                'calificacion' => number_format((float) $row->calificacion, 1),
+                'calificacion' => $row->calificacion !== null ? number_format((float) $row->calificacion, 1) : 'Pendiente',
                 'retroalimentacion' => $row->comentario_calificacion ?? '',
                 'fecha_completado' => $row->fecha_completado ? Carbon::parse($row->fecha_completado)->format('d/m/Y') : '',
             ];
@@ -313,7 +340,14 @@ class CalificarEstudiantes extends Component
             ->join('cursos as c', 'c.codigo', '=', 'ce.curso_id')
             ->join('estudiantes as e', 'e.codigo', '=', 'ce.estudiante_id')
             ->join('users as u', 'u.id', '=', 'e.user_id')
-            ->whereNotNull('ce.calificacion')
+            ->where(function ($q) {
+                $q->whereNotNull('ce.calificacion')
+                    ->orWhere(function ($q) {
+                        $q->whereNull('ce.calificacion')
+                            ->where('ce.estado', 'completado')
+                            ->where('ce.estado_pago', 'completo');
+                    });
+            })
             ->whereNull('c.deleted_at')
             ->whereNull('e.deleted_at');
 
